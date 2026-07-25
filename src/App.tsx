@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Command, Sun, Moon, Monitor } from "lucide-react";
+import { Command, Sun, Moon, Monitor, FileText, CheckSquare2, Eye, Clock } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────
 type ListKey = "rough" | "todo" | "watch" | "later";
@@ -380,19 +380,29 @@ export default function App() {
               transition={{ duration: 0.18, ease: "easeOut" }}
             >
               {visibleTasks.length === 0 ? (
-                <div className="empty">
+                <motion.div
+                  className="empty"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  {activeTab === "rough" && <FileText className="empty-icon" strokeWidth={1.25} />}
+                  {activeTab === "todo"  && <CheckSquare2 className="empty-icon" strokeWidth={1.25} />}
+                  {activeTab === "watch" && <Eye className="empty-icon" strokeWidth={1.25} />}
+                  {activeTab === "later" && <Clock className="empty-icon" strokeWidth={1.25} />}
                   <div className="empty-title">{emptyState.title}</div>
                   <div className="empty-hint">{emptyState.hint}</div>
-                </div>
+                </motion.div>
               ) : (
                 <AnimatePresence initial={false}>
-                  {visibleTasks.map(task => (
+                  {visibleTasks.map((task, index) => (
                     <motion.div
                       key={task.id}
                       layout
-                      initial={{ opacity: 0, y: -6 }}
+                      initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -12, transition: { duration: 0.18 } }}
+                      exit={{ opacity: 0, x: -14, transition: { duration: 0.18 } }}
+                      transition={{ duration: 0.2, delay: index * 0.04, ease: "easeOut" }}
                       className={`row${task.resolving ? " resolving" : ""}`}
                     >
                       {/* Left indicator — per list */}
