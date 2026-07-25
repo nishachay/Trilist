@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Command, Sun, Moon, Monitor, FileText, CheckSquare2, Eye, Clock } from "lucide-react";
+import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────
 type ListKey = "rough" | "todo" | "watch" | "later";
@@ -46,52 +46,48 @@ const SYS_CMDS: Cmd[] = [
 
 const ALL_CMDS: Cmd[] = [...LIST_CMDS, ...DATE_CMDS, ...SYS_CMDS];
 
-// ─── Tab Config ─────────────────────────────────
-const TABS: { id: ListKey; label: string }[] = [
-  { id: "rough", label: "Rough" },
+// ─── The 3 main lists (Rough is separate)
+const MAIN_TABS: { id: ListKey; label: string }[] = [
   { id: "todo",  label: "Todo"  },
   { id: "watch", label: "Watch" },
   { id: "later", label: "Later" },
 ];
 
 const PLACEHOLDERS: Record<ListKey, string> = {
-  rough: "Dump anything here...",
+  rough: "Capture anything — idea, note, thought...",
   todo:  "What are you committing to today?",
   watch: "What are you keeping an eye on?",
-  later: "Something for later...",
+  later: "Something to revisit later...",
 };
 
 const EMPTY: Record<ListKey, { title: string; hint: string }> = {
-  rough: { title: "Clean slate.",         hint: "/rg to add · hover to delete"     },
-  todo:  { title: "Nothing committed.",   hint: "/td to commit · check to complete" },
-  watch: { title: "Nothing on radar.",    hint: "/wt to track · Resolved to remove" },
+  rough: { title: "Nothing captured.",    hint: "Type anything and press Enter"     },
+  todo:  { title: "Nothing committed.",   hint: "/td to add · check to complete"    },
+  watch: { title: "Nothing on radar.",    hint: "/wt to track · Resolved to close"  },
   later: { title: "The future is clear.", hint: "/lt to defer · /lt /wk for a week" },
 };
 
-// ─── Initial Demo Tasks ─────────────────────────
+// ─── Demo data ──────────────────────────────────
 const DEMO: Task[] = [
-  { id: "d1", text: "idea: dark mode for the settings page",       list: "rough", done: false, createdAt: Date.now() },
-  { id: "d2", text: "Ship the new onboarding flow",                list: "todo",  done: false, createdAt: Date.now() },
-  { id: "d3", text: "Review the investor deck before Wednesday",   list: "todo",  done: false, createdAt: Date.now() },
-  { id: "d4", text: "Competitor X pricing change — watch closely", list: "watch", done: false, createdAt: Date.now() },
-  { id: "d5", text: "Write annual strategy document",              list: "later", done: false, createdAt: Date.now(), dueAt: Date.now() + 7  * 24 * 60 * 60 * 1000 },
-  { id: "d6", text: "Explore new infrastructure providers",        list: "later", done: false, createdAt: Date.now(), dueAt: Date.now() + 30 * 24 * 60 * 60 * 1000 },
+  { id: "d1", text: "idea: rethink the settings layout",             list: "rough", done: false, createdAt: Date.now() },
+  { id: "d2", text: "Ship the new onboarding flow",                  list: "todo",  done: false, createdAt: Date.now() },
+  { id: "d3", text: "Review the investor deck before Wednesday",     list: "todo",  done: false, createdAt: Date.now() },
+  { id: "d4", text: "Competitor X pricing change — watch closely",   list: "watch", done: false, createdAt: Date.now() },
+  { id: "d5", text: "Write the annual strategy document",            list: "later", done: false, createdAt: Date.now(), dueAt: Date.now() + 7  * 86400000 },
+  { id: "d6", text: "Explore new infrastructure providers",          list: "later", done: false, createdAt: Date.now(), dueAt: Date.now() + 30 * 86400000 },
 ];
 
-// ─── Helpers ────────────────────────────────────
 function daysUntil(ts: number) {
-  return Math.max(0, Math.round((ts - Date.now()) / (1000 * 60 * 60 * 24)));
+  return Math.max(0, Math.round((ts - Date.now()) / 86400000));
 }
 
 // ─── App ────────────────────────────────────────
 export default function App() {
-  // Core state
   const [tasks,     setTasks]     = useState<Task[]>(DEMO);
   const [activeTab, setActiveTab] = useState<ListKey>("todo");
   const [theme,     setTheme]     = useState<Theme>("system");
   const [showHelp,  setShowHelp]  = useState(false);
 
-  // Input state
   const [input,         setInput]         = useState("");
   const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
   const [extractedDate, setExtractedDate] = useState<{ days: number; label: string } | null>(null);
@@ -101,7 +97,7 @@ export default function App() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // ─── Theme sync ─────────────────────────────
+  // ─── Theme ──────────────────────────────────
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
@@ -117,12 +113,11 @@ export default function App() {
 
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
-  // ─── Global keyboard shortcuts ──────────────
+  // ─── Keyboard shortcuts ─────────────────────
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const inInput = document.activeElement === inputRef.current;
 
-      // Esc: layered dismissal
       if (e.key === "Escape") {
         if (showHelp)  { setShowHelp(false);  return; }
         if (menuOpen)  { setMenuOpen(false);  return; }
@@ -131,12 +126,11 @@ export default function App() {
         return;
       }
 
-      // When NOT in input: number keys, ?, /
       if (!inInput) {
-        if (e.key === "1") { setActiveTab("rough"); return; }
-        if (e.key === "2") { setActiveTab("todo");  return; }
-        if (e.key === "3") { setActiveTab("watch"); return; }
-        if (e.key === "4") { setActiveTab("later"); return; }
+        if (e.key === "0") { setActiveTab("rough"); return; }
+        if (e.key === "1") { setActiveTab("todo");  return; }
+        if (e.key === "2") { setActiveTab("watch"); return; }
+        if (e.key === "3") { setActiveTab("later"); return; }
         if (e.key === "?") { setShowHelp(true);     return; }
         if (e.key === "/") {
           e.preventDefault();
@@ -151,7 +145,7 @@ export default function App() {
     return () => document.removeEventListener("keydown", onKey);
   }, [showHelp, menuOpen]);
 
-  // ─── Autocomplete detection ─────────────────
+  // ─── Autocomplete ────────────────────────────
   useEffect(() => {
     const words = input.split(" ");
     const last  = words[words.length - 1];
@@ -164,29 +158,23 @@ export default function App() {
     }
   }, [input]);
 
-  // ─── Filtered + constrained commands ────────
+  // ─── Command filtering ───────────────────────
   const { visibleCmds, enabledCmds, disabledSet } = useMemo(() => {
     const q = menuQuery;
-
-    // Match by cmd or alias prefix
     const visible = ALL_CMDS.filter(c =>
       q === "/" || c.cmd.startsWith(q) || c.alias.startsWith(q)
     );
-
-    // Date tags are disabled unless /lt is already extracted
     const disabled = new Set<string>();
     visible.forEach(c => {
       if (c.type === "date" && extractedList?.key !== "later") {
         disabled.add(c.cmd);
       }
     });
-
     const enabled = visible.filter(c => !disabled.has(c.cmd));
-
     return { visibleCmds: visible, enabledCmds: enabled, disabledSet: disabled };
   }, [menuQuery, extractedList]);
 
-  // ─── Apply a command ────────────────────────
+  // ─── Apply command ───────────────────────────
   const applyCommand = useCallback((cmd: Cmd) => {
     if (disabledSet.has(cmd.cmd)) return;
 
@@ -197,16 +185,13 @@ export default function App() {
       return;
     }
 
-    // Strip the /... token from input
     const words = input.split(" ");
     words.pop();
     setInput(words.length ? words.join(" ") + " " : "");
 
     if (cmd.type === "list") {
-      // "Where" tags replace each other
       setExtractedList({ key: cmd.target!, label: cmd.desc });
     } else if (cmd.type === "date") {
-      // "When" tag (only /lt already extracted)
       setExtractedDate({ days: cmd.days!, label: cmd.desc });
     }
 
@@ -214,9 +199,8 @@ export default function App() {
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [input, disabledSet]);
 
-  // ─── Input keyboard handler ─────────────────
+  // ─── Input keyboard ──────────────────────────
   const onInputKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Backspace on empty → remove last pill
     if (e.key === "Backspace" && input === "") {
       e.preventDefault();
       if (extractedDate) { setExtractedDate(null); return; }
@@ -224,7 +208,6 @@ export default function App() {
       return;
     }
 
-    // Menu navigation
     if (menuOpen && enabledCmds.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -244,41 +227,38 @@ export default function App() {
       }
     }
 
-    // Submit task
     if (e.key === "Enter" && !menuOpen) {
       e.preventDefault();
       const text = input.trim();
       if (!text) return;
 
       const targetList = extractedList?.key ?? activeTab;
-      const dueAt      = extractedDate
-        ? Date.now() + extractedDate.days * 24 * 60 * 60 * 1000
+      const dueAt = extractedDate
+        ? Date.now() + extractedDate.days * 86400000
         : undefined;
 
-      const task: Task = {
+      setTasks(ts => [{
         id:        Math.random().toString(36).slice(2, 9),
         text,
         list:      targetList,
         done:      false,
         createdAt: Date.now(),
         dueAt,
-      };
+      }, ...ts]);
 
-      setTasks(ts => [task, ...ts]);
       setInput(""); setExtractedList(null); setExtractedDate(null);
       if (targetList !== activeTab) setActiveTab(targetList);
     }
   };
 
   // ─── Task actions ────────────────────────────
-  const toggleTask = (id: string) =>
+  const toggleTask  = (id: string) =>
     setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
 
-  const deleteTask = (id: string) =>
+  const deleteTask  = (id: string) =>
     setTasks(ts => ts.filter(t => t.id !== id));
 
   const resolveTask = (id: string) => {
-    // Green flash → then remove
     setTasks(ts => ts.map(t => t.id === id ? { ...t, resolving: true } : t));
     setTimeout(() => setTasks(ts => ts.filter(t => t.id !== id)), 600);
   };
@@ -290,11 +270,11 @@ export default function App() {
     ? "Type task and press Enter…"
     : PLACEHOLDERS[activeTab];
 
-  // ─── Animated Checkbox ───────────────────────
+  // ─── Animated checkbox ───────────────────────
   const AnimCheckbox = ({ done, onToggle }: { done: boolean; onToggle: () => void }) => (
     <motion.button
       className="cb"
-      whileTap={{ scale: 0.82 }}
+      whileTap={{ scale: 0.80 }}
       initial={false}
       animate={{
         backgroundColor: done ? "var(--accent)" : "transparent",
@@ -317,37 +297,72 @@ export default function App() {
     </motion.button>
   );
 
+  // ─── Empty state icon ────────────────────────
+  const EmptyIcon = () => {
+    const props = { className: "empty-icon", strokeWidth: 1.2 };
+    if (activeTab === "rough") return <Pencil {...props} />;
+    if (activeTab === "todo")  return <CheckSquare2 {...props} />;
+    if (activeTab === "watch") return <Eye {...props} />;
+    return <Clock {...props} />;
+  };
+
   // ─── Render ───────────────────────────────────
   return (
     <div className="page">
       <div className="window">
 
-        {/* ── Tab Bar ─────────────────────────── */}
-        <div className="tabbar">
-          <div className="tabs">
-            {TABS.map(tab => (
-              <div
-                key={tab.id}
-                className="tab"
-                data-active={activeTab === tab.id}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="tab-bg"
-                    className="tab-bg"
-                    transition={{ type: "spring", bounce: 0.18, duration: 0.4 }}
-                  />
-                )}
-                <span className="tab-label">{tab.label}</span>
-              </div>
-            ))}
+        {/* ── Header ───────────────────────────── */}
+        <header className="header">
+
+          {/* Left: wordmark */}
+          <div className="brand">
+            <svg className="brand-mark" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect y="0"  width="18" height="2" rx="1" fill="currentColor"/>
+              <rect y="6"  width="13" height="2" rx="1" fill="currentColor" opacity="0.6"/>
+              <rect y="12" width="8"  height="2" rx="1" fill="currentColor" opacity="0.35"/>
+            </svg>
+            <span className="brand-name">trilist</span>
           </div>
 
-          <div className="tabbar-space" />
+          {/* Center: main tabs */}
+          <div className="header-center">
+            <div className="tabs">
+              {MAIN_TABS.map(tab => (
+                <div
+                  key={tab.id}
+                  className="tab"
+                  data-active={activeTab === tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="tab-bg"
+                      className="tab-bg"
+                      transition={{ type: "spring", bounce: 0.15, duration: 0.38 }}
+                    />
+                  )}
+                  <span className="tab-label">{tab.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <div className="tabbar-right">
-            {/* Help button */}
+          {/* Right: Rough + controls */}
+          <div className="header-right">
+            {/* Rough — separate from the 3 lists */}
+            <button
+              className="rough-btn"
+              data-active={activeTab === "rough"}
+              onClick={() => setActiveTab("rough")}
+              title="Rough (0)"
+              aria-label="Open Rough"
+            >
+              <Pencil size={12} strokeWidth={2} />
+              Rough
+            </button>
+
+            <div className="header-divider" />
+
             <button
               className="tbtn"
               onClick={() => setShowHelp(true)}
@@ -356,42 +371,37 @@ export default function App() {
             >
               ?
             </button>
-
-            {/* Theme toggle */}
             <button
               className="tbtn"
               onClick={cycleTheme}
               title={`Theme: ${theme}`}
               aria-label="Toggle theme"
             >
-              <ThemeIcon size={14} />
+              <ThemeIcon size={13} />
             </button>
           </div>
-        </div>
+        </header>
 
         {/* ── Content ──────────────────────────── */}
-        <div className="content">
+        <main className="content">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.16, ease: "easeOut" }}
             >
               {visibleTasks.length === 0 ? (
                 <motion.div
                   className="empty"
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
                 >
-                  {activeTab === "rough" && <FileText className="empty-icon" strokeWidth={1.25} />}
-                  {activeTab === "todo"  && <CheckSquare2 className="empty-icon" strokeWidth={1.25} />}
-                  {activeTab === "watch" && <Eye className="empty-icon" strokeWidth={1.25} />}
-                  {activeTab === "later" && <Clock className="empty-icon" strokeWidth={1.25} />}
-                  <div className="empty-title">{emptyState.title}</div>
-                  <div className="empty-hint">{emptyState.hint}</div>
+                  <EmptyIcon />
+                  <p className="empty-title">{emptyState.title}</p>
+                  <p className="empty-hint">{emptyState.hint}</p>
                 </motion.div>
               ) : (
                 <AnimatePresence initial={false}>
@@ -401,52 +411,33 @@ export default function App() {
                       layout
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -14, transition: { duration: 0.18 } }}
-                      transition={{ duration: 0.2, delay: index * 0.04, ease: "easeOut" }}
+                      exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
+                      transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
                       className={`row${task.resolving ? " resolving" : ""}`}
                     >
-                      {/* Left indicator — per list */}
                       {activeTab === "rough" && <div className="rough-dot" />}
                       {activeTab === "todo"  && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
                       {activeTab === "watch" && <div className="watch-dot" />}
                       {activeTab === "later" && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
 
-                      {/* Task text */}
-                      <span
-                        className="row-text"
-                        data-done={task.done && activeTab !== "rough"}
-                      >
+                      <span className="row-text" data-done={task.done && activeTab !== "rough"}>
                         {task.text}
                       </span>
 
-                      {/* Later: time badge */}
                       {activeTab === "later" && task.dueAt && !task.done && (
                         <span className="time-badge">
-                          {daysUntil(task.dueAt) === 0
-                            ? "today"
-                            : `${daysUntil(task.dueAt)}d`}
+                          {daysUntil(task.dueAt) === 0 ? "today" : `${daysUntil(task.dueAt)}d`}
                         </span>
                       )}
 
-                      {/* Watch: Resolved action */}
                       {activeTab === "watch" && !task.resolving && (
-                        <button
-                          className="resolve-btn"
-                          onClick={() => resolveTask(task.id)}
-                        >
-                          Resolved ✓
+                        <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
+                          Resolved
                         </button>
                       )}
 
-                      {/* Rough: delete × */}
                       {activeTab === "rough" && (
-                        <button
-                          className="del-btn"
-                          onClick={() => deleteTask(task.id)}
-                          aria-label="Delete"
-                        >
-                          ×
-                        </button>
+                        <button className="del-btn" onClick={() => deleteTask(task.id)} aria-label="Delete">×</button>
                       )}
                     </motion.div>
                   ))}
@@ -454,22 +445,19 @@ export default function App() {
               )}
             </motion.div>
           </AnimatePresence>
-        </div>
+        </main>
 
         {/* ── Omnibar ──────────────────────────── */}
         <div className="omnibar-wrap">
-
-          {/* Context-aware command menu */}
           <AnimatePresence>
             {menuOpen && visibleCmds.length > 0 && (
               <motion.div
                 className="cmd-menu"
-                initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                initial={{ opacity: 0, y: 8, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
+                transition={{ duration: 0.14, ease: "easeOut" }}
               >
-                {/* WHERE section */}
                 {visibleCmds.some(c => c.type === "list") && (
                   <>
                     <div className="cmd-section">Where</div>
@@ -479,10 +467,7 @@ export default function App() {
                         className="cmd-item"
                         data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
                         data-disabled={disabledSet.has(cmd.cmd)}
-                        onMouseEnter={() => {
-                          const idx = enabledCmds.indexOf(cmd);
-                          if (idx !== -1) setSelIdx(idx);
-                        }}
+                        onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
                         onClick={() => applyCommand(cmd)}
                       >
                         <span className="cmd-label">{cmd.desc}</span>
@@ -491,8 +476,6 @@ export default function App() {
                     ))}
                   </>
                 )}
-
-                {/* WHEN section */}
                 {visibleCmds.some(c => c.type === "date") && (
                   <>
                     <div className="cmd-section">When</div>
@@ -503,10 +486,7 @@ export default function App() {
                         data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
                         data-disabled={disabledSet.has(cmd.cmd)}
                         title={disabledSet.has(cmd.cmd) ? "Select /later first" : undefined}
-                        onMouseEnter={() => {
-                          const idx = enabledCmds.indexOf(cmd);
-                          if (idx !== -1) setSelIdx(idx);
-                        }}
+                        onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
                         onClick={() => applyCommand(cmd)}
                       >
                         <span className="cmd-label">{cmd.desc}</span>
@@ -515,8 +495,6 @@ export default function App() {
                     ))}
                   </>
                 )}
-
-                {/* SYSTEM section */}
                 {visibleCmds.some(c => c.type === "view") && (
                   <>
                     <div className="cmd-section">Help</div>
@@ -525,10 +503,7 @@ export default function App() {
                         key={cmd.cmd}
                         className="cmd-item"
                         data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
-                        onMouseEnter={() => {
-                          const idx = enabledCmds.indexOf(cmd);
-                          if (idx !== -1) setSelIdx(idx);
-                        }}
+                        onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
                         onClick={() => applyCommand(cmd)}
                       >
                         <span className="cmd-label">{cmd.desc}</span>
@@ -541,11 +516,11 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          {/* Input bar */}
           <div className="omnibar">
-            <Command size={16} className="omnibar-cmd-icon" />
+            <svg className="omnibar-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
 
-            {/* Extracted tag pills */}
             {extractedList && (
               <span className="pill">
                 {extractedList.label}
@@ -581,61 +556,54 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.18 }}
               onClick={e => { if (e.target === e.currentTarget) setShowHelp(false); }}
             >
-              <div className="help-title">Trilist · Help &amp; Shortcuts</div>
+              <p className="help-title">Help &amp; Shortcuts</p>
 
-              {/* Navigation */}
               <div className="help-block">
-                <div className="help-section-label">Navigation</div>
+                <p className="help-section-label">Navigation</p>
                 <div className="help-rule" />
                 {[
-                  { keys: ["1"], desc: "Switch to Rough" },
-                  { keys: ["2"], desc: "Switch to Todo" },
-                  { keys: ["3"], desc: "Switch to Watch" },
-                  { keys: ["4"], desc: "Switch to Later" },
-                  { keys: ["?"], desc: "Open this help screen" },
-                  { keys: ["Esc"], desc: "Close overlay / clear input" },
+                  { keys: ["0"],     desc: "Open Rough (capture)" },
+                  { keys: ["1"],     desc: "Switch to Todo" },
+                  { keys: ["2"],     desc: "Switch to Watch" },
+                  { keys: ["3"],     desc: "Switch to Later" },
+                  { keys: ["?"],     desc: "Open this help screen" },
+                  { keys: ["Esc"],   desc: "Close overlay / clear input" },
                 ].map(r => (
                   <div key={r.keys.join()} className="help-row">
-                    <div className="help-keys">
-                      {r.keys.map(k => <span key={k} className="key">{k}</span>)}
-                    </div>
+                    <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
                     <span className="help-desc">{r.desc}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Composing */}
               <div className="help-block">
-                <div className="help-section-label">Composing</div>
+                <p className="help-section-label">Composing</p>
                 <div className="help-rule" />
                 {[
-                  { keys: ["Enter"],     desc: "Submit task to active list (or tagged list)" },
-                  { keys: ["/"],         desc: "Open command palette (works anywhere in text)" },
-                  { keys: ["↑", "↓"],   desc: "Navigate autocomplete menu" },
-                  { keys: ["Tab"],       desc: "Select highlighted command" },
-                  { keys: ["⌫"],        desc: "Delete last tag pill (when input is empty)" },
+                  { keys: ["Enter"],   desc: "Add task to active or tagged list" },
+                  { keys: ["/"],       desc: "Open command palette" },
+                  { keys: ["↑", "↓"], desc: "Navigate autocomplete" },
+                  { keys: ["Tab"],     desc: "Select highlighted command" },
+                  { keys: ["⌫"],      desc: "Remove last tag pill" },
                 ].map(r => (
                   <div key={r.keys.join()} className="help-row">
-                    <div className="help-keys">
-                      {r.keys.map(k => <span key={k} className="key">{k}</span>)}
-                    </div>
+                    <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
                     <span className="help-desc">{r.desc}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Where tags */}
               <div className="help-block">
-                <div className="help-section-label">Tags — Where</div>
+                <p className="help-section-label">Where tags</p>
                 <div className="help-rule" />
                 {LIST_CMDS.map(c => (
                   <div key={c.cmd} className="help-row">
                     <div className="help-keys">
                       <span className="key">{c.alias}</span>
-                      <span style={{ color: "var(--text-faint)", fontSize: 11 }}>or</span>
+                      <span className="key-or">or</span>
                       <span className="key">{c.cmd}</span>
                     </div>
                     <span className="help-desc">{c.desc}</span>
@@ -643,15 +611,14 @@ export default function App() {
                 ))}
               </div>
 
-              {/* When tags */}
               <div className="help-block">
-                <div className="help-section-label">Tags — When (only after /lt)</div>
+                <p className="help-section-label">When tags — only after /lt</p>
                 <div className="help-rule" />
                 {DATE_CMDS.map(c => (
                   <div key={c.cmd} className="help-row">
                     <div className="help-keys">
                       <span className="key">{c.alias}</span>
-                      <span style={{ color: "var(--text-faint)", fontSize: 11 }}>or</span>
+                      <span className="key-or">or</span>
                       <span className="key">{c.cmd}</span>
                     </div>
                     <span className="help-desc">{c.desc}</span>
@@ -659,25 +626,16 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Rules callout */}
               <div className="help-block">
-                <div className="help-section-label">Rules</div>
+                <p className="help-section-label">How it works</p>
                 <div className="help-rule" />
-                <div className="help-row">
-                  <span className="help-desc">Where tags are mutually exclusive — last one typed wins.</span>
-                </div>
-                <div className="help-row">
-                  <span className="help-desc">When tags are only valid after <span className="key" style={{display:"inline"}}>  /lt  </span></span>
-                </div>
-                <div className="help-row">
-                  <span className="help-desc">Rough items cannot be completed — only deleted on hover.</span>
-                </div>
-                <div className="help-row">
-                  <span className="help-desc">Watch items resolve with the <strong>Resolved ✓</strong> hover action.</span>
-                </div>
+                <div className="help-row"><span className="help-desc">Rough is a scratch space — separate from the 3 lists.</span></div>
+                <div className="help-row"><span className="help-desc">Where tags are mutually exclusive. Last one typed wins.</span></div>
+                <div className="help-row"><span className="help-desc">When tags only unlock after /lt is applied.</span></div>
+                <div className="help-row"><span className="help-desc">Rough items hover to delete. Watch items hover to Resolve.</span></div>
               </div>
 
-              <div className="help-note">Press Esc or click outside to close.</div>
+              <p className="help-note">Press Esc or click outside to close.</p>
             </motion.div>
           )}
         </AnimatePresence>
