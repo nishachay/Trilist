@@ -857,6 +857,7 @@ export default function App() {
                     <button
                       key={f.label}
                       className="font-btn"
+                      style={{ fontFamily: f.value }}
                       data-selected={fontFamily === f.value}
                       onClick={() => setFontFamily(f.value)}
                     >
