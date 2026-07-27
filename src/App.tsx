@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil } from "lucide-react";
+import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Volume2, VolumeX, Download, Upload } from "lucide-react";
 
 import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
+import { playTabClick, playTaskCheck, playTaskResolve, toggleSound } from "./lib/audio";
 
 // ─── Types ──────────────────────────────────────
 type ListKey = "rough" | "todo" | "watch" | "later";
@@ -85,11 +86,13 @@ function daysUntil(ts: number) {
 
 // ─── App ────────────────────────────────────────
 export default function App() {
-  const [tasks,     setTasks]     = useState<Task[]>(DEMO);
-  const [activeTab, setActiveTab] = useState<ListKey>("todo");
-  const [theme,     setTheme]     = useState<Theme>("system");
-  const [showHelp,  setShowHelp]  = useState(false);
-  const [isLoaded,  setIsLoaded]  = useState(false);
+  const [tasks,      setTasks]      = useState<Task[]>(DEMO);
+  const [activeTab,  setActiveTab]  = useState<ListKey>("todo");
+  const [theme,      setTheme]      = useState<Theme>("system");
+  const [showHelp,   setShowHelp]   = useState(false);
+  const [isLoaded,   setIsLoaded]   = useState(false);
+  const [soundOn,    setSoundOn]    = useState(true);
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
 
   const [input,         setInput]         = useState("");
   const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
@@ -99,6 +102,7 @@ export default function App() {
   const [selIdx,        setSelIdx]        = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ─── IndexedDB Storage Persistence ──────────
   useEffect(() => {
@@ -129,6 +133,11 @@ export default function App() {
     saveStoredSetting("theme", theme);
   }, [theme, isLoaded]);
 
+  // Reset row selection when tab changes
+  useEffect(() => {
+    setFocusedIdx(null);
+  }, [activeTab]);
+
   // ─── Theme ──────────────────────────────────
   useEffect(() => {
     const root = document.documentElement;
@@ -140,13 +149,95 @@ export default function App() {
     }
   }, [theme]);
 
-  const cycleTheme = () =>
+  const cycleTheme = () => {
+    playTabClick();
     setTheme(t => t === "system" ? "light" : t === "light" ? "dark" : "system");
+  };
+
+  const handleToggleSound = () => {
+    const next = toggleSound();
+    setSoundOn(next);
+    if (next) playTabClick();
+  };
+
+  const switchTab = (key: ListKey) => {
+    playTabClick();
+    setActiveTab(key);
+  };
 
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
+  // ─── Derived ─────────────────────────────────
+  const visibleTasks = useMemo(() => tasks.filter(t => t.list === activeTab), [tasks, activeTab]);
 
-  // ─── Keyboard shortcuts ─────────────────────
+  const taskCounts = useMemo(() => {
+    const counts: Record<ListKey, number> = { rough: 0, todo: 0, watch: 0, later: 0 };
+    tasks.forEach(t => {
+      if (counts[t.list] !== undefined) counts[t.list]++;
+    });
+    return counts;
+  }, [tasks]);
+
+  // ─── Task Actions ────────────────────────────
+  const toggleTask = (id: string) => {
+    setTasks(ts => ts.map(t => {
+      if (t.id === id) {
+        if (!t.done) playTaskCheck();
+        return { ...t, done: !t.done };
+      }
+      return t;
+    }));
+  };
+
+  const deleteTask = (id: string) => {
+    playTabClick();
+    setTasks(ts => ts.filter(t => t.id !== id));
+  };
+
+  const resolveTask = (id: string) => {
+    playTaskResolve();
+    setTasks(ts => ts.map(t => t.id === id ? { ...t, resolving: true } : t));
+    setTimeout(() => setTasks(ts => ts.filter(t => t.id !== id)), 600);
+  };
+
+  // ─── Export / Import Backup ─────────────────
+  const handleExportData = () => {
+    const backupData = {
+      version: 1,
+      timestamp: new Date().toISOString(),
+      tasks,
+      theme,
+    };
+    const jsonStr = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `trilist-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const parsed = JSON.parse(evt.target?.result as string);
+        if (Array.isArray(parsed.tasks)) {
+          setTasks(parsed.tasks);
+          if (parsed.theme) setTheme(parsed.theme);
+          alert("Backup successfully restored!");
+        }
+      } catch {
+        alert("Failed to parse backup file.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // ─── Keyboard Shortcuts & Navigation ────────
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const inInput = document.activeElement === inputRef.current;
@@ -155,28 +246,65 @@ export default function App() {
         if (showHelp)  { setShowHelp(false);  return; }
         if (menuOpen)  { setMenuOpen(false);  return; }
         setInput(""); setExtractedList(null); setExtractedDate(null);
+        setFocusedIdx(null);
         inputRef.current?.blur();
         return;
       }
 
       if (!inInput) {
-        if (e.key === "0") { setActiveTab("rough"); return; }
-        if (e.key === "1") { setActiveTab("todo");  return; }
-        if (e.key === "2") { setActiveTab("watch"); return; }
-        if (e.key === "3") { setActiveTab("later"); return; }
-        if (e.key === "?") { setShowHelp(true);     return; }
+        if (e.key === "0") { switchTab("rough"); return; }
+        if (e.key === "1") { switchTab("todo");  return; }
+        if (e.key === "2") { switchTab("watch"); return; }
+        if (e.key === "3") { switchTab("later"); return; }
+        if (e.key === "?") { setShowHelp(true);  return; }
         if (e.key === "/") {
           e.preventDefault();
           setInput("/");
           requestAnimationFrame(() => inputRef.current?.focus());
           return;
         }
+
+        // Vim / Arrow task list navigation
+        if (visibleTasks.length > 0) {
+          if (e.key === "j" || e.key === "ArrowDown") {
+            e.preventDefault();
+            setFocusedIdx(i => i === null ? 0 : Math.min(i + 1, visibleTasks.length - 1));
+            return;
+          }
+          if (e.key === "k" || e.key === "ArrowUp") {
+            e.preventDefault();
+            setFocusedIdx(i => i === null ? visibleTasks.length - 1 : Math.max(i - 1, 0));
+            return;
+          }
+          if (e.key === " " && focusedIdx !== null && visibleTasks[focusedIdx]) {
+            e.preventDefault();
+            const target = visibleTasks[focusedIdx];
+            if (activeTab === "watch") {
+              resolveTask(target.id);
+            } else if (activeTab === "rough") {
+              deleteTask(target.id);
+            } else {
+              toggleTask(target.id);
+            }
+            return;
+          }
+          if ((e.key === "x" || e.key === "d") && focusedIdx !== null && visibleTasks[focusedIdx]) {
+            e.preventDefault();
+            const target = visibleTasks[focusedIdx];
+            if (activeTab === "watch") {
+              resolveTask(target.id);
+            } else {
+              deleteTask(target.id);
+            }
+            return;
+          }
+        }
       }
     };
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [showHelp, menuOpen]);
+  }, [showHelp, menuOpen, visibleTasks, focusedIdx, activeTab]);
 
   // ─── Autocomplete ────────────────────────────
   useEffect(() => {
@@ -228,6 +356,7 @@ export default function App() {
       setExtractedDate({ days: cmd.days!, label: cmd.desc });
     }
 
+    playTabClick();
     setMenuOpen(false);
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [input, disabledSet]);
@@ -270,6 +399,8 @@ export default function App() {
         ? Date.now() + extractedDate.days * 86400000
         : undefined;
 
+      playTaskCheck();
+
       setTasks(ts => [{
         id:        Math.random().toString(36).slice(2, 9),
         text,
@@ -280,30 +411,16 @@ export default function App() {
       }, ...ts]);
 
       setInput(""); setExtractedList(null); setExtractedDate(null);
-      if (targetList !== activeTab) setActiveTab(targetList);
+      if (targetList !== activeTab) switchTab(targetList);
     }
   };
 
-  // ─── Task actions ────────────────────────────
-  const toggleTask  = (id: string) =>
-    setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
-
-  const deleteTask  = (id: string) =>
-    setTasks(ts => ts.filter(t => t.id !== id));
-
-  const resolveTask = (id: string) => {
-    setTasks(ts => ts.map(t => t.id === id ? { ...t, resolving: true } : t));
-    setTimeout(() => setTasks(ts => ts.filter(t => t.id !== id)), 600);
-  };
-
-  // ─── Derived ─────────────────────────────────
-  const visibleTasks = tasks.filter(t => t.list === activeTab);
-  const emptyState   = EMPTY[activeTab];
-  const placeholder  = extractedList || extractedDate
+  const emptyState  = EMPTY[activeTab];
+  const placeholder = extractedList || extractedDate
     ? "Type task and press Enter…"
     : PLACEHOLDERS[activeTab];
 
-  // ─── Animated checkbox ───────────────────────
+  // ─── Animated Checkbox ───────────────────────
   const AnimCheckbox = ({ done, onToggle }: { done: boolean; onToggle: () => void }) => (
     <motion.button
       className="cb"
@@ -365,7 +482,7 @@ export default function App() {
                   key={tab.id}
                   className="tab"
                   data-active={activeTab === tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => switchTab(tab.id)}
                 >
                   {activeTab === tab.id && (
                     <motion.div
@@ -374,7 +491,12 @@ export default function App() {
                       transition={{ type: "spring", bounce: 0.15, duration: 0.38 }}
                     />
                   )}
-                  <span className="tab-label">{tab.label}</span>
+                  <span className="tab-label">
+                    {tab.label}
+                    {taskCounts[tab.id] > 0 && (
+                      <span className="tab-count">{taskCounts[tab.id]}</span>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
@@ -382,23 +504,33 @@ export default function App() {
 
           {/* Right: Rough + controls */}
           <div className="header-right">
-            {/* Rough — separate from the 3 lists */}
             <button
               className="rough-btn"
               data-active={activeTab === "rough"}
-              onClick={() => setActiveTab("rough")}
+              onClick={() => switchTab("rough")}
               title="Rough (0)"
               aria-label="Open Rough"
             >
               <Pencil size={12} strokeWidth={2} />
               Rough
+              {taskCounts.rough > 0 && <span className="tab-count">{taskCounts.rough}</span>}
             </button>
 
             <div className="header-divider" />
 
+            {/* Micro-Haptics Toggle */}
             <button
               className="tbtn"
-              onClick={() => setShowHelp(true)}
+              onClick={handleToggleSound}
+              title={soundOn ? "Sound FX: On" : "Sound FX: Muted"}
+              aria-label="Toggle Sound"
+            >
+              {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} opacity={0.4} />}
+            </button>
+
+            <button
+              className="tbtn"
+              onClick={() => { playTabClick(); setShowHelp(true); }}
               title="Help (?)"
               aria-label="Help"
             >
@@ -447,6 +579,8 @@ export default function App() {
                       exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
                       transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
                       className={`row${task.resolving ? " resolving" : ""}`}
+                      data-focused={focusedIdx === index}
+                      onClick={() => setFocusedIdx(index)}
                     >
                       {activeTab === "rough" && <div className="rough-dot" />}
                       {activeTab === "todo"  && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
@@ -595,15 +729,16 @@ export default function App() {
               <p className="help-title">Help &amp; Shortcuts</p>
 
               <div className="help-block">
-                <p className="help-section-label">Navigation</p>
+                <p className="help-section-label">Navigation &amp; Task Selection</p>
                 <div className="help-rule" />
                 {[
-                  { keys: ["0"],     desc: "Open Rough (capture)" },
-                  { keys: ["1"],     desc: "Switch to Todo" },
-                  { keys: ["2"],     desc: "Switch to Watch" },
-                  { keys: ["3"],     desc: "Switch to Later" },
-                  { keys: ["?"],     desc: "Open this help screen" },
-                  { keys: ["Esc"],   desc: "Close overlay / clear input" },
+                  { keys: ["0"],             desc: "Open Rough (capture)" },
+                  { keys: ["1", "2", "3"],   desc: "Switch to Todo / Watch / Later" },
+                  { keys: ["j", "k"],        desc: "Navigate task items up / down (Vim)" },
+                  { keys: ["Space"],         desc: "Toggle completion on focused task" },
+                  { keys: ["x", "d"],        desc: "Delete / Resolve focused task" },
+                  { keys: ["?"],             desc: "Open this help screen" },
+                  { keys: ["Esc"],           desc: "Close overlay / clear input" },
                 ].map(r => (
                   <div key={r.keys.join()} className="help-row">
                     <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
@@ -659,13 +794,26 @@ export default function App() {
                 ))}
               </div>
 
+              {/* Data Ownership / Backup */}
               <div className="help-block">
-                <p className="help-section-label">How it works</p>
+                <p className="help-section-label">Data Ownership &amp; Backup</p>
                 <div className="help-rule" />
-                <div className="help-row"><span className="help-desc">Rough is a scratch space — separate from the 3 lists.</span></div>
-                <div className="help-row"><span className="help-desc">Where tags are mutually exclusive. Last one typed wins.</span></div>
-                <div className="help-row"><span className="help-desc">When tags only unlock after /lt is applied.</span></div>
-                <div className="help-row"><span className="help-desc">Rough items hover to delete. Watch items hover to Resolve.</span></div>
+                <p className="help-desc">All data is stored locally in your browser using non-blocking IndexedDB.</p>
+                <div className="backup-actions">
+                  <button className="backup-btn" onClick={handleExportData}>
+                    <Download size={13} /> Export Backup (.json)
+                  </button>
+                  <button className="backup-btn" onClick={() => fileInputRef.current?.click()}>
+                    <Upload size={13} /> Import Backup (.json)
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    style={{ display: "none" }}
+                    onChange={handleImportData}
+                  />
+                </div>
               </div>
 
               <p className="help-note">Press Esc or click outside to close.</p>
