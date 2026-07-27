@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Volume2, VolumeX, Download, Upload } from "lucide-react";
+import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight } from "lucide-react";
 
 import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
-import { playTabClick, playTaskCheck, playTaskResolve, toggleSound } from "./lib/audio";
 
 // ─── Types ──────────────────────────────────────
 type ListKey = "rough" | "todo" | "watch" | "later";
@@ -70,29 +69,20 @@ const EMPTY: Record<ListKey, { title: string; hint: string }> = {
   later: { title: "The future is clear.", hint: "/lt to defer · /lt /wk for a week" },
 };
 
-// ─── Demo data ──────────────────────────────────
-const DEMO: Task[] = [
-  { id: "d1", text: "idea: rethink the settings layout",             list: "rough", done: false, createdAt: Date.now() },
-  { id: "d2", text: "Ship the new onboarding flow",                  list: "todo",  done: false, createdAt: Date.now() },
-  { id: "d3", text: "Review the investor deck before Wednesday",     list: "todo",  done: false, createdAt: Date.now() },
-  { id: "d4", text: "Competitor X pricing change — watch closely",   list: "watch", done: false, createdAt: Date.now() },
-  { id: "d5", text: "Write the annual strategy document",            list: "later", done: false, createdAt: Date.now(), dueAt: Date.now() + 7  * 86400000 },
-  { id: "d6", text: "Explore new infrastructure providers",          list: "later", done: false, createdAt: Date.now(), dueAt: Date.now() + 30 * 86400000 },
-];
-
 function daysUntil(ts: number) {
   return Math.max(0, Math.round((ts - Date.now()) / 86400000));
 }
 
 // ─── App ────────────────────────────────────────
 export default function App() {
-  const [tasks,      setTasks]      = useState<Task[]>(DEMO);
-  const [activeTab,  setActiveTab]  = useState<ListKey>("todo");
-  const [theme,      setTheme]      = useState<Theme>("system");
-  const [showHelp,   setShowHelp]   = useState(false);
-  const [isLoaded,   setIsLoaded]   = useState(false);
-  const [soundOn,    setSoundOn]    = useState(true);
-  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
+  const [tasks,          setTasks]          = useState<Task[]>([]);
+  const [activeTab,      setActiveTab]      = useState<ListKey>("todo");
+  const [theme,          setTheme]          = useState<Theme>("system");
+  const [showHelp,       setShowHelp]       = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardStep,    setOnboardStep]    = useState(1);
+  const [isLoaded,       setIsLoaded]       = useState(false);
+  const [focusedIdx,     setFocusedIdx]     = useState<number | null>(null);
 
   const [input,         setInput]         = useState("");
   const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
@@ -108,16 +98,20 @@ export default function App() {
   useEffect(() => {
     async function loadData() {
       const savedTasks = await getStoredTasks<Task>();
-      if (savedTasks && savedTasks.length > 0) {
+      if (savedTasks) {
         setTasks(savedTasks);
-      } else {
-        await saveStoredTasks(DEMO);
       }
 
       const savedTheme = await getStoredSetting<Theme>("theme");
       if (savedTheme) {
         setTheme(savedTheme);
       }
+
+      const hasOnboarded = await getStoredSetting<boolean>("onboarded");
+      if (!hasOnboarded) {
+        setShowOnboarding(true);
+      }
+
       setIsLoaded(true);
     }
     loadData();
@@ -150,19 +144,16 @@ export default function App() {
   }, [theme]);
 
   const cycleTheme = () => {
-    playTabClick();
     setTheme(t => t === "system" ? "light" : t === "light" ? "dark" : "system");
   };
 
-  const handleToggleSound = () => {
-    const next = toggleSound();
-    setSoundOn(next);
-    if (next) playTabClick();
+  const switchTab = (key: ListKey) => {
+    setActiveTab(key);
   };
 
-  const switchTab = (key: ListKey) => {
-    playTabClick();
-    setActiveTab(key);
+  const completeOnboarding = () => {
+    saveStoredSetting("onboarded", true);
+    setShowOnboarding(false);
   };
 
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
@@ -180,22 +171,14 @@ export default function App() {
 
   // ─── Task Actions ────────────────────────────
   const toggleTask = (id: string) => {
-    setTasks(ts => ts.map(t => {
-      if (t.id === id) {
-        if (!t.done) playTaskCheck();
-        return { ...t, done: !t.done };
-      }
-      return t;
-    }));
+    setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
   };
 
   const deleteTask = (id: string) => {
-    playTabClick();
     setTasks(ts => ts.filter(t => t.id !== id));
   };
 
   const resolveTask = (id: string) => {
-    playTaskResolve();
     setTasks(ts => ts.map(t => t.id === id ? { ...t, resolving: true } : t));
     setTimeout(() => setTasks(ts => ts.filter(t => t.id !== id)), 600);
   };
@@ -243,15 +226,16 @@ export default function App() {
       const inInput = document.activeElement === inputRef.current;
 
       if (e.key === "Escape") {
-        if (showHelp)  { setShowHelp(false);  return; }
-        if (menuOpen)  { setMenuOpen(false);  return; }
+        if (showOnboarding) { completeOnboarding(); return; }
+        if (showHelp)       { setShowHelp(false);   return; }
+        if (menuOpen)       { setMenuOpen(false);   return; }
         setInput(""); setExtractedList(null); setExtractedDate(null);
         setFocusedIdx(null);
         inputRef.current?.blur();
         return;
       }
 
-      if (!inInput) {
+      if (!inInput && !showOnboarding) {
         if (e.key === "0") { switchTab("rough"); return; }
         if (e.key === "1") { switchTab("todo");  return; }
         if (e.key === "2") { switchTab("watch"); return; }
@@ -304,7 +288,7 @@ export default function App() {
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [showHelp, menuOpen, visibleTasks, focusedIdx, activeTab]);
+  }, [showHelp, menuOpen, showOnboarding, visibleTasks, focusedIdx, activeTab]);
 
   // ─── Autocomplete ────────────────────────────
   useEffect(() => {
@@ -356,7 +340,6 @@ export default function App() {
       setExtractedDate({ days: cmd.days!, label: cmd.desc });
     }
 
-    playTabClick();
     setMenuOpen(false);
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [input, disabledSet]);
@@ -398,8 +381,6 @@ export default function App() {
       const dueAt = extractedDate
         ? Date.now() + extractedDate.days * 86400000
         : undefined;
-
-      playTaskCheck();
 
       setTasks(ts => [{
         id:        Math.random().toString(36).slice(2, 9),
@@ -518,19 +499,9 @@ export default function App() {
 
             <div className="header-divider" />
 
-            {/* Micro-Haptics Toggle */}
             <button
               className="tbtn"
-              onClick={handleToggleSound}
-              title={soundOn ? "Sound FX: On" : "Sound FX: Muted"}
-              aria-label="Toggle Sound"
-            >
-              {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} opacity={0.4} />}
-            </button>
-
-            <button
-              className="tbtn"
-              onClick={() => { playTabClick(); setShowHelp(true); }}
+              onClick={() => setShowHelp(true)}
               title="Help (?)"
               aria-label="Help"
             >
@@ -714,6 +685,81 @@ export default function App() {
             />
           </div>
         </div>
+
+        {/* ── 1-Time Onboarding Modal ───────────── */}
+        <AnimatePresence>
+          {showOnboarding && (
+            <motion.div
+              className="onboarding-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <motion.div
+                className="onboarding-card"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                {onboardStep === 1 && (
+                  <>
+                    <div className="onboarding-badge">
+                      <Sparkles size={24} />
+                    </div>
+                    <h2 className="onboarding-title">Welcome to Trilist</h2>
+                    <p className="onboarding-body">
+                      A fast, distraction-free productivity engine for your commitments. Organize your work across <strong>Todo</strong> (today), <strong>Watch</strong> (radar items), <strong>Later</strong> (deferred tasks), and <strong>Rough</strong> (scratch notes).
+                    </p>
+                  </>
+                )}
+
+                {onboardStep === 2 && (
+                  <>
+                    <div className="onboarding-badge">
+                      <Command size={24} />
+                    </div>
+                    <h2 className="onboarding-title">Notion-Style Tagging</h2>
+                    <p className="onboarding-body">
+                      Type <strong>/td</strong>, <strong>/wt</strong>, <strong>/lt</strong>, or <strong>/rg</strong> anywhere in the text field to instantly route your task on the fly without breaking your typing flow.
+                    </p>
+                  </>
+                )}
+
+                {onboardStep === 3 && (
+                  <>
+                    <div className="onboarding-badge">
+                      <Zap size={24} />
+                    </div>
+                    <h2 className="onboarding-title">Keyboard Mastery</h2>
+                    <p className="onboarding-body">
+                      Press <strong>0–3</strong> to switch views, <strong>j</strong> / <strong>k</strong> to navigate task items, <strong>Space</strong> to complete, and <strong>?</strong> anytime for the shortcut cheatsheet.
+                    </p>
+                  </>
+                )}
+
+                <div className="onboarding-footer">
+                  <div className="onboarding-dots">
+                    <div className="onboarding-dot" data-active={onboardStep === 1} />
+                    <div className="onboarding-dot" data-active={onboardStep === 2} />
+                    <div className="onboarding-dot" data-active={onboardStep === 3} />
+                  </div>
+
+                  {onboardStep < 3 ? (
+                    <button className="primary-btn" onClick={() => setOnboardStep(s => s + 1)}>
+                      Next <ArrowRight size={14} />
+                    </button>
+                  ) : (
+                    <button className="primary-btn" onClick={completeOnboarding}>
+                      Get Started
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── Help Overlay ─────────────────────── */}
         <AnimatePresence>
