@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react";
 import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil } from "lucide-react";
 
+import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
+
 // ─── Types ──────────────────────────────────────
 type ListKey = "rough" | "todo" | "watch" | "later";
 type Theme   = "system" | "light" | "dark";
@@ -87,6 +89,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ListKey>("todo");
   const [theme,     setTheme]     = useState<Theme>("system");
   const [showHelp,  setShowHelp]  = useState(false);
+  const [isLoaded,  setIsLoaded]  = useState(false);
 
   const [input,         setInput]         = useState("");
   const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
@@ -96,6 +99,35 @@ export default function App() {
   const [selIdx,        setSelIdx]        = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // ─── IndexedDB Storage Persistence ──────────
+  useEffect(() => {
+    async function loadData() {
+      const savedTasks = await getStoredTasks<Task>();
+      if (savedTasks && savedTasks.length > 0) {
+        setTasks(savedTasks);
+      } else {
+        await saveStoredTasks(DEMO);
+      }
+
+      const savedTheme = await getStoredSetting<Theme>("theme");
+      if (savedTheme) {
+        setTheme(savedTheme);
+      }
+      setIsLoaded(true);
+    }
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    saveStoredTasks(tasks);
+  }, [tasks, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    saveStoredSetting("theme", theme);
+  }, [theme, isLoaded]);
 
   // ─── Theme ──────────────────────────────────
   useEffect(() => {
@@ -112,6 +144,7 @@ export default function App() {
     setTheme(t => t === "system" ? "light" : t === "light" ? "dark" : "system");
 
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
+
 
   // ─── Keyboard shortcuts ─────────────────────
   useEffect(() => {
