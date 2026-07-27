@@ -318,9 +318,17 @@ export default function App() {
   // ─── Keyboard Shortcuts & Navigation ────────
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const inInput = document.activeElement === inputRef.current;
+      const activeEl = document.activeElement;
+      const isTyping = Boolean(
+        activeEl && (
+          activeEl.tagName === "INPUT" ||
+          activeEl.tagName === "TEXTAREA" ||
+          (activeEl as HTMLElement).isContentEditable
+        )
+      );
 
       if (e.key === "Escape") {
+        if (moveMenuTaskId) { setMoveMenuTaskId(null); return; }
         if (showOnboarding) { completeOnboarding(); return; }
         if (showHelp)       { setShowHelp(false);   return; }
         if (menuOpen)       { setMenuOpen(false);   return; }
@@ -330,7 +338,7 @@ export default function App() {
         return;
       }
 
-      if (!inInput && !showOnboarding) {
+      if (!isTyping && !showOnboarding) {
         if (e.key === "0") { switchTab("rough"); return; }
         if (e.key === "1") { switchTab("todo");  return; }
         if (e.key === "2") { switchTab("watch"); return; }
@@ -383,7 +391,7 @@ export default function App() {
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [showHelp, menuOpen, showOnboarding, visibleTasks, focusedIdx, activeTab]);
+  }, [showHelp, menuOpen, showOnboarding, visibleTasks, focusedIdx, activeTab, moveMenuTaskId]);
 
   // ─── Autocomplete ────────────────────────────
   useEffect(() => {
