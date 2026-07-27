@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight } from "lucide-react";
+import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight, Trash2, Check, X } from "lucide-react";
 
 import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
 
@@ -89,6 +89,18 @@ function daysUntil(ts: number) {
   return Math.max(0, Math.round((ts - Date.now()) / 86400000));
 }
 
+function timeAgo(ts?: number): string {
+  if (!ts) return "";
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 // ─── App ────────────────────────────────────────
 export default function App() {
   const [tasks,          setTasks]          = useState<Task[]>([]);
@@ -101,6 +113,9 @@ export default function App() {
   const [onboardStep,    setOnboardStep]    = useState(1);
   const [isLoaded,       setIsLoaded]       = useState(false);
   const [focusedIdx,     setFocusedIdx]     = useState<number | null>(null);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText,  setEditText]  = useState<string>("");
 
   const [input,         setInput]         = useState("");
   const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
@@ -235,6 +250,27 @@ export default function App() {
   const resolveTask = (id: string) => {
     setTasks(ts => ts.map(t => t.id === id ? { ...t, resolving: true } : t));
     setTimeout(() => setTasks(ts => ts.filter(t => t.id !== id)), 600);
+  };
+
+  const startEditing = (task: Task) => {
+    setEditingId(task.id);
+    setEditText(task.text);
+  };
+
+  const saveEditing = (id: string) => {
+    const trimmed = editText.trim();
+    if (trimmed) {
+      setTasks(ts => ts.map(t => t.id === id ? { ...t, text: trimmed } : t));
+    }
+    setEditingId(null);
+  };
+
+  const moveTask = (id: string, newList: ListKey) => {
+    setTasks(ts => ts.map(t => t.id === id ? { ...t, list: newList } : t));
+  };
+
+  const clearCompleted = () => {
+    setTasks(ts => ts.filter(t => !(t.list === activeTab && t.done)));
   };
 
   // ─── Export / Import Backup ─────────────────
@@ -556,6 +592,16 @@ export default function App() {
               {taskCounts.rough > 0 && <span className="tab-count">{taskCounts.rough}</span>}
             </button>
 
+            {visibleTasks.some(t => t.done) && (
+              <button
+                className="rough-btn"
+                onClick={clearCompleted}
+                title="Clear completed tasks in this view"
+              >
+                Clear Done ({visibleTasks.filter(t => t.done).length})
+              </button>
+            )}
+
             <div className="header-divider" />
 
             <button
@@ -600,44 +646,115 @@ export default function App() {
                   </motion.div>
                 ) : (
                   <AnimatePresence initial={false}>
-                    {visibleTasks.map((task, index) => (
-                      <motion.div
-                        key={task.id}
-                        layout
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
-                        transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
-                        className={`row${task.resolving ? " resolving" : ""}`}
-                        data-focused={focusedIdx === index}
-                        onClick={() => setFocusedIdx(index)}
-                      >
-                        {activeTab === "rough" && <div className="rough-dot" />}
-                        {activeTab === "todo"  && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
-                        {activeTab === "watch" && <div className="watch-dot" />}
-                        {activeTab === "later" && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
+                    {visibleTasks.map((task, index) => {
+                      const isEditing = editingId === task.id;
+                      return (
+                        <motion.div
+                          key={task.id}
+                          layout
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
+                          transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
+                          className={`row${task.resolving ? " resolving" : ""}`}
+                          data-focused={focusedIdx === index}
+                          onClick={() => setFocusedIdx(index)}
+                        >
+                          {activeTab === "rough" && <div className="rough-dot" />}
+                          {activeTab === "todo"  && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
+                          {activeTab === "watch" && <div className="watch-dot" />}
+                          {activeTab === "later" && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
 
-                        <span className="row-text" data-done={task.done && activeTab !== "rough"}>
-                          {task.text}
-                        </span>
+                          {isEditing ? (
+                            <input
+                              className="row-edit-input"
+                              value={editText}
+                              onChange={e => setEditText(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === "Enter") saveEditing(task.id);
+                                if (e.key === "Escape") setEditingId(null);
+                              }}
+                              autoFocus
+                            />
+                          ) : (
+                            <span
+                              className="row-text"
+                              data-done={task.done && activeTab !== "rough"}
+                              onDoubleClick={() => startEditing(task)}
+                              title="Double click to edit inline"
+                            >
+                              {task.text}
+                            </span>
+                          )}
 
-                        {activeTab === "later" && task.dueAt && !task.done && (
-                          <span className="time-badge">
-                            {daysUntil(task.dueAt) === 0 ? "today" : `${daysUntil(task.dueAt)}d`}
-                          </span>
-                        )}
+                          {/* Due Date badge for Later list */}
+                          {activeTab === "later" && task.dueAt && !task.done && (
+                            <span className="time-badge">
+                              {daysUntil(task.dueAt) === 0 ? "today" : `${daysUntil(task.dueAt)}d`}
+                            </span>
+                          )}
 
-                        {activeTab === "watch" && !task.resolving && (
-                          <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
-                            Resolved
-                          </button>
-                        )}
+                          {/* Created Relative Time Ago */}
+                          {!isEditing && (
+                            <span className="row-time-ago">{timeAgo(task.createdAt)}</span>
+                          )}
 
-                        {activeTab === "rough" && (
-                          <button className="del-btn" onClick={() => deleteTask(task.id)} aria-label="Delete">×</button>
-                        )}
-                      </motion.div>
-                    ))}
+                          {/* Row Actions Toolbar */}
+                          {isEditing ? (
+                            <div className="row-actions" style={{ opacity: 1, transform: "none" }}>
+                              <button className="row-action-btn" onClick={() => saveEditing(task.id)} title="Save (Enter)">
+                                <Check size={14} />
+                              </button>
+                              <button className="row-action-btn" onClick={() => setEditingId(null)} title="Cancel (Esc)">
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="row-actions">
+                              {activeTab === "watch" && !task.resolving && (
+                                <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
+                                  Resolved
+                                </button>
+                              )}
+
+                              {/* Edit Button */}
+                              <button
+                                className="row-action-btn"
+                                onClick={(e) => { e.stopPropagation(); startEditing(task); }}
+                                title="Edit item"
+                                aria-label="Edit item"
+                              >
+                                <Pencil size={13} />
+                              </button>
+
+                              {/* Quick Move List Dropdown */}
+                              <select
+                                className="move-select"
+                                value={task.list}
+                                onClick={e => e.stopPropagation()}
+                                onChange={e => moveTask(task.id, e.target.value as ListKey)}
+                                title="Move to another list"
+                              >
+                                <option value="todo">→ Todo</option>
+                                <option value="watch">→ Watch</option>
+                                <option value="later">→ Later</option>
+                                <option value="rough">→ Rough</option>
+                              </select>
+
+                              {/* Delete Button */}
+                              <button
+                                className="row-action-btn del"
+                                onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                                title="Delete item"
+                                aria-label="Delete item"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </AnimatePresence>
                 )}
               </motion.div>

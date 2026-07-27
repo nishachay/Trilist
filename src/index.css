@@ -336,6 +336,96 @@
   text-decoration-color: color-mix(in srgb, var(--text-faint) 55%, transparent);
 }
 
+/* ─── Row Actions (Appears on Hover) ─────────────── */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateX(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.row:hover .row-actions,
+.row[data-focused="true"] .row-actions {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.row-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  transition: color 0.14s, background 0.14s, transform 0.1s;
+}
+
+.row-action-btn:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.row-action-btn.del:hover {
+  color: #ff453a;
+  background: rgba(255, 69, 58, 0.12);
+}
+
+.row-action-btn:active {
+  transform: scale(0.92);
+}
+
+/* Inline Edit Input */
+.row-edit-input {
+  flex: 1;
+  font-size: 14.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface-lo);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}
+
+/* Relative Time Ago */
+.row-time-ago {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  margin-right: 4px;
+}
+
+.row:hover .row-time-ago {
+  opacity: 0.75;
+}
+
+/* Move List Selector Badge */
+.move-select {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  background: var(--surface-lo);
+  border: 1px solid var(--border-mid);
+  border-radius: 5px;
+  padding: 2px 6px;
+  cursor: pointer;
+  outline: none;
+  transition: color 0.14s, border-color 0.14s;
+}
+
+.move-select:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* Rough — bullet */
 .rough-dot {
   width: 4px;
