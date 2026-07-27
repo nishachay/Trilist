@@ -401,23 +401,84 @@
   opacity: 0.75;
 }
 
-/* Move List Selector Badge */
-.move-select {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text-faint);
-  background: var(--surface-lo);
-  border: 1px solid var(--border-mid);
-  border-radius: 5px;
-  padding: 2px 6px;
-  cursor: pointer;
-  outline: none;
-  transition: color 0.14s, border-color 0.14s;
+/* ─── Custom Move Popover Dropdown ─────────────── */
+.move-pill-wrap {
+  position: relative;
 }
 
-.move-select:hover {
-  color: var(--accent);
+.move-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--text-soft);
+  background: var(--surface-lo);
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: color 0.14s, background 0.14s, border-color 0.14s, transform 0.1s;
+}
+
+.move-pill-btn:hover {
+  color: var(--text);
+  background: var(--surface-hi);
   border-color: var(--accent);
+}
+
+.move-pill-btn:active {
+  transform: scale(0.95);
+}
+
+.move-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 50;
+  min-width: 110px;
+  background: var(--surface-hi);
+  border: 1px solid var(--border-mid);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.move-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+  text-align: left;
+}
+
+.move-popover-item:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.move-popover-item[data-active="true"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.move-item-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* Rough — bullet */

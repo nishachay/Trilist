@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight, Trash2, Check, X } from "lucide-react";
+import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight, Trash2, Check, X, ChevronDown } from "lucide-react";
 
 import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
 
@@ -80,7 +80,7 @@ const PLACEHOLDERS: Record<ListKey, string> = {
 
 const EMPTY: Record<ListKey, { title: string; hint: string }> = {
   rough: { title: "Nothing captured.",    hint: "Type anything and press Enter"     },
-  todo:  { title: "Nothing committed.",   hint: "/td to add · check to complete"    },
+  todo:  { title: "Nothing committed.",   hint: "Type task and press Enter"        },
   watch: { title: "Nothing on radar.",    hint: "/wt to track · Resolved to close"  },
   later: { title: "The future is clear.", hint: "/lt to defer · /lt /wk for a week" },
 };
@@ -114,8 +114,9 @@ export default function App() {
   const [isLoaded,       setIsLoaded]       = useState(false);
   const [focusedIdx,     setFocusedIdx]     = useState<number | null>(null);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editText,  setEditText]  = useState<string>("");
+  const [editingId,      setEditingId]      = useState<string | null>(null);
+  const [editText,       setEditText]       = useState<string>("");
+  const [moveMenuTaskId, setMoveMenuTaskId] = useState<string | null>(null);
 
   const [input,         setInput]         = useState("");
   const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
@@ -725,19 +726,55 @@ export default function App() {
                                 <Pencil size={13} />
                               </button>
 
-                              {/* Quick Move List Dropdown */}
-                              <select
-                                className="move-select"
-                                value={task.list}
-                                onClick={e => e.stopPropagation()}
-                                onChange={e => moveTask(task.id, e.target.value as ListKey)}
-                                title="Move to another list"
-                              >
-                                <option value="todo">→ Todo</option>
-                                <option value="watch">→ Watch</option>
-                                <option value="later">→ Later</option>
-                                <option value="rough">→ Rough</option>
-                              </select>
+                              {/* Quick Move List Custom Popover Dropdown */}
+                              <div className="move-pill-wrap">
+                                <button
+                                  className="move-pill-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMoveMenuTaskId(moveMenuTaskId === task.id ? null : task.id);
+                                  }}
+                                  title="Move to another list"
+                                >
+                                  → {task.list.charAt(0).toUpperCase() + task.list.slice(1)}
+                                  <ChevronDown size={11} />
+                                </button>
+                                <AnimatePresence>
+                                  {moveMenuTaskId === task.id && (
+                                    <motion.div
+                                      className="move-popover"
+                                      initial={{ opacity: 0, scale: 0.94, y: -4 }}
+                                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                                      exit={{ opacity: 0, scale: 0.94, y: -4 }}
+                                      transition={{ duration: 0.12 }}
+                                    >
+                                      {[
+                                        { id: "todo",  label: "Todo"  },
+                                        { id: "watch", label: "Watch" },
+                                        { id: "later", label: "Later" },
+                                        { id: "rough", label: "Rough" },
+                                      ].map(l => (
+                                        <button
+                                          key={l.id}
+                                          className="move-popover-item"
+                                          data-active={task.list === l.id}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            moveTask(task.id, l.id as ListKey);
+                                            setMoveMenuTaskId(null);
+                                          }}
+                                        >
+                                          <span
+                                            className="move-item-dot"
+                                            style={{ background: task.list === l.id ? "var(--accent)" : "rgba(255,255,255,0.18)" }}
+                                          />
+                                          {l.label}
+                                        </button>
+                                      ))}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
 
                               {/* Delete Button */}
                               <button
