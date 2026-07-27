@@ -72,17 +72,17 @@ const MAIN_TABS: { id: ListKey; label: string }[] = [
 ];
 
 const PLACEHOLDERS: Record<ListKey, string> = {
-  rough: "Capture anything — idea, note, thought...",
+  rough: "Capture anything: idea, note, thought...",
   todo:  "What are you committing to today?",
   watch: "What are you keeping an eye on?",
   later: "Something to revisit later...",
 };
 
 const EMPTY: Record<ListKey, { title: string; hint: string }> = {
-  rough: { title: "Nothing captured.",    hint: "Type anything and press Enter"     },
-  todo:  { title: "Nothing committed.",   hint: "Type task and press Enter"        },
-  watch: { title: "Nothing on radar.",    hint: "/wt to track · Resolved to close"  },
-  later: { title: "The future is clear.", hint: "/lt to defer · /lt /wk for a week" },
+  rough: { title: "Nothing captured.",    hint: "Type anything and press Enter" },
+  todo:  { title: "Nothing committed.",   hint: "Type task and press Enter" },
+  watch: { title: "Nothing on radar.",    hint: "/wt to track or Resolved to close" },
+  later: { title: "The future is clear.", hint: "/lt to defer or /lt /wk for a week" },
 };
 
 function daysUntil(ts: number) {
@@ -927,9 +927,18 @@ export default function App() {
                     <div className="onboarding-badge">
                       <Sparkles size={24} />
                     </div>
-                    <h2 className="onboarding-title">Welcome to Trilist</h2>
+                    <h2 className="onboarding-title">The 3-List Philosophy</h2>
                     <p className="onboarding-body">
-                      A fast, distraction-free productivity engine for your commitments. Organize your work across <strong>Todo</strong> (today), <strong>Watch</strong> (radar items), <strong>Later</strong> (deferred tasks), and <strong>Rough</strong> (scratch notes).
+                      Trilist is built on Marc Andreessen's classic essay,{" "}
+                      <a
+                        href="https://pmarchive.com/guide_to_personal_productivity.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent)", textDecoration: "underline", fontWeight: 600 }}
+                      >
+                        Guide to Personal Productivity
+                      </a>.
+                      Instead of overwhelming lists, focus on 3 core lists: <strong>Todo</strong> (3 to 5 commitments per day), <strong>Watch</strong> (radar items), and <strong>Later</strong> (deferred tasks).
                     </p>
                   </>
                 )}
@@ -937,11 +946,11 @@ export default function App() {
                 {onboardStep === 2 && (
                   <>
                     <div className="onboarding-badge">
-                      <Command size={24} />
+                      <Pencil size={24} />
                     </div>
-                    <h2 className="onboarding-title">Notion-Style Tagging</h2>
+                    <h2 className="onboarding-title">The Rough Scratchpad</h2>
                     <p className="onboarding-body">
-                      Type <strong>/td</strong>, <strong>/wt</strong>, <strong>/lt</strong>, or <strong>/rg</strong> anywhere in the text field to instantly route your task on the fly without breaking your typing flow.
+                      Unverified thoughts and raw notes shouldn't pollute your daily commitments. Use <strong>Rough</strong> (press <code>0</code>) as your fast scratchpad to capture ideas before promoting them to your core lists.
                     </p>
                   </>
                 )}
@@ -949,11 +958,23 @@ export default function App() {
                 {onboardStep === 3 && (
                   <>
                     <div className="onboarding-badge">
+                      <Command size={24} />
+                    </div>
+                    <h2 className="onboarding-title">Instant Tag Routing</h2>
+                    <p className="onboarding-body">
+                      Type <strong>/wt</strong> (Watch) or <strong>/lt</strong> (Later) anywhere in your text input to route items to different lists without breaking your typing rhythm. Add <strong>/wk</strong> or <strong>/mn</strong> to set future due dates.
+                    </p>
+                  </>
+                )}
+
+                {onboardStep === 4 && (
+                  <>
+                    <div className="onboarding-badge">
                       <Zap size={24} />
                     </div>
                     <h2 className="onboarding-title">Keyboard Mastery</h2>
                     <p className="onboarding-body">
-                      Press <strong>0–3</strong> to switch views, <strong>j</strong> / <strong>k</strong> to navigate task items, <strong>Space</strong> to complete, and <strong>?</strong> anytime for the shortcut cheatsheet.
+                      Press <strong>0–3</strong> to switch lists, <strong>j</strong> and <strong>k</strong> to navigate items, <strong>Space</strong> to complete, and <strong>?</strong> anytime for your preferences and shortcut overlay.
                     </p>
                   </>
                 )}
@@ -963,9 +984,10 @@ export default function App() {
                     <div className="onboarding-dot" data-active={onboardStep === 1} />
                     <div className="onboarding-dot" data-active={onboardStep === 2} />
                     <div className="onboarding-dot" data-active={onboardStep === 3} />
+                    <div className="onboarding-dot" data-active={onboardStep === 4} />
                   </div>
 
-                  {onboardStep < 3 ? (
+                  {onboardStep < 4 ? (
                     <button className="primary-btn" onClick={() => setOnboardStep(s => s + 1)}>
                       Next <ArrowRight size={14} />
                     </button>
@@ -1115,6 +1137,21 @@ export default function App() {
                     onChange={handleImportData}
                   />
                 </div>
+              </div>
+
+              {/* Inspiration & Credits */}
+              <div className="help-block" style={{ textAlign: "center", marginTop: 20 }}>
+                <p className="help-desc" style={{ fontSize: 12, opacity: 0.85 }}>
+                  Inspired by Marc Andreessen's{" "}
+                  <a
+                    href="https://pmarchive.com/guide_to_personal_productivity.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "var(--accent)", textDecoration: "underline", fontWeight: 600 }}
+                  >
+                    Guide to Personal Productivity
+                  </a>
+                </p>
               </div>
 
               <p className="help-note">Press Esc or click outside to close.</p>
