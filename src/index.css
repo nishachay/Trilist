@@ -31,16 +31,16 @@
 }
 
 .dark {
-  /* Stealth Charcoal & High-Contrast Accent Palette */
-  --bg:          #000100;
-  --surface:     #0b0c10;
-  --surface-hi:  #14161f;
-  --surface-lo:  #08090d;
-  --border:      rgba(255, 255, 255, 0.09);
-  --border-mid:  rgba(255, 255, 255, 0.16);
-  --text:        #ffffff;
-  --text-soft:   #a8b0c0;
-  --text-faint:  #687082;
+  /* Apple / Raycast / Notion Pure Obsidian & Neutral Graphite Palette (Zero Blue Tint) */
+  --bg:          #050505;
+  --surface:     #121212;
+  --surface-hi:  #1a1a1a;
+  --surface-lo:  #0d0d0d;
+  --border:      rgba(255, 255, 255, 0.08);
+  --border-mid:  rgba(255, 255, 255, 0.14);
+  --text:        #f3f4f6;
+  --text-soft:   #9ca3af;
+  --text-faint:  #6b7280;
   --accent:      #ff6b4a;
   --accent-bg:   rgba(255, 107, 74, 0.15);
   --accent-ring: rgba(255, 107, 74, 0.32);
@@ -189,7 +189,7 @@
 }
 
 .dark .tab-bg {
-  background: #1d212b;
+  background: #242424;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
@@ -203,7 +203,7 @@
 }
 
 .dark .tab {
-  color: #8892a4;
+  color: #9ca3af;
 }
 
 .dark .tab[data-active="true"] {
@@ -498,6 +498,11 @@
   padding: 11px 14px;
   box-shadow: var(--shadow-md);
   transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.dark .omnibar {
+  background: #181818;
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* Omnibar focus: border accent only, no outer ring — clean default appearance */
