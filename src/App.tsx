@@ -502,86 +502,82 @@ export default function App() {
 
         {/* ── Header ───────────────────────────── */}
         <header className="header">
-          <div className="header-inner">
+          {/* Left: wordmark (Bigger Logo) */}
+          <div className="brand">
+            <svg className="brand-mark" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect y="0"  width="18" height="2.2" rx="1.1" fill="currentColor"/>
+              <rect y="6"  width="13" height="2.2" rx="1.1" fill="currentColor" opacity="0.65"/>
+              <rect y="12" width="8"  height="2.2" rx="1.1" fill="currentColor" opacity="0.38"/>
+            </svg>
+            <span className="brand-name">trilist</span>
+          </div>
 
-            {/* Left: wordmark (Bigger Logo) */}
-            <div className="brand">
-              <svg className="brand-mark" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <rect y="0"  width="18" height="2.2" rx="1.1" fill="currentColor"/>
-                <rect y="6"  width="13" height="2.2" rx="1.1" fill="currentColor" opacity="0.65"/>
-                <rect y="12" width="8"  height="2.2" rx="1.1" fill="currentColor" opacity="0.38"/>
-              </svg>
-              <span className="brand-name">trilist</span>
-            </div>
-
-            {/* Center: main tabs */}
-            <div className="header-center">
-              <div className="tabs">
-                {MAIN_TABS.map(tab => (
-                  <div
-                    key={tab.id}
-                    className="tab"
-                    data-active={activeTab === tab.id}
-                    onClick={() => switchTab(tab.id)}
-                  >
-                    {activeTab === tab.id && (
-                      <motion.div
-                        layoutId="tab-bg"
-                        className="tab-bg"
-                        transition={{ type: "spring", bounce: 0.15, duration: 0.38 }}
-                      />
+          {/* Center: main tabs */}
+          <div className="header-center">
+            <div className="tabs">
+              {MAIN_TABS.map(tab => (
+                <div
+                  key={tab.id}
+                  className="tab"
+                  data-active={activeTab === tab.id}
+                  onClick={() => switchTab(tab.id)}
+                >
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="tab-bg"
+                      className="tab-bg"
+                      transition={{ type: "spring", bounce: 0.15, duration: 0.38 }}
+                    />
+                  )}
+                  <span className="tab-label">
+                    {tab.label}
+                    {taskCounts[tab.id] > 0 && (
+                      <span className="tab-count">{taskCounts[tab.id]}</span>
                     )}
-                    <span className="tab-label">
-                      {tab.label}
-                      {taskCounts[tab.id] > 0 && (
-                        <span className="tab-count">{taskCounts[tab.id]}</span>
-                      )}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  </span>
+                </div>
+              ))}
             </div>
+          </div>
 
-            {/* Right: Rough + controls */}
-            <div className="header-right">
-              <button
-                className="rough-btn"
-                data-active={activeTab === "rough"}
-                onClick={() => switchTab("rough")}
-                title="Rough (0)"
-                aria-label="Open Rough"
-              >
-                <Pencil size={12} strokeWidth={2} />
-                Rough
-                {taskCounts.rough > 0 && <span className="tab-count">{taskCounts.rough}</span>}
-              </button>
+          {/* Right: Rough + controls */}
+          <div className="header-right">
+            <button
+              className="rough-btn"
+              data-active={activeTab === "rough"}
+              onClick={() => switchTab("rough")}
+              title="Rough (0)"
+              aria-label="Open Rough"
+            >
+              <Pencil size={12} strokeWidth={2} />
+              Rough
+              {taskCounts.rough > 0 && <span className="tab-count">{taskCounts.rough}</span>}
+            </button>
 
-              <div className="header-divider" />
+            <div className="header-divider" />
 
-              <button
-                className="tbtn"
-                onClick={() => setShowHelp(true)}
-                title="Settings & Help (?)"
-                aria-label="Help"
-              >
-                ?
-              </button>
-              <button
-                className="tbtn"
-                onClick={cycleTheme}
-                title={`Theme: ${theme}`}
-                aria-label="Toggle theme"
-              >
-                <ThemeIcon size={14} />
-              </button>
-            </div>
+            <button
+              className="tbtn"
+              onClick={() => setShowHelp(true)}
+              title="Settings & Help (?)"
+              aria-label="Help"
+            >
+              ?
+            </button>
+            <button
+              className="tbtn"
+              onClick={cycleTheme}
+              title={`Theme: ${theme}`}
+              aria-label="Toggle theme"
+            >
+              <ThemeIcon size={14} />
+            </button>
           </div>
         </header>
 
         {/* ── Content ──────────────────────────── */}
         <main className="content">
-          <div className="content-inner">
-            <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, y: 6 }}
@@ -644,7 +640,6 @@ export default function App() {
                 )}
               </motion.div>
             </AnimatePresence>
-          </div>
         </main>
 
         {/* ── Omnibar ──────────────────────────── */}
