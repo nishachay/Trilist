@@ -31,24 +31,24 @@
 }
 
 .dark {
-  /* Apple / Raycast / Notion Pure Obsidian & Neutral Graphite Palette (Zero Blue Tint) */
+  /* Apple / Raycast Pure Obsidian Tokens — 100% Structural Parity with Light Mode */
   --bg:          #050505;
   --surface:     #121212;
-  --surface-hi:  #1a1a1a;
+  --surface-hi:  #1e1e1e;
   --surface-lo:  #0d0d0d;
   --border:      rgba(255, 255, 255, 0.08);
   --border-mid:  rgba(255, 255, 255, 0.14);
-  --text:        #f3f4f6;
-  --text-soft:   #9ca3af;
-  --text-faint:  #6b7280;
+  --text:        #ffffff;
+  --text-soft:   #a1a1aa;
+  --text-faint:  #71717a;
   --accent:      #ff6b4a;
   --accent-bg:   rgba(255, 107, 74, 0.15);
-  --accent-ring: rgba(255, 107, 74, 0.32);
+  --accent-ring: rgba(255, 107, 74, 0.30);
   --green:       #30d158;
   --green-bg:    rgba(48, 209, 88, 0.12);
-  --shadow-sm:   0 2px 8px rgba(0,0,0,0.60);
-  --shadow-md:   0 8px 24px rgba(0,0,0,0.80);
-  --shadow-lg:   0 32px 80px rgba(0,0,0,0.95);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.50);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.60);
+  --shadow-lg:   0 24px 64px rgba(0,0,0,0.85);
 }
 
 /* ─── Reset ───────────────────────────────────── */
@@ -188,12 +188,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-.dark .tab-bg {
-  background: #242424;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
 .tab-label {
   position: relative;
   z-index: 1;
@@ -202,19 +196,11 @@
   gap: 5px;
 }
 
-.dark .tab {
-  color: #9ca3af;
-}
-
-.dark .tab[data-active="true"] {
-  color: #ffffff;
-}
-
 .tab-count {
   font-size: 10px;
   font-weight: 600;
-  opacity: 0.85;
-  background: color-mix(in srgb, var(--text) 12%, transparent);
+  opacity: 0.70;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
   padding: 1px 5px;
   border-radius: 99px;
   font-family: var(--font-mono);
