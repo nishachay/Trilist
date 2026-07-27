@@ -538,15 +538,13 @@ export default function App() {
 
         {/* ── Header ───────────────────────────── */}
         <header className="header">
-          {/* Left: Raycast/Linear style symmetrical brand logo badge */}
+          {/* Left: Clean standalone brand logo & wordmark */}
           <div className="brand" onClick={() => switchTab("todo")} title="Trilist Home">
-            <div className="brand-icon-box">
-              <svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <rect x="0" y="0"   width="13" height="2.2" rx="1.1" fill="var(--accent)"/>
-                <rect x="0" y="4.4" width="9"  height="2.2" rx="1.1" fill="currentColor" opacity="0.80"/>
-                <rect x="0" y="8.8" width="5"  height="2.2" rx="1.1" fill="currentColor" opacity="0.45"/>
-              </svg>
-            </div>
+            <svg className="brand-mark" viewBox="0 0 22 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="0" y="0"    width="22" height="3.5" rx="1.75" fill="var(--accent)"/>
+              <rect x="0" y="6.75" width="15" height="3.5" rx="1.75" fill="currentColor" opacity="0.85"/>
+              <rect x="0" y="13.5" width="9"  height="3.5" rx="1.75" fill="currentColor" opacity="0.50"/>
+            </svg>
             <span className="brand-name">trilist</span>
           </div>
 
