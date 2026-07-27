@@ -1041,4 +1041,127 @@
   transform: scale(0.96);
 }
 
+/* ─── Mobile Responsive Engine ──────────────────────── */
+@media (max-width: 768px) {
+  .page {
+    padding: 0;
+  }
+
+  .window {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-width: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .header {
+    padding: 0 10px;
+    height: 52px;
+  }
+
+  .header-center {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    margin: 0 auto;
+  }
+
+  .brand-name {
+    display: none;
+  }
+
+  .tabs {
+    padding: 2px;
+  }
+
+  .tab {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .tab-count {
+    min-width: 16px;
+    height: 16px;
+    font-size: 9.5px;
+    padding: 0 4px;
+  }
+
+  .rough-btn {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  .content {
+    padding: 12px 14px;
+  }
+
+  .row {
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+
+  .row-actions {
+    opacity: 1;
+    transform: none;
+  }
+
+  .row-time-ago {
+    display: none;
+  }
+
+  .omnibar-wrap {
+    padding: 10px 12px 14px;
+  }
+
+  .omnibar {
+    height: 48px;
+    padding: 0 12px;
+  }
+
+  .cmd-menu {
+    max-height: 220px;
+  }
+
+  .onboarding-card {
+    width: calc(100vw - 32px);
+    max-width: 380px;
+    padding: 24px 20px;
+  }
+
+  .help-overlay {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 32px);
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .header {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .brand {
+    flex: 0 0 auto;
+  }
+
+  .tab {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+
+  .header-divider {
+    display: none;
+  }
+
+  .tbtn {
+    width: 28px;
+    height: 28px;
+  }
+}
+
 
