@@ -29,6 +29,22 @@ type Cmd = {
   days?:   number;
 };
 
+// ─── Customization Options ──────────────────────
+const ACCENT_SWATCHES = [
+  { name: "Coral",   color: "#ff6b4a" },
+  { name: "Purple",  color: "#a855f7" },
+  { name: "Blue",    color: "#2997ff" },
+  { name: "Emerald", color: "#22c55e" },
+  { name: "Gold",    color: "#f59e0b" },
+];
+
+const FONT_OPTIONS = [
+  { label: "Geist (Sans)",  value: '"Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+  { label: "Mono",          value: '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace' },
+  { label: "Inter (Tight)", value: '"Inter Tight", -apple-system, BlinkMacSystemFont, sans-serif' },
+  { label: "Newsreader",    value: '"Newsreader", Georgia, serif' },
+];
+
 // ─── Command Definitions ────────────────────────
 const LIST_CMDS: Cmd[] = [
   { cmd: "/rough", alias: "/rg", desc: "Rough",  type: "list", target: "rough" },
@@ -78,6 +94,8 @@ export default function App() {
   const [tasks,          setTasks]          = useState<Task[]>([]);
   const [activeTab,      setActiveTab]      = useState<ListKey>("todo");
   const [theme,          setTheme]          = useState<Theme>("system");
+  const [accentColor,    setAccentColor]    = useState<string>("#ff6b4a");
+  const [fontFamily,     setFontFamily]     = useState<string>(FONT_OPTIONS[0].value);
   const [showHelp,       setShowHelp]       = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardStep,    setOnboardStep]    = useState(1);
@@ -99,7 +117,6 @@ export default function App() {
     async function loadData() {
       const savedTasks = await getStoredTasks<Task>();
       if (savedTasks) {
-        // Automatically purge any legacy demo tasks from browser IndexedDB storage
         const cleanTasks = savedTasks.filter(t =>
           !t.id.startsWith("d") &&
           !t.text.toLowerCase().includes("onboarding flow") &&
@@ -115,14 +132,16 @@ export default function App() {
       }
 
       const savedTheme = await getStoredSetting<Theme>("theme");
-      if (savedTheme) {
-        setTheme(savedTheme);
-      }
+      if (savedTheme) setTheme(savedTheme);
+
+      const savedAccent = await getStoredSetting<string>("accentColor");
+      if (savedAccent) setAccentColor(savedAccent);
+
+      const savedFont = await getStoredSetting<string>("fontFamily");
+      if (savedFont) setFontFamily(savedFont);
 
       const hasOnboarded = await getStoredSetting<boolean>("onboarded");
-      if (!hasOnboarded) {
-        setShowOnboarding(true);
-      }
+      if (!hasOnboarded) setShowOnboarding(true);
 
       setIsLoaded(true);
     }
@@ -138,6 +157,29 @@ export default function App() {
     if (!isLoaded) return;
     saveStoredSetting("theme", theme);
   }, [theme, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    saveStoredSetting("accentColor", accentColor);
+  }, [accentColor, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    saveStoredSetting("fontFamily", fontFamily);
+  }, [fontFamily, isLoaded]);
+
+  // Apply Root CSS Customizations
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--accent", accentColor);
+    root.style.setProperty("--accent-bg", `${accentColor}1c`);
+    root.style.setProperty("--accent-ring", `${accentColor}40`);
+  }, [accentColor]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--font-sans", fontFamily);
+  }, [fontFamily]);
 
   // Reset row selection when tab changes
   useEffect(() => {
@@ -202,6 +244,8 @@ export default function App() {
       timestamp: new Date().toISOString(),
       tasks,
       theme,
+      accentColor,
+      fontFamily,
     };
     const jsonStr = JSON.stringify(backupData, null, 2);
     const blob = new Blob([jsonStr], { type: "application/json" });
@@ -223,6 +267,8 @@ export default function App() {
         if (Array.isArray(parsed.tasks)) {
           setTasks(parsed.tasks);
           if (parsed.theme) setTheme(parsed.theme);
+          if (parsed.accentColor) setAccentColor(parsed.accentColor);
+          if (parsed.fontFamily) setFontFamily(parsed.fontFamily);
           alert("Backup successfully restored!");
         }
       } catch {
@@ -456,145 +502,149 @@ export default function App() {
 
         {/* ── Header ───────────────────────────── */}
         <header className="header">
+          <div className="header-inner">
 
-          {/* Left: wordmark */}
-          <div className="brand">
-            <svg className="brand-mark" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect y="0"  width="18" height="2" rx="1" fill="currentColor"/>
-              <rect y="6"  width="13" height="2" rx="1" fill="currentColor" opacity="0.6"/>
-              <rect y="12" width="8"  height="2" rx="1" fill="currentColor" opacity="0.35"/>
-            </svg>
-            <span className="brand-name">trilist</span>
-          </div>
-
-          {/* Center: main tabs */}
-          <div className="header-center">
-            <div className="tabs">
-              {MAIN_TABS.map(tab => (
-                <div
-                  key={tab.id}
-                  className="tab"
-                  data-active={activeTab === tab.id}
-                  onClick={() => switchTab(tab.id)}
-                >
-                  {activeTab === tab.id && (
-                    <motion.div
-                      layoutId="tab-bg"
-                      className="tab-bg"
-                      transition={{ type: "spring", bounce: 0.15, duration: 0.38 }}
-                    />
-                  )}
-                  <span className="tab-label">
-                    {tab.label}
-                    {taskCounts[tab.id] > 0 && (
-                      <span className="tab-count">{taskCounts[tab.id]}</span>
-                    )}
-                  </span>
-                </div>
-              ))}
+            {/* Left: wordmark (Bigger Logo) */}
+            <div className="brand">
+              <svg className="brand-mark" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect y="0"  width="18" height="2.2" rx="1.1" fill="currentColor"/>
+                <rect y="6"  width="13" height="2.2" rx="1.1" fill="currentColor" opacity="0.65"/>
+                <rect y="12" width="8"  height="2.2" rx="1.1" fill="currentColor" opacity="0.38"/>
+              </svg>
+              <span className="brand-name">trilist</span>
             </div>
-          </div>
 
-          {/* Right: Rough + controls */}
-          <div className="header-right">
-            <button
-              className="rough-btn"
-              data-active={activeTab === "rough"}
-              onClick={() => switchTab("rough")}
-              title="Rough (0)"
-              aria-label="Open Rough"
-            >
-              <Pencil size={12} strokeWidth={2} />
-              Rough
-              {taskCounts.rough > 0 && <span className="tab-count">{taskCounts.rough}</span>}
-            </button>
+            {/* Center: main tabs */}
+            <div className="header-center">
+              <div className="tabs">
+                {MAIN_TABS.map(tab => (
+                  <div
+                    key={tab.id}
+                    className="tab"
+                    data-active={activeTab === tab.id}
+                    onClick={() => switchTab(tab.id)}
+                  >
+                    {activeTab === tab.id && (
+                      <motion.div
+                        layoutId="tab-bg"
+                        className="tab-bg"
+                        transition={{ type: "spring", bounce: 0.15, duration: 0.38 }}
+                      />
+                    )}
+                    <span className="tab-label">
+                      {tab.label}
+                      {taskCounts[tab.id] > 0 && (
+                        <span className="tab-count">{taskCounts[tab.id]}</span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-            <div className="header-divider" />
+            {/* Right: Rough + controls */}
+            <div className="header-right">
+              <button
+                className="rough-btn"
+                data-active={activeTab === "rough"}
+                onClick={() => switchTab("rough")}
+                title="Rough (0)"
+                aria-label="Open Rough"
+              >
+                <Pencil size={12} strokeWidth={2} />
+                Rough
+                {taskCounts.rough > 0 && <span className="tab-count">{taskCounts.rough}</span>}
+              </button>
 
-            <button
-              className="tbtn"
-              onClick={() => setShowHelp(true)}
-              title="Help (?)"
-              aria-label="Help"
-            >
-              ?
-            </button>
-            <button
-              className="tbtn"
-              onClick={cycleTheme}
-              title={`Theme: ${theme}`}
-              aria-label="Toggle theme"
-            >
-              <ThemeIcon size={13} />
-            </button>
+              <div className="header-divider" />
+
+              <button
+                className="tbtn"
+                onClick={() => setShowHelp(true)}
+                title="Settings & Help (?)"
+                aria-label="Help"
+              >
+                ?
+              </button>
+              <button
+                className="tbtn"
+                onClick={cycleTheme}
+                title={`Theme: ${theme}`}
+                aria-label="Toggle theme"
+              >
+                <ThemeIcon size={14} />
+              </button>
+            </div>
           </div>
         </header>
 
         {/* ── Content ──────────────────────────── */}
         <main className="content">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.16, ease: "easeOut" }}
-            >
-              {visibleTasks.length === 0 ? (
-                <motion.div
-                  className="empty"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.22, ease: "easeOut" }}
-                >
-                  <EmptyIcon />
-                  <p className="empty-title">{emptyState.title}</p>
-                  <p className="empty-hint">{emptyState.hint}</p>
-                </motion.div>
-              ) : (
-                <AnimatePresence initial={false}>
-                  {visibleTasks.map((task, index) => (
-                    <motion.div
-                      key={task.id}
-                      layout
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
-                      transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
-                      className={`row${task.resolving ? " resolving" : ""}`}
-                      data-focused={focusedIdx === index}
-                      onClick={() => setFocusedIdx(index)}
-                    >
-                      {activeTab === "rough" && <div className="rough-dot" />}
-                      {activeTab === "todo"  && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
-                      {activeTab === "watch" && <div className="watch-dot" />}
-                      {activeTab === "later" && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
+          <div className="content-inner">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.16, ease: "easeOut" }}
+              >
+                {visibleTasks.length === 0 ? (
+                  <motion.div
+                    className="empty"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                  >
+                    <EmptyIcon />
+                    <p className="empty-title">{emptyState.title}</p>
+                    <p className="empty-hint">{emptyState.hint}</p>
+                  </motion.div>
+                ) : (
+                  <AnimatePresence initial={false}>
+                    {visibleTasks.map((task, index) => (
+                      <motion.div
+                        key={task.id}
+                        layout
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
+                        transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
+                        className={`row${task.resolving ? " resolving" : ""}`}
+                        data-focused={focusedIdx === index}
+                        onClick={() => setFocusedIdx(index)}
+                      >
+                        {activeTab === "rough" && <div className="rough-dot" />}
+                        {activeTab === "todo"  && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
+                        {activeTab === "watch" && <div className="watch-dot" />}
+                        {activeTab === "later" && <AnimCheckbox done={task.done} onToggle={() => toggleTask(task.id)} />}
 
-                      <span className="row-text" data-done={task.done && activeTab !== "rough"}>
-                        {task.text}
-                      </span>
-
-                      {activeTab === "later" && task.dueAt && !task.done && (
-                        <span className="time-badge">
-                          {daysUntil(task.dueAt) === 0 ? "today" : `${daysUntil(task.dueAt)}d`}
+                        <span className="row-text" data-done={task.done && activeTab !== "rough"}>
+                          {task.text}
                         </span>
-                      )}
 
-                      {activeTab === "watch" && !task.resolving && (
-                        <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
-                          Resolved
-                        </button>
-                      )}
+                        {activeTab === "later" && task.dueAt && !task.done && (
+                          <span className="time-badge">
+                            {daysUntil(task.dueAt) === 0 ? "today" : `${daysUntil(task.dueAt)}d`}
+                          </span>
+                        )}
 
-                      {activeTab === "rough" && (
-                        <button className="del-btn" onClick={() => deleteTask(task.id)} aria-label="Delete">×</button>
-                      )}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              )}
-            </motion.div>
-          </AnimatePresence>
+                        {activeTab === "watch" && !task.resolving && (
+                          <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
+                            Resolved
+                          </button>
+                        )}
+
+                        {activeTab === "rough" && (
+                          <button className="del-btn" onClick={() => deleteTask(task.id)} aria-label="Delete">×</button>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
 
         {/* ── Omnibar ──────────────────────────── */}
@@ -773,7 +823,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* ── Help Overlay ─────────────────────── */}
+        {/* ── Help & Settings Overlay ─────────────────────── */}
         <AnimatePresence>
           {showHelp && (
             <motion.div
@@ -784,7 +834,42 @@ export default function App() {
               transition={{ duration: 0.18 }}
               onClick={e => { if (e.target === e.currentTarget) setShowHelp(false); }}
             >
-              <p className="help-title">Help &amp; Shortcuts</p>
+              <p className="help-title">Help &amp; Preferences</p>
+
+              {/* Customization Options */}
+              <div className="help-block">
+                <p className="help-section-label">Accent Color</p>
+                <div className="help-rule" />
+                <div className="swatch-group">
+                  {ACCENT_SWATCHES.map(s => (
+                    <button
+                      key={s.color}
+                      className="swatch-btn"
+                      style={{ backgroundColor: s.color }}
+                      title={s.name}
+                      data-selected={accentColor === s.color}
+                      onClick={() => setAccentColor(s.color)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="help-block">
+                <p className="help-section-label">Typography</p>
+                <div className="help-rule" />
+                <div className="font-btn-group">
+                  {FONT_OPTIONS.map(f => (
+                    <button
+                      key={f.label}
+                      className="font-btn"
+                      data-selected={fontFamily === f.value}
+                      onClick={() => setFontFamily(f.value)}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="help-block">
                 <p className="help-section-label">Navigation &amp; Task Selection</p>

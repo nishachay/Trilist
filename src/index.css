@@ -31,24 +31,24 @@
 }
 
 .dark {
-  /* Luxury Charcoal & Warm Electric Coral Palette (Raycast / Linear Aesthetic) */
-  --bg:          #0c0d10;
-  --surface:     #14161b;
-  --surface-hi:  #1c1e25;
-  --surface-lo:  #0f1014;
-  --border:      rgba(255, 255, 255, 0.08);
-  --border-mid:  rgba(255, 255, 255, 0.15);
+  /* Pitch OLED Stealth Palette (#000100 canvas, #090A09 window, #0A0B09 header) */
+  --bg:          #000100;
+  --surface:     #090A09;
+  --surface-hi:  #0A0B09;
+  --surface-lo:  #050505;
+  --border:      rgba(255, 255, 255, 0.07);
+  --border-mid:  rgba(255, 255, 255, 0.14);
   --text:        #ffffff;
-  --text-soft:   #9ca3af;
-  --text-faint:  #525866;
+  --text-soft:   #9ea3b0;
+  --text-faint:  #505562;
   --accent:      #ff6b4a;
   --accent-bg:   rgba(255, 107, 74, 0.15);
   --accent-ring: rgba(255, 107, 74, 0.32);
   --green:       #30d158;
   --green-bg:    rgba(48, 209, 88, 0.12);
-  --shadow-sm:   0 2px 8px rgba(0,0,0,0.50);
-  --shadow-md:   0 8px 24px rgba(0,0,0,0.65);
-  --shadow-lg:   0 32px 80px rgba(0,0,0,0.90), 0 0 1px rgba(255,255,255,0.1);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.70);
+  --shadow-md:   0 8px 24px rgba(0,0,0,0.85);
+  --shadow-lg:   0 32px 80px rgba(0,0,0,0.98);
 }
 
 /* ─── Reset ───────────────────────────────────── */
@@ -78,31 +78,29 @@
 }
 
 /* ─── Page ────────────────────────────────────── */
-/* Equal 24px on all sides */
 .page {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 0;
   position: relative;
   overflow: hidden;
 }
 
-/* ─── Window ──────────────────────────────────── */
+/* ─── Window (Fills page, content remains centered at 860px) ───── */
 .window {
   position: relative;
   width: 100%;
-  max-width: 1100px;
-  /* Equal height: 100vh minus equal 24px top + 24px bottom */
-  height: min(840px, calc(100vh - 48px));
+  height: 100%;
+  max-width: 100%;
   background: var(--surface);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--border-mid);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -112,35 +110,45 @@
 .header {
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  height: 48px;
+  justify-content: center;
+  padding: 0 24px;
+  height: 52px;
   background: var(--surface-hi);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   position: relative;
 }
 
-/* ── Brand (left) */
+.header-inner {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* ── Brand (left) - Bigger Logo */
 .brand {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
   user-select: none;
 }
 
 .brand-mark {
-  width: 20px;
-  height: 16px;
+  width: 26px;
+  height: 20px;
   color: var(--text);
   flex-shrink: 0;
 }
 
 .brand-name {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.35px;
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
   color: var(--text);
   line-height: 1;
 }
@@ -286,6 +294,13 @@
   position: relative;
 }
 .content::-webkit-scrollbar { display: none; }
+
+.content-inner {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
 
 /* ─── Rows ────────────────────────────────────── */
 .row {
@@ -815,6 +830,52 @@
 .primary-btn:hover {
   opacity: 0.92;
 }
+
+/* ─── Customization Controls ──────────────────── */
+.swatch-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.swatch-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.14s, border-color 0.14s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.swatch-btn:hover { transform: scale(1.15); }
+.swatch-btn[data-selected="true"] { border-color: var(--text); transform: scale(1.15); }
+
+.font-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.font-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+  background: var(--surface-lo);
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.14s, background 0.14s, border-color 0.14s;
+}
+
+.font-btn:hover { color: var(--text); border-color: var(--accent); }
+.font-btn[data-selected="true"] {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
 
 .primary-btn:active {
   transform: scale(0.96);
