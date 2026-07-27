@@ -36,3 +36,7 @@ Thumbs.db
 
 # Temporary clone
 temp-clone/
+
+# Internal Agent files
+.agents/
+skills-lock.json
