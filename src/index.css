@@ -31,24 +31,24 @@
 }
 
 .dark {
-  /* Pitch OLED Stealth Palette (#000100 canvas, #090A09 window, #0A0B09 header) */
+  /* Stealth Charcoal & High-Contrast Accent Palette */
   --bg:          #000100;
-  --surface:     #090A09;
-  --surface-hi:  #0A0B09;
-  --surface-lo:  #050505;
-  --border:      rgba(255, 255, 255, 0.07);
-  --border-mid:  rgba(255, 255, 255, 0.14);
+  --surface:     #0b0c10;
+  --surface-hi:  #14161f;
+  --surface-lo:  #08090d;
+  --border:      rgba(255, 255, 255, 0.09);
+  --border-mid:  rgba(255, 255, 255, 0.16);
   --text:        #ffffff;
-  --text-soft:   #9ea3b0;
-  --text-faint:  #505562;
+  --text-soft:   #a8b0c0;
+  --text-faint:  #687082;
   --accent:      #ff6b4a;
   --accent-bg:   rgba(255, 107, 74, 0.15);
   --accent-ring: rgba(255, 107, 74, 0.32);
   --green:       #30d158;
   --green-bg:    rgba(48, 209, 88, 0.12);
-  --shadow-sm:   0 2px 8px rgba(0,0,0,0.70);
-  --shadow-md:   0 8px 24px rgba(0,0,0,0.85);
-  --shadow-lg:   0 32px 80px rgba(0,0,0,0.98);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.60);
+  --shadow-md:   0 8px 24px rgba(0,0,0,0.80);
+  --shadow-lg:   0 32px 80px rgba(0,0,0,0.95);
 }
 
 /* ─── Reset ───────────────────────────────────── */
@@ -118,27 +118,32 @@
   position: relative;
 }
 
-/* ── Brand (left) - Bigger Logo */
+/* ── Brand (left) - Refined Logo */
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
   user-select: none;
+  cursor: pointer;
 }
 
 .brand-mark {
-  width: 26px;
-  height: 20px;
-  color: var(--text);
+  width: 20px;
+  height: 16px;
+  color: var(--accent);
   flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.brand:hover .brand-mark {
+  transform: scale(1.08);
 }
 
 .brand-name {
-  font-size: 17px;
-  font-weight: 750;
-  letter-spacing: -0.4px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.45px;
   color: var(--text);
   line-height: 1;
 }
@@ -183,6 +188,12 @@
   box-shadow: var(--shadow-sm);
 }
 
+.dark .tab-bg {
+  background: #1d212b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 .tab-label {
   position: relative;
   z-index: 1;
@@ -191,11 +202,19 @@
   gap: 5px;
 }
 
+.dark .tab {
+  color: #8892a4;
+}
+
+.dark .tab[data-active="true"] {
+  color: #ffffff;
+}
+
 .tab-count {
   font-size: 10px;
   font-weight: 600;
-  opacity: 0.65;
-  background: color-mix(in srgb, var(--text) 10%, transparent);
+  opacity: 0.85;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
   padding: 1px 5px;
   border-radius: 99px;
   font-family: var(--font-mono);

@@ -502,12 +502,12 @@ export default function App() {
 
         {/* ── Header ───────────────────────────── */}
         <header className="header">
-          {/* Left: wordmark (Bigger Logo) */}
-          <div className="brand">
-            <svg className="brand-mark" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect y="0"  width="18" height="2.2" rx="1.1" fill="currentColor"/>
-              <rect y="6"  width="13" height="2.2" rx="1.1" fill="currentColor" opacity="0.65"/>
-              <rect y="12" width="8"  height="2.2" rx="1.1" fill="currentColor" opacity="0.38"/>
+          {/* Left: Refined brand logo */}
+          <div className="brand" onClick={() => switchTab("todo")} title="Trilist Home">
+            <svg className="brand-mark" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="0" y="0"  width="20" height="3" rx="1.5" fill="currentColor"/>
+              <rect x="0" y="6.5" width="14" height="3" rx="1.5" fill="currentColor" opacity="0.75"/>
+              <rect x="0" y="13"  width="8"  height="3" rx="1.5" fill="currentColor" opacity="0.45"/>
             </svg>
             <span className="brand-name">trilist</span>
           </div>
