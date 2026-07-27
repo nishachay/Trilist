@@ -10,7 +10,8 @@ It provides a clean, distraction-free environment to manage your daily commitmen
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF.svg)](https://vitejs.dev/)
 [![Vercel Ready](https://img.shields.io/badge/Deploy-Vercel-black.svg)](https://vercel.com/)
 
-![Trilist Mockup](public/mockup.png)
+![Trilist Dark Mode](public/mockup-dark.png#gh-dark-mode-only)
+![Trilist Light Mode](public/mockup-light.png#gh-light-mode-only)
 
 ---
 
