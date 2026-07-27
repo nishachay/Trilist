@@ -99,7 +99,19 @@ export default function App() {
     async function loadData() {
       const savedTasks = await getStoredTasks<Task>();
       if (savedTasks) {
-        setTasks(savedTasks);
+        // Automatically purge any legacy demo tasks from browser IndexedDB storage
+        const cleanTasks = savedTasks.filter(t =>
+          !t.id.startsWith("d") &&
+          !t.text.toLowerCase().includes("onboarding flow") &&
+          !t.text.toLowerCase().includes("investor deck") &&
+          !t.text.toLowerCase().includes("competitor x") &&
+          !t.text.toLowerCase().includes("infrastructure providers") &&
+          !t.text.toLowerCase().includes("strategy document")
+        );
+        setTasks(cleanTasks);
+        if (cleanTasks.length !== savedTasks.length) {
+          await saveStoredTasks(cleanTasks);
+        }
       }
 
       const savedTheme = await getStoredSetting<Theme>("theme");
