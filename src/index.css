@@ -31,24 +31,24 @@
 }
 
 .dark {
-  /* Deep page bg — window sits clearly above it */
-  --bg:          #0a0a0a;
-  --surface:     rgba(30, 30, 30, 1.00);
-  --surface-hi:  rgba(40, 40, 40, 1.00);
-  --surface-lo:  rgba(20, 20, 20, 1.00);
-  --border:      rgba(255, 255, 255, 0.12);
-  --border-mid:  rgba(255, 255, 255, 0.20);
+  /* Luxury Charcoal & Warm Electric Coral Palette (Raycast / Linear Aesthetic) */
+  --bg:          #0c0d10;
+  --surface:     #14161b;
+  --surface-hi:  #1c1e25;
+  --surface-lo:  #0f1014;
+  --border:      rgba(255, 255, 255, 0.08);
+  --border-mid:  rgba(255, 255, 255, 0.15);
   --text:        #ffffff;
-  --text-soft:   #cccccc;
-  --text-faint:  #666666;
-  --accent:      #2997ff;
-  --accent-bg:   rgba(41, 151, 255, 0.13);
-  --accent-ring: rgba(41, 151, 255, 0.22);
+  --text-soft:   #9ca3af;
+  --text-faint:  #525866;
+  --accent:      #ff6b4a;
+  --accent-bg:   rgba(255, 107, 74, 0.15);
+  --accent-ring: rgba(255, 107, 74, 0.32);
   --green:       #30d158;
   --green-bg:    rgba(48, 209, 88, 0.12);
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.55), 0 1px 1px rgba(0,0,0,0.35);
-  --shadow-md:   0 4px 16px rgba(0,0,0,0.65), 0 1px 4px rgba(0,0,0,0.45);
-  --shadow-lg:   0 24px 64px rgba(0,0,0,0.85), 0 6px 20px rgba(0,0,0,0.60);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.50);
+  --shadow-md:   0 8px 24px rgba(0,0,0,0.65);
+  --shadow-lg:   0 32px 80px rgba(0,0,0,0.90), 0 0 1px rgba(255,255,255,0.1);
 }
 
 /* ─── Reset ───────────────────────────────────── */
@@ -484,6 +484,7 @@
 /* Omnibar focus: border accent only, no outer ring — clean default appearance */
 .omnibar:focus-within {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring), 0 4px 20px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .omnibar-icon {
@@ -516,6 +517,7 @@
   font-weight: 600;
   background: var(--accent-bg);
   color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   white-space: nowrap;
   flex-shrink: 0;
 }
