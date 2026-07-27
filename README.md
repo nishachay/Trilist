@@ -10,6 +10,8 @@ It provides a clean, distraction-free environment to manage your daily commitmen
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF.svg)](https://vitejs.dev/)
 [![Vercel Ready](https://img.shields.io/badge/Deploy-Vercel-black.svg)](https://vercel.com/)
 
+![Trilist Preview](public/preview.png)
+
 ---
 
 ## The Philosophy
