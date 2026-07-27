@@ -549,10 +549,10 @@ export default function App() {
         <header className="header">
           {/* Left: Clean standalone brand logo & wordmark */}
           <div className="brand" onClick={() => switchTab("todo")} title="Trilist Home">
-            <svg className="brand-mark" viewBox="0 0 22 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="0" y="0"    width="22" height="3.5" rx="1.75" fill="var(--accent)"/>
-              <rect x="0" y="6.75" width="15" height="3.5" rx="1.75" fill="currentColor" opacity="0.85"/>
-              <rect x="0" y="13.5" width="9"  height="3.5" rx="1.75" fill="currentColor" opacity="0.50"/>
+            <svg className="brand-mark" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="0" y="0"  width="20" height="3" rx="1.5" fill="var(--accent)"/>
+              <rect x="0" y="6"  width="14" height="3" rx="1.5" fill="currentColor" opacity="0.85"/>
+              <rect x="0" y="12" width="8"  height="3" rx="1.5" fill="currentColor" opacity="0.50"/>
             </svg>
             <span className="brand-name">trilist</span>
           </div>
