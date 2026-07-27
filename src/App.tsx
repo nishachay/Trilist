@@ -413,14 +413,18 @@ export default function App() {
       q === "/" || c.cmd.startsWith(q) || c.alias.startsWith(q)
     );
     const disabled = new Set<string>();
+    const isWatchOrLater = extractedList
+      ? (extractedList.key === "later" || extractedList.key === "watch")
+      : (activeTab === "later" || activeTab === "watch");
+
     visible.forEach(c => {
-      if (c.type === "date" && extractedList?.key !== "later") {
+      if (c.type === "date" && !isWatchOrLater) {
         disabled.add(c.cmd);
       }
     });
     const enabled = visible.filter(c => !disabled.has(c.cmd));
     return { visibleCmds: visible, enabledCmds: enabled, disabledSet: disabled };
-  }, [menuQuery, extractedList]);
+  }, [menuQuery, extractedList, activeTab]);
 
   // ─── Apply command ───────────────────────────
   const applyCommand = useCallback((cmd: Cmd) => {
@@ -694,8 +698,8 @@ export default function App() {
                             </span>
                           )}
 
-                          {/* Due Date badge for Later list */}
-                          {activeTab === "later" && task.dueAt && !task.done && (
+                          {/* Due Date badge for Later or Watch list */}
+                          {(activeTab === "later" || activeTab === "watch") && task.dueAt && !task.done && (
                             <span className="time-badge">
                               {daysUntil(task.dueAt) === 0 ? "today" : `${daysUntil(task.dueAt)}d`}
                             </span>
@@ -922,6 +926,14 @@ export default function App() {
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
+                <button
+                  className="onboarding-close-btn"
+                  onClick={completeOnboarding}
+                  title="Skip onboarding"
+                  aria-label="Close"
+                >
+                  <X size={14} />
+                </button>
                 {onboardStep === 1 && (
                   <>
                     <div className="onboarding-badge">
@@ -1013,7 +1025,17 @@ export default function App() {
               transition={{ duration: 0.18 }}
               onClick={e => { if (e.target === e.currentTarget) setShowHelp(false); }}
             >
-              <p className="help-title">Help &amp; Preferences</p>
+              <div className="help-header">
+                <p className="help-title">Help &amp; Preferences</p>
+                <button
+                  className="help-close-btn"
+                  onClick={() => setShowHelp(false)}
+                  title="Close help (Esc)"
+                  aria-label="Close help"
+                >
+                  <X size={16} />
+                </button>
+              </div>
 
               {/* Customization Options */}
               <div className="help-block">
@@ -1103,7 +1125,7 @@ export default function App() {
               </div>
 
               <div className="help-block">
-                <p className="help-section-label">When tags — only after /lt</p>
+                <p className="help-section-label">When tags (available for /watch and /later)</p>
                 <div className="help-rule" />
                 {DATE_CMDS.map(c => (
                   <div key={c.cmd} className="help-row">
