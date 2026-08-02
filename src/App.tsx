@@ -1161,10 +1161,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Creator & Inspiration Signature Card */}
+              {/* Built by Nishachay Signature Card */}
               <div className="credits-card">
                 <div className="credits-header">
-                  <span className="credits-title">Crafted with precision by</span>
+                  <span className="credits-title">Built by</span>
                   <span className="credits-name">Nishachay</span>
                 </div>
 
@@ -1208,7 +1208,10 @@ export default function App() {
                     <span>email</span>
                   </a>
                 </div>
+              </div>
 
+              {/* Inspiration Footnote */}
+              <div style={{ textAlign: "center", marginTop: 14 }}>
                 <p className="credits-inspiration">
                   Inspired by Marc Andreessen's{" "}
                   <a
