@@ -1102,7 +1102,6 @@
 .credits-name {
   color: var(--text);
   font-weight: 700;
-  letter-spacing: -0.2px;
 }
 
 .credits-links {
@@ -1138,6 +1137,12 @@
 
 .credit-pill:active {
   transform: translateY(0) scale(0.97);
+}
+
+.inspiration-banner {
+  font-size: 13.5px;
+  color: var(--text-soft);
+  line-height: 1.5;
 }
 
 .credits-inspiration {

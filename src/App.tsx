@@ -1161,7 +1161,22 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Built by Nishachay Signature Card */}
+              {/* Inspiration Section (First) */}
+              <div style={{ textAlign: "center", marginTop: 22 }}>
+                <p className="inspiration-banner">
+                  Inspired by Marc Andreessen's{" "}
+                  <a
+                    href="https://pmarchive.com/guide_to_personal_productivity.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="credits-link"
+                  >
+                    Guide to Personal Productivity
+                  </a>
+                </p>
+              </div>
+
+              {/* Built by Nishachay Signature Card (Last) */}
               <div className="credits-card">
                 <div className="credits-header">
                   <span className="credits-title">Built by</span>
@@ -1210,30 +1225,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Inspiration Footnote */}
-              <div style={{ textAlign: "center", marginTop: 14 }}>
-                <p className="credits-inspiration">
-                  Inspired by Marc Andreessen's{" "}
-                  <a
-                    href="https://pmarchive.com/guide_to_personal_productivity.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="credits-link"
-                  >
-                    Guide to Personal Productivity
-                  </a>
-                </p>
-              </div>
-
               <p className="help-note">Press Esc or click outside to close.</p>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Ambient Canvas Signature */}
-        <div className="canvas-signature">
-          crafted by <a href="https://x.com/nishachayy" target="_blank" rel="noopener noreferrer">Nishachay</a>
-        </div>
       </div>
     </div>
   );
