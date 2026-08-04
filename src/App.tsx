@@ -756,69 +756,61 @@ export default function App() {
                             </span>
                           )}
 
-                          {/* Right Meta Column (Always aligned in vertical grid) */}
+                          {/* Right Meta Column */}
                           <div className="row-meta">
-                            {/* Priority Flag Badge — ALWAYS VISIBLE & ALIGNED! */}
-                            <div className="priority-pill-wrap">
-                              <button
-                                className="priority-pill-btn"
-                                data-priority={task.priority ?? "none"}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  togglePriorityPopover(task.id);
-                                }}
-                                title={task.priority ? `Priority P${task.priority} (Click to change)` : "Set priority (p)"}
-                              >
-                                <Flag
-                                  size={12}
-                                  fill={task.priority ? (task.priority === 1 ? "var(--p1-color)" : task.priority === 2 ? "var(--p2-color)" : "var(--p3-color)") : "none"}
-                                  color={
-                                    task.priority === 1
-                                      ? "var(--p1-color)"
-                                      : task.priority === 2
-                                      ? "var(--p2-color)"
-                                      : task.priority === 3
-                                      ? "var(--p3-color)"
-                                      : "var(--text-faint)"
-                                  }
-                                />
-                                {task.priority && <span className="priority-code">P{task.priority}</span>}
-                              </button>
+                            {/* Active Priority Badge (ONLY rendered when priority is set!) */}
+                            {task.priority && (
+                              <div className="priority-pill-wrap">
+                                <button
+                                  className="priority-pill-btn"
+                                  data-priority={task.priority}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    togglePriorityPopover(task.id);
+                                  }}
+                                  title={`Priority P${task.priority} (Click to change)`}
+                                >
+                                  <Flag
+                                    size={12}
+                                    fill={task.priority === 1 ? "var(--p1-color)" : task.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
+                                    color={task.priority === 1 ? "var(--p1-color)" : task.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
+                                  />
+                                  <span className="priority-code">P{task.priority}</span>
+                                </button>
 
-                              <AnimatePresence>
-                                {priorityPopoverTaskId === task.id && (
-                                  <motion.div
-                                    className="priority-popover"
-                                    initial={{ opacity: 0, scale: 0.94, y: 4 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.94, y: 4 }}
-                                    transition={{ duration: 0.12 }}
-                                  >
-                                    <button
-                                      className="priority-popover-item"
-                                      data-priority={1}
-                                      onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                <AnimatePresence>
+                                  {priorityPopoverTaskId === task.id && (
+                                    <motion.div
+                                      className="priority-popover"
+                                      initial={{ opacity: 0, scale: 0.94, y: 4 }}
+                                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                                      exit={{ opacity: 0, scale: 0.94, y: 4 }}
+                                      transition={{ duration: 0.12 }}
                                     >
-                                      <Flag size={13} fill="var(--p1-color)" color="var(--p1-color)" />
-                                      <span>P1 — High</span>
-                                    </button>
-                                    <button
-                                      className="priority-popover-item"
-                                      data-priority={2}
-                                      onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
-                                    >
-                                      <Flag size={13} fill="var(--p2-color)" color="var(--p2-color)" />
-                                      <span>P2 — Medium</span>
-                                    </button>
-                                    <button
-                                      className="priority-popover-item"
-                                      data-priority={3}
-                                      onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
-                                    >
-                                      <Flag size={13} fill="var(--p3-color)" color="var(--p3-color)" />
-                                      <span>P3 — Low</span>
-                                    </button>
-                                    {task.priority && (
+                                      <button
+                                        className="priority-popover-item"
+                                        data-priority={1}
+                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                      >
+                                        <Flag size={13} fill="var(--p1-color)" color="var(--p1-color)" />
+                                        <span>P1 — High</span>
+                                      </button>
+                                      <button
+                                        className="priority-popover-item"
+                                        data-priority={2}
+                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
+                                      >
+                                        <Flag size={13} fill="var(--p2-color)" color="var(--p2-color)" />
+                                        <span>P2 — Medium</span>
+                                      </button>
+                                      <button
+                                        className="priority-popover-item"
+                                        data-priority={3}
+                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
+                                      >
+                                        <Flag size={13} fill="var(--p3-color)" color="var(--p3-color)" />
+                                        <span>P3 — Low</span>
+                                      </button>
                                       <button
                                         className="priority-popover-item"
                                         onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, undefined); }}
@@ -826,11 +818,11 @@ export default function App() {
                                         <Flag size={13} color="var(--text-faint)" />
                                         <span>Clear</span>
                                       </button>
-                                    )}
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            )}
 
                             {/* Due Date badge for Later or Watch list */}
                             {(activeTab === "later" || activeTab === "watch") && task.dueAt && !task.done && (
@@ -844,7 +836,7 @@ export default function App() {
                               <span className="row-time-ago">{timeAgo(task.createdAt)}</span>
                             )}
 
-                            {/* Row Actions Toolbar (Fades in on Hover without breaking alignment!) */}
+                            {/* Row Actions Toolbar (Appears on Hover / Focus) */}
                             {isEditing ? (
                               <div className="row-actions" style={{ opacity: 1, transform: "none" }}>
                                 <button className="row-action-btn" onClick={() => saveEditing(task.id)} title="Save (Enter)">
@@ -860,6 +852,60 @@ export default function App() {
                                   <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
                                     Resolved
                                   </button>
+                                )}
+
+                                {/* Set Priority Flag Button & Popover (For unprioritized tasks on hover!) */}
+                                {!task.priority && (
+                                  <div className="priority-pill-wrap">
+                                    <button
+                                      className="row-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        togglePriorityPopover(task.id);
+                                      }}
+                                      title="Set priority (p)"
+                                      aria-label="Set priority"
+                                    >
+                                      <Flag size={13} color="var(--text-faint)" />
+                                    </button>
+
+                                    <AnimatePresence>
+                                      {priorityPopoverTaskId === task.id && (
+                                        <motion.div
+                                          className="priority-popover"
+                                          initial={{ opacity: 0, scale: 0.94, y: 4 }}
+                                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                                          exit={{ opacity: 0, scale: 0.94, y: 4 }}
+                                          transition={{ duration: 0.12 }}
+                                        >
+                                          <button
+                                            className="priority-popover-item"
+                                            data-priority={1}
+                                            onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                          >
+                                            <Flag size={13} fill="var(--p1-color)" color="var(--p1-color)" />
+                                            <span>P1 — High</span>
+                                          </button>
+                                          <button
+                                            className="priority-popover-item"
+                                            data-priority={2}
+                                            onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
+                                          >
+                                            <Flag size={13} fill="var(--p2-color)" color="var(--p2-color)" />
+                                            <span>P2 — Medium</span>
+                                          </button>
+                                          <button
+                                            className="priority-popover-item"
+                                            data-priority={3}
+                                            onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
+                                          >
+                                            <Flag size={13} fill="var(--p3-color)" color="var(--p3-color)" />
+                                            <span>P3 — Low</span>
+                                          </button>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
                                 )}
 
                                 {/* Edit Button */}
