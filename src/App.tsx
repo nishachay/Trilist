@@ -1263,13 +1263,14 @@ export default function App() {
                 <div className="help-rule" />
                 {[
                   { keys: ["0..3"],        desc: "Switch active tab (0=Rough, 1=Todo…)" },
-                  { keys: ["j", "k"],        desc: "Navigate task rows up / down" },
-                  { keys: ["Space"],         desc: "Toggle completion / resolve task" },
-                  { keys: ["p"],             desc: "Cycle priority (P1 / P2 / P3 / Clear)" },
-                  { keys: ["x"],             desc: "Delete selected task" },
-                  { keys: ["/"],             desc: "Focus omnibar" },
-                  { keys: ["?"],             desc: "Toggle this help view" },
-                  { keys: ["Esc"],           desc: "Blur input / close popovers" },
+                  { keys: ["j", "k"],      desc: "Navigate task rows up / down" },
+                  { keys: ["Space"],       desc: "Toggle completion / resolve task" },
+                  { keys: ["p"],           desc: "Cycle priority (P1 / P2 / P3 / Clear)" },
+                  { keys: ["x"],           desc: "Delete selected task" },
+                  { keys: ["•••"],         desc: "Open row context menu (Priority, Move, Edit, Delete)" },
+                  { keys: ["/"],           desc: "Focus omnibar" },
+                  { keys: ["?"],           desc: "Toggle this help view" },
+                  { keys: ["Esc"],         desc: "Blur input / close popovers" },
                 ].map(r => (
                   <div key={r.keys.join()} className="help-row">
                     <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
