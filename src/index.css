@@ -1387,18 +1387,27 @@
   border-color: color-mix(in srgb, var(--p3-color) 30%, transparent);
 }
 
+/* ─── Row Meta Column ─────────────────────────── */
+.row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 /* Priority Popover Dropdown Picker */
 .priority-popover {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  z-index: 50;
+  z-index: 100;
   min-width: 140px;
   padding: 5px;
   background: var(--surface-hi);
   border: 1px solid var(--border-mid);
   border-radius: 10px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 2px;
