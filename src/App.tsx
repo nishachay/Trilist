@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight, Trash2, Check, X, ChevronDown } from "lucide-react";
-import { Flag as PhosphorFlag } from "@phosphor-icons/react";
+import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight, Trash2, Check, X, ChevronDown, Flag } from "lucide-react";
 
 import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
 
@@ -758,9 +757,9 @@ export default function App() {
                               }}
                               title={task.priority ? `Priority P${task.priority} (Click to change)` : "Set priority"}
                             >
-                              <PhosphorFlag
+                              <Flag
                                 size={13}
-                                weight={task.priority ? "fill" : "regular"}
+                                fill={task.priority ? (task.priority === 1 ? "var(--p1-color)" : task.priority === 2 ? "var(--p2-color)" : "var(--p3-color)") : "none"}
                                 color={
                                   task.priority === 1
                                     ? "var(--p1-color)"
@@ -788,7 +787,7 @@ export default function App() {
                                     data-priority={1}
                                     onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
                                   >
-                                    <PhosphorFlag size={13} weight="fill" color="var(--p1-color)" />
+                                    <Flag size={13} fill="var(--p1-color)" color="var(--p1-color)" />
                                     <span>P1 — High</span>
                                   </button>
                                   <button
@@ -796,7 +795,7 @@ export default function App() {
                                     data-priority={2}
                                     onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
                                   >
-                                    <PhosphorFlag size={13} weight="fill" color="var(--p2-color)" />
+                                    <Flag size={13} fill="var(--p2-color)" color="var(--p2-color)" />
                                     <span>P2 — Medium</span>
                                   </button>
                                   <button
@@ -804,7 +803,7 @@ export default function App() {
                                     data-priority={3}
                                     onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
                                   >
-                                    <PhosphorFlag size={13} weight="fill" color="var(--p3-color)" />
+                                    <Flag size={13} fill="var(--p3-color)" color="var(--p3-color)" />
                                     <span>P3 — Low</span>
                                   </button>
                                   {task.priority && (
@@ -812,7 +811,7 @@ export default function App() {
                                       className="priority-popover-item"
                                       onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, undefined); }}
                                     >
-                                      <PhosphorFlag size={13} weight="regular" color="var(--text-faint)" />
+                                      <Flag size={13} color="var(--text-faint)" />
                                       <span>Clear</span>
                                     </button>
                                   )}
@@ -991,9 +990,9 @@ export default function App() {
                         onClick={() => applyCommand(cmd)}
                       >
                         <span className="cmd-label-wrap">
-                          <PhosphorFlag
+                          <Flag
                             size={13}
-                            weight="fill"
+                            fill={cmd.priority === 1 ? "var(--p1-color)" : cmd.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
                             color={cmd.priority === 1 ? "var(--p1-color)" : cmd.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
                           />
                           <span className="cmd-label">{cmd.desc}</span>
@@ -1043,9 +1042,9 @@ export default function App() {
             )}
             {extractedPriority && (
               <span className="pill" data-priority={extractedPriority.level}>
-                <PhosphorFlag
+                <Flag
                   size={12}
-                  weight="fill"
+                  fill={extractedPriority.level === 1 ? "var(--p1-color)" : extractedPriority.level === 2 ? "var(--p2-color)" : "var(--p3-color)"}
                   color={extractedPriority.level === 1 ? "var(--p1-color)" : extractedPriority.level === 2 ? "var(--p2-color)" : "var(--p3-color)"}
                 />
                 {extractedPriority.label}

@@ -29,7 +29,7 @@ Traditional to-do apps encourage accumulating giant, overwhelming lists that gro
 ## Core Features
 
 - **Inline Tag Routing**: Type `/wt` or `/lt` anywhere in your text input to route items to different lists without breaking your flow.
-- **Priority Flags System**: Assign priority tags `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue) using Phosphor SVG vector icons. Active lists automatically sort items by priority.
+- **Priority Flags System**: Assign priority tags `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue) using Lucide SVG vector flags. Active lists automatically sort items by priority.
 - **Relative Scheduling**: Combine `/lt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks to specific time windows.
 - **Keyboard Navigation**: Move through your lists using `0-3` for tab switching, `j` and `k` for item navigation, `Space` for completion, `p` to cycle priority, and `Esc` for instant dismissal.
 - **Custom Design System**: Full support for system dark/light modes, 5 custom accent color swatches, and 4 font options (Geist, JetBrains Mono, Inter Tight, and Newsreader).
@@ -44,7 +44,7 @@ Traditional to-do apps encourage accumulating giant, overwhelming lists that gro
 - **Build Tool**: Vite 6
 - **Styling**: Vanilla CSS Design Tokens
 - **Animations**: Motion (`motion/react`)
-- **Icons**: Phosphor Icons (`@phosphor-icons/react`) + Lucide React
+- **Icons**: Lucide React (100% Unified Vector Icon System)
 - **Storage Engine**: Native IndexedDB API
 - **Linter**: Oxlint
 
