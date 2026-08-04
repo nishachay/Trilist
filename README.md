@@ -29,10 +29,11 @@ Traditional to-do apps encourage accumulating giant, overwhelming lists that gro
 ## Core Features
 
 - **Inline Tag Routing**: Type `/wt` or `/lt` anywhere in your text input to route items to different lists without breaking your flow.
+- **Priority Flags System**: Assign priority tags `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue) using Phosphor SVG vector icons. Active lists automatically sort items by priority.
 - **Relative Scheduling**: Combine `/lt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks to specific time windows.
-- **Keyboard Navigation**: Move through your lists using `0-3` for tab switching, `j` and `k` for item navigation, `Space` for completion, and `Esc` for instant dismissal.
+- **Keyboard Navigation**: Move through your lists using `0-3` for tab switching, `j` and `k` for item navigation, `Space` for completion, `p` to cycle priority, and `Esc` for instant dismissal.
 - **Custom Design System**: Full support for system dark/light modes, 5 custom accent color swatches, and 4 font options (Geist, JetBrains Mono, Inter Tight, and Newsreader).
-- **Per-Item Actions**: Inline text editing via double-click or hover action, instant list migration popovers, relative time-ago timestamps, and one-click clear completed actions.
+- **Per-Item Actions**: Inline text editing via double-click or hover action, instant list migration popovers, interactive priority popovers, relative time-ago timestamps, and one-click clear completed actions.
 - **Local Data Privacy**: All data is saved asynchronously to IndexedDB inside your browser. No external tracking, no cloud lock-in, and full JSON export/import support.
 
 ---
@@ -43,7 +44,7 @@ Traditional to-do apps encourage accumulating giant, overwhelming lists that gro
 - **Build Tool**: Vite 6
 - **Styling**: Vanilla CSS Design Tokens
 - **Animations**: Motion (`motion/react`)
-- **Icons**: Lucide React
+- **Icons**: Phosphor Icons (`@phosphor-icons/react`) + Lucide React
 - **Storage Engine**: Native IndexedDB API
 - **Linter**: Oxlint
 
@@ -92,6 +93,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `?` | Open Help and Preferences overlay |
 | `j` / `k` | Navigate items up or down |
 | `Space` | Toggle completion on selected task |
+| `p` | Cycle priority (`P1` → `P2` → `P3` → `Clear`) |
 | `x` or `d` | Delete or resolve selected task |
 | `Enter` | Submit task to active or tagged list |
 | `Esc` | Close overlay, popover, or clear input |
@@ -105,6 +107,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - `/watch` or `/wt`: Route task to **Watch**
 - `/later` or `/lt`: Route task to **Later**
 - `/rough` or `/rg`: Route task to **Rough**
+
+### Priority Tags
+- `/p1` or `/high`: High Priority (Vibrant Red)
+- `/p2` or `/med`: Medium Priority (Amber Gold)
+- `/p3` or `/low`: Low Priority (Electric Blue)
 
 ### Date Tags (Requires `/lt`)
 - `/week` or `/wk`: Defer task for 7 days

@@ -25,6 +25,12 @@
   --accent-ring: rgba(0, 113, 227, 0.18);
   --green:       #25a244;
   --green-bg:    rgba(37, 162, 68, 0.10);
+  --p1-color:    #d9381e;
+  --p1-bg:       rgba(217, 56, 30, 0.10);
+  --p2-color:    #d97706;
+  --p2-bg:       rgba(217, 119, 6, 0.10);
+  --p3-color:    #0284c7;
+  --p3-bg:       rgba(2, 132, 199, 0.10);
   --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 1px rgba(0,0,0,0.04);
   --shadow-md:   0 4px 16px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.06);
   --shadow-lg:   0 24px 64px rgba(0,0,0,0.12), 0 6px 20px rgba(0,0,0,0.07);
@@ -46,6 +52,12 @@
   --accent-ring: rgba(255, 107, 74, 0.30);
   --green:       #30d158;
   --green-bg:    rgba(48, 209, 88, 0.12);
+  --p1-color:    #ff5555;
+  --p1-bg:       rgba(255, 85, 85, 0.15);
+  --p2-color:    #fbbf24;
+  --p2-bg:       rgba(251, 191, 36, 0.15);
+  --p3-color:    #38bdf8;
+  --p3-bg:       rgba(56, 189, 248, 0.15);
   --shadow-sm:   0 1px 3px rgba(0,0,0,0.50);
   --shadow-md:   0 4px 16px rgba(0,0,0,0.60);
   --shadow-lg:   0 24px 64px rgba(0,0,0,0.85);
@@ -1324,6 +1336,131 @@
     width: 28px;
     height: 28px;
   }
+}
+
+/* ─── Priority Flags & Popover Picker ────────── */
+.priority-pill-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.priority-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  border-radius: 6px;
+  border: 1px solid var(--border-mid);
+  background: var(--surface-lo);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.14s ease;
+  line-height: 1;
+}
+
+.priority-pill-btn:hover {
+  background: var(--surface-hi);
+  border-color: var(--accent);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.priority-pill-btn[data-priority="1"] {
+  color: var(--p1-color);
+  background: var(--p1-bg);
+  border-color: color-mix(in srgb, var(--p1-color) 30%, transparent);
+}
+
+.priority-pill-btn[data-priority="2"] {
+  color: var(--p2-color);
+  background: var(--p2-bg);
+  border-color: color-mix(in srgb, var(--p2-color) 30%, transparent);
+}
+
+.priority-pill-btn[data-priority="3"] {
+  color: var(--p3-color);
+  background: var(--p3-bg);
+  border-color: color-mix(in srgb, var(--p3-color) 30%, transparent);
+}
+
+/* Priority Popover Dropdown Picker */
+.priority-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 140px;
+  padding: 5px;
+  background: var(--surface-hi);
+  border: 1px solid var(--border-mid);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.priority-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
+  text-align: left;
+  width: 100%;
+}
+
+.priority-popover-item:hover {
+  background: var(--surface-lo);
+}
+
+.priority-popover-item[data-priority="1"]:hover {
+  background: var(--p1-bg);
+}
+
+.priority-popover-item[data-priority="2"]:hover {
+  background: var(--p2-bg);
+}
+
+.priority-popover-item[data-priority="3"]:hover {
+  background: var(--p3-bg);
+}
+
+/* Command Palette label wrap */
+.cmd-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Priority Pills inside Omnibar input */
+.pill[data-priority="1"] {
+  color: var(--p1-color);
+  background: var(--p1-bg);
+  border-color: color-mix(in srgb, var(--p1-color) 30%, transparent);
+}
+
+.pill[data-priority="2"] {
+  color: var(--p2-color);
+  background: var(--p2-bg);
+  border-color: color-mix(in srgb, var(--p2-color) 30%, transparent);
+}
+
+.pill[data-priority="3"] {
+  color: var(--p3-color);
+  background: var(--p3-bg);
+  border-color: color-mix(in srgb, var(--p3-color) 30%, transparent);
 }
 
 

@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sun, Moon, Monitor, CheckSquare2, Eye, Clock, Pencil, Download, Upload, Sparkles, Command, Zap, ArrowRight, Trash2, Check, X, ChevronDown } from "lucide-react";
+import { Flag as PhosphorFlag } from "@phosphor-icons/react";
 
 import { getStoredTasks, saveStoredTasks, getStoredSetting, saveStoredSetting } from "./lib/db";
 
 // ─── Types ──────────────────────────────────────
-type ListKey = "rough" | "todo" | "watch" | "later";
-type Theme   = "system" | "light" | "dark";
+type ListKey       = "rough" | "todo" | "watch" | "later";
+type Theme         = "system" | "light" | "dark";
+type PriorityLevel = 1 | 2 | 3;
 
 type Task = {
   id:         string;
@@ -16,17 +18,19 @@ type Task = {
   resolving?: boolean;
   createdAt:  number;
   dueAt?:     number;
+  priority?:  PriorityLevel;
 };
 
-type CmdType = "list" | "date" | "view";
+type CmdType = "list" | "date" | "priority" | "view";
 
 type Cmd = {
-  cmd:     string;
-  alias:   string;
-  desc:    string;
-  type:    CmdType;
-  target?: ListKey;
-  days?:   number;
+  cmd:       string;
+  alias:     string;
+  desc:      string;
+  type:      CmdType;
+  target?:   ListKey;
+  days?:     number;
+  priority?: PriorityLevel;
 };
 
 // ─── Customization Options ──────────────────────
@@ -58,11 +62,17 @@ const DATE_CMDS: Cmd[] = [
   { cmd: "/month", alias: "/mn", desc: "This month", type: "date", days: 30 },
 ];
 
+const PRIORITY_CMDS: Cmd[] = [
+  { cmd: "/p1", alias: "/high", desc: "High Priority (P1)",   type: "priority", priority: 1 },
+  { cmd: "/p2", alias: "/med",  desc: "Medium Priority (P2)", type: "priority", priority: 2 },
+  { cmd: "/p3", alias: "/low",  desc: "Low Priority (P3)",    type: "priority", priority: 3 },
+];
+
 const SYS_CMDS: Cmd[] = [
   { cmd: "/help", alias: "/h", desc: "Help & Shortcuts", type: "view" },
 ];
 
-const ALL_CMDS: Cmd[] = [...LIST_CMDS, ...DATE_CMDS, ...SYS_CMDS];
+const ALL_CMDS: Cmd[] = [...LIST_CMDS, ...DATE_CMDS, ...PRIORITY_CMDS, ...SYS_CMDS];
 
 // ─── The 3 main lists (Rough is separate)
 const MAIN_TABS: { id: ListKey; label: string }[] = [
@@ -118,12 +128,14 @@ export default function App() {
   const [editText,       setEditText]       = useState<string>("");
   const [moveMenuTaskId, setMoveMenuTaskId] = useState<string | null>(null);
 
-  const [input,         setInput]         = useState("");
-  const [extractedList, setExtractedList] = useState<{ key: ListKey; label: string } | null>(null);
-  const [extractedDate, setExtractedDate] = useState<{ days: number; label: string } | null>(null);
-  const [menuOpen,      setMenuOpen]      = useState(false);
-  const [menuQuery,     setMenuQuery]     = useState("");
-  const [selIdx,        setSelIdx]        = useState(0);
+  const [input,                 setInput]                 = useState("");
+  const [extractedList,         setExtractedList]         = useState<{ key: ListKey; label: string } | null>(null);
+  const [extractedDate,         setExtractedDate]         = useState<{ days: number; label: string } | null>(null);
+  const [extractedPriority,     setExtractedPriority]     = useState<{ level: PriorityLevel; label: string } | null>(null);
+  const [priorityPopoverTaskId, setPriorityPopoverTaskId] = useState<string | null>(null);
+  const [menuOpen,              setMenuOpen]              = useState(false);
+  const [menuQuery,             setMenuQuery]             = useState("");
+  const [selIdx,                setSelIdx]                = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -229,7 +241,15 @@ export default function App() {
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
   // ─── Derived ─────────────────────────────────
-  const visibleTasks = useMemo(() => tasks.filter(t => t.list === activeTab), [tasks, activeTab]);
+  const visibleTasks = useMemo(() => {
+    const filtered = tasks.filter(t => t.list === activeTab);
+    return filtered.slice().sort((a, b) => {
+      const pA = a.priority ?? 99;
+      const pB = b.priority ?? 99;
+      if (pA !== pB) return pA - pB;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+  }, [tasks, activeTab]);
 
   const taskCounts = useMemo(() => {
     const counts: Record<ListKey, number> = { rough: 0, todo: 0, watch: 0, later: 0 };
@@ -268,6 +288,21 @@ export default function App() {
 
   const moveTask = (id: string, newList: ListKey) => {
     setTasks(ts => ts.map(t => t.id === id ? { ...t, list: newList } : t));
+    setMoveMenuTaskId(null);
+  };
+
+  const setTaskPriority = (id: string, p?: PriorityLevel) => {
+    setTasks(ts => ts.map(t => t.id === id ? { ...t, priority: p } : t));
+    setPriorityPopoverTaskId(null);
+  };
+
+  const cycleTaskPriority = (id: string) => {
+    setTasks(ts => ts.map(t => {
+      if (t.id !== id) return t;
+      const nextP: Record<number, PriorityLevel | undefined> = { 1: 2, 2: 3, 3: undefined };
+      const newP = t.priority ? nextP[t.priority] : 1;
+      return { ...t, priority: newP };
+    }));
   };
 
   const clearCompleted = () => {
@@ -385,13 +420,19 @@ export default function App() {
             }
             return;
           }
+          if (e.key === "p" && focusedIdx !== null && visibleTasks[focusedIdx]) {
+            e.preventDefault();
+            const target = visibleTasks[focusedIdx];
+            cycleTaskPriority(target.id);
+            return;
+          }
         }
       }
     };
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [showHelp, menuOpen, showOnboarding, visibleTasks, focusedIdx, activeTab, moveMenuTaskId]);
+  }, [showHelp, menuOpen, showOnboarding, visibleTasks, focusedIdx, activeTab, moveMenuTaskId, priorityPopoverTaskId]);
 
   // ─── Autocomplete ────────────────────────────
   useEffect(() => {
@@ -445,6 +486,8 @@ export default function App() {
       setExtractedList({ key: cmd.target!, label: cmd.desc });
     } else if (cmd.type === "date") {
       setExtractedDate({ days: cmd.days!, label: cmd.desc });
+    } else if (cmd.type === "priority") {
+      setExtractedPriority({ level: cmd.priority!, label: cmd.desc });
     }
 
     setMenuOpen(false);
@@ -455,8 +498,9 @@ export default function App() {
   const onInputKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && input === "") {
       e.preventDefault();
-      if (extractedDate) { setExtractedDate(null); return; }
-      if (extractedList) { setExtractedList(null); return; }
+      if (extractedPriority) { setExtractedPriority(null); return; }
+      if (extractedDate)     { setExtractedDate(null); return; }
+      if (extractedList)     { setExtractedList(null); return; }
       return;
     }
 
@@ -488,6 +532,7 @@ export default function App() {
       const dueAt = extractedDate
         ? Date.now() + extractedDate.days * 86400000
         : undefined;
+      const priority = extractedPriority?.level;
 
       setTasks(ts => [{
         id:        Math.random().toString(36).slice(2, 9),
@@ -496,9 +541,13 @@ export default function App() {
         done:      false,
         createdAt: Date.now(),
         dueAt,
+        priority,
       }, ...ts]);
 
-      setInput(""); setExtractedList(null); setExtractedDate(null);
+      setInput("");
+      setExtractedList(null);
+      setExtractedDate(null);
+      setExtractedPriority(null);
       if (targetList !== activeTab) switchTab(targetList);
     }
   };
@@ -698,6 +747,80 @@ export default function App() {
                             </span>
                           )}
 
+                          {/* Priority Flag Badge & Popover Menu */}
+                          <div className="priority-pill-wrap">
+                            <button
+                              className="priority-pill-btn"
+                              data-priority={task.priority}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPriorityPopoverTaskId(priorityPopoverTaskId === task.id ? null : task.id);
+                              }}
+                              title={task.priority ? `Priority P${task.priority} (Click to change)` : "Set priority"}
+                            >
+                              <PhosphorFlag
+                                size={13}
+                                weight={task.priority ? "fill" : "regular"}
+                                color={
+                                  task.priority === 1
+                                    ? "var(--p1-color)"
+                                    : task.priority === 2
+                                    ? "var(--p2-color)"
+                                    : task.priority === 3
+                                    ? "var(--p3-color)"
+                                    : "var(--text-faint)"
+                                }
+                              />
+                              {task.priority && <span className="priority-code">P{task.priority}</span>}
+                            </button>
+
+                            <AnimatePresence>
+                              {priorityPopoverTaskId === task.id && (
+                                <motion.div
+                                  className="priority-popover"
+                                  initial={{ opacity: 0, scale: 0.94, y: 4 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.94, y: 4 }}
+                                  transition={{ duration: 0.12 }}
+                                >
+                                  <button
+                                    className="priority-popover-item"
+                                    data-priority={1}
+                                    onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                  >
+                                    <PhosphorFlag size={13} weight="fill" color="var(--p1-color)" />
+                                    <span>P1 — High</span>
+                                  </button>
+                                  <button
+                                    className="priority-popover-item"
+                                    data-priority={2}
+                                    onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
+                                  >
+                                    <PhosphorFlag size={13} weight="fill" color="var(--p2-color)" />
+                                    <span>P2 — Medium</span>
+                                  </button>
+                                  <button
+                                    className="priority-popover-item"
+                                    data-priority={3}
+                                    onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
+                                  >
+                                    <PhosphorFlag size={13} weight="fill" color="var(--p3-color)" />
+                                    <span>P3 — Low</span>
+                                  </button>
+                                  {task.priority && (
+                                    <button
+                                      className="priority-popover-item"
+                                      onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, undefined); }}
+                                    >
+                                      <PhosphorFlag size={13} weight="regular" color="var(--text-faint)" />
+                                      <span>Clear</span>
+                                    </button>
+                                  )}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+
                           {/* Due Date badge for Later or Watch list */}
                           {(activeTab === "later" || activeTab === "watch") && task.dueAt && !task.done && (
                             <span className="time-badge">
@@ -856,6 +979,30 @@ export default function App() {
                     ))}
                   </>
                 )}
+                {visibleCmds.some(c => c.type === "priority") && (
+                  <>
+                    <div className="cmd-section">Priority</div>
+                    {visibleCmds.filter(c => c.type === "priority").map(cmd => (
+                      <div
+                        key={cmd.cmd}
+                        className="cmd-item"
+                        data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
+                        onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
+                        onClick={() => applyCommand(cmd)}
+                      >
+                        <span className="cmd-label-wrap">
+                          <PhosphorFlag
+                            size={13}
+                            weight="fill"
+                            color={cmd.priority === 1 ? "var(--p1-color)" : cmd.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
+                          />
+                          <span className="cmd-label">{cmd.desc}</span>
+                        </span>
+                        <span className="cmd-alias">{cmd.alias}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
                 {visibleCmds.some(c => c.type === "view") && (
                   <>
                     <div className="cmd-section">Help</div>
@@ -892,6 +1039,17 @@ export default function App() {
               <span className="pill">
                 {extractedDate.label}
                 <button className="pill-x" onClick={() => setExtractedDate(null)} aria-label="Remove time">×</button>
+              </span>
+            )}
+            {extractedPriority && (
+              <span className="pill" data-priority={extractedPriority.level}>
+                <PhosphorFlag
+                  size={12}
+                  weight="fill"
+                  color={extractedPriority.level === 1 ? "var(--p1-color)" : extractedPriority.level === 2 ? "var(--p2-color)" : "var(--p3-color)"}
+                />
+                {extractedPriority.label}
+                <button className="pill-x" onClick={() => setExtractedPriority(null)} aria-label="Remove priority">×</button>
               </span>
             )}
 
@@ -1077,13 +1235,14 @@ export default function App() {
                 <p className="help-section-label">Navigation &amp; Task Selection</p>
                 <div className="help-rule" />
                 {[
-                  { keys: ["0"],             desc: "Open Rough (capture)" },
-                  { keys: ["1", "2", "3"],   desc: "Switch to Todo / Watch / Later" },
-                  { keys: ["j", "k"],        desc: "Navigate task items up / down (Vim)" },
-                  { keys: ["Space"],         desc: "Toggle completion on focused task" },
-                  { keys: ["x", "d"],        desc: "Delete / Resolve focused task" },
-                  { keys: ["?"],             desc: "Open this help screen" },
-                  { keys: ["Esc"],           desc: "Close overlay / clear input" },
+                  { keys: ["0..3"],        desc: "Switch active tab (0=Rough, 1=Todo…)" },
+                  { keys: ["j", "k"],        desc: "Navigate task rows up / down" },
+                  { keys: ["Space"],         desc: "Toggle completion / resolve task" },
+                  { keys: ["p"],             desc: "Cycle priority (P1 / P2 / P3 / Clear)" },
+                  { keys: ["x"],             desc: "Delete selected task" },
+                  { keys: ["/"],             desc: "Focus omnibar" },
+                  { keys: ["?"],             desc: "Toggle this help view" },
+                  { keys: ["Esc"],           desc: "Blur input / close popovers" },
                 ].map(r => (
                   <div key={r.keys.join()} className="help-row">
                     <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
@@ -1093,18 +1252,16 @@ export default function App() {
               </div>
 
               <div className="help-block">
-                <p className="help-section-label">Composing</p>
+                <p className="help-section-label">Priority tags</p>
                 <div className="help-rule" />
-                {[
-                  { keys: ["Enter"],   desc: "Add task to active or tagged list" },
-                  { keys: ["/"],       desc: "Open command palette" },
-                  { keys: ["↑", "↓"], desc: "Navigate autocomplete" },
-                  { keys: ["Tab"],     desc: "Select highlighted command" },
-                  { keys: ["⌫"],      desc: "Remove last tag pill" },
-                ].map(r => (
-                  <div key={r.keys.join()} className="help-row">
-                    <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
-                    <span className="help-desc">{r.desc}</span>
+                {PRIORITY_CMDS.map(c => (
+                  <div key={c.cmd} className="help-row">
+                    <div className="help-keys">
+                      <span className="key">{c.alias}</span>
+                      <span className="key-or">or</span>
+                      <span className="key">{c.cmd}</span>
+                    </div>
+                    <span className="help-desc">{c.desc}</span>
                   </div>
                 ))}
               </div>
