@@ -1387,6 +1387,20 @@
   border-color: color-mix(in srgb, var(--p3-color) 30%, transparent);
 }
 
+.priority-pill-btn[data-priority="none"] {
+  color: var(--text-faint);
+  background: transparent;
+  border: 1px solid transparent;
+  opacity: 0.35;
+}
+
+.row:hover .priority-pill-btn[data-priority="none"],
+.row[data-focused="true"] .priority-pill-btn[data-priority="none"] {
+  opacity: 1;
+  background: var(--surface-lo);
+  border-color: var(--border-mid);
+}
+
 /* ─── Row Meta Column ─────────────────────────── */
 .row-meta {
   display: flex;
