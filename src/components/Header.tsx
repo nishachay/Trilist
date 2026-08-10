@@ -1,5 +1,4 @@
-import React from "react";
-import { HelpCircle, Sun, Moon } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import type { ListKey } from "@/types";
 
 interface HeaderProps {
@@ -72,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
           title="Help & Preferences (?)"
           aria-label="Help & Preferences"
         >
-          <HelpCircle size={15} />
+          ?
         </button>
 
         <button

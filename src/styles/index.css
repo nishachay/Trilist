@@ -762,15 +762,19 @@
 }
 
 .cmd-section {
-  padding: 5px 9px 2px;
+  padding: 6px 9px 2px;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-faint);
-  margin-top: 3px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
 }
-.cmd-section:first-child { margin-top: 0; }
+.cmd-section:first-child {
+  border-top: none;
+  margin-top: 0;
+}
 
 .cmd-item {
   position: relative;
