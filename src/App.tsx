@@ -1009,7 +1009,7 @@ export default function App() {
                         className="cmd-item"
                         data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
                         data-disabled={disabledSet.has(cmd.cmd)}
-                        title={disabledSet.has(cmd.cmd) ? "Select /later first" : undefined}
+                        title={disabledSet.has(cmd.cmd) ? "Available for /watch and /later" : undefined}
                         onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
                         onClick={() => applyCommand(cmd)}
                       >
