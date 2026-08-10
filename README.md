@@ -1,6 +1,6 @@
 # Trilist
 
-> A minimalist, keyboard-driven productivity app based on Marc Andreessen's classic 3x5 index card system.
+A minimalist, keyboard-driven productivity app based on Marc Andreessen's classic 3x5 index card system.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
@@ -14,98 +14,78 @@
 
 ---
 
-## 📌 Table of Contents
-- [The Story & Motivation](#-the-story--motivation)
-- [Why Trilist? (The Problem It Solves)](#-why-trilist-the-problem-it-solves)
-- [The 3-List Philosophy](#-the-3-list-philosophy)
-- [Core Features](#-core-features)
-- [Tech Stack & Engineering Choices](#-tech-stack--engineering-choices)
-- [Quick Start & Installation](#-quick-start--installation)
-- [How to Use Trilist](#-how-to-use-trilist)
-  - [Keyboard Navigation](#keyboard-navigation)
-  - [Inline Command Tags](#inline-command-tags)
-- [Data Privacy & Ownership](#-data-privacy--ownership)
-- [Testing & Quality Control](#-testing--quality-control)
-- [Contributing](#-contributing)
-- [Credits & Inspiration](#-credits--inspiration)
-- [License](#-license)
+## Table of contents
+
+- [Motivation](#motivation)
+- [The 3-list system](#the-3-list-system)
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Quick start](#quick-start)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Inline tags](#inline-tags)
+- [Data privacy](#data-privacy)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
 
 ---
 
-## 💡 The Story & Motivation
+## Motivation
 
-Most productivity applications force you into endless nested folders, tag taxonomies, and perpetual list debt. You start with good intentions, but within weeks your to-do app becomes a graveyard of hundreds of overdue tasks that generate guilt instead of clarity.
+Most task management apps encourage giant backlogs. You create dozens of lists, tag everything, and watch tasks pile up until you abandon the app.
 
-**Trilist was born out of a desire for extreme simplicity.**
+Trilist limits your focus to 3 to 5 tasks a day.
 
-Inspired by Marc Andreessen’s legendary essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html), Trilist replicates the speed and discipline of physical 3x5 index cards inside a modern, keyboard-native web application. 
-
-Instead of accumulating infinite backlogs, Trilist forces you to restrict your active focus to just 3 to 5 core commitments per day.
+Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html), Trilist brings physical 3x5 index card habits to a fast web app.
 
 ---
 
-## 🎯 Why Trilist? (The Problem It Solves)
+## The 3-list system
 
-| Traditional Productivity Tools | The Trilist Approach |
-|---|---|
-| Endless task backlogs that grow forever | Strictly capped daily lists (3–5 items max) |
-| Cluttered dropdown menus & popups | Fast inline tag routing (`/td`, `/wt`, `/lt`, `/p1`) |
-| Laggy cloud syncing & mandatory sign-ups | Instant offline IndexedDB with 100% local data privacy |
-| Cluttered row overlays & hidden actions | Clean 3-dots context menu & 100% right-aligned priority badges |
+1. **Todo**: Core commitments for today. Capped at 3 to 5 items.
+2. **Watch**: Radar items, including replies you're waiting on or projects you're tracking.
+3. **Later**: Tasks scheduled for future weeks or months.
+4. **Rough**: A scratchpad for quick notes and unverified ideas.
 
 ---
 
-## 🧠 The 3-List Philosophy
+## Features
 
-1. 📝 **Todo**: Your non-negotiable commitments for today. Keep this list short (3 to 5 items max).
-2. 👁️ **Watch**: Items on your radar — responses you are awaiting, long-term tracking, or dependencies on others.
-3. ⏳ **Later**: Deferred commitments scheduled for future weeks or months.
-4. ✍️ **Rough**: An unconstrained scratchpad for quick notes, brain dumps, and raw ideas before promoting them to core lists.
-
----
-
-## ⚡ Core Features
-
-- **Inline Tag Routing**: Route tasks instantly on typing — use `/td`, `/wt`, `/lt`, or `/rg` anywhere in the omnibar without leaving your keyboard.
-- **Priority Flags System**: Assign high-contrast priority flags `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue). Priority badges align cleanly along the far-right margin for instant scanning.
-- **Relative Scheduling**: Combine `/lt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks into future time windows automatically.
-- **Unified 3-Dots Context Menu (`•••`)**: Clean popover dropdown for priority modification, list migration, inline editing, and deletion without visual hover clutter.
-- **Full Custom Design System**: Dark and Light theme engine, 5 custom accent swatches, and 4 curated fonts (Geist, JetBrains Mono, Inter Tight, Newsreader).
-- **Zero-Latency Offline Privacy**: Powered by native browser IndexedDB with JSON export/import backup capabilities.
+- **Inline tag routing**: Route tasks while typing using `/td`, `/wt`, `/lt`, or `/rg` in the omnibar.
+- **Priority flags**: Set priority with `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue). Flags align along the right margin.
+- **Relative scheduling**: Combine `/lt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks to future dates.
+- **Context menu (`...`)**: Right-aligned 3-dots menu for priority shifts, list moves, editing, and deletion.
+- **Themes & typography**: Light and dark themes, 5 accent colors, and 4 fonts (Geist, JetBrains Mono, Inter Tight, Newsreader).
+- **Offline local storage**: Data stays in your browser using IndexedDB. Includes JSON export and import backups.
 
 ---
 
-## 🛠️ Tech Stack & Engineering Choices
+## Tech stack
 
-- **Framework**: React 19 + TypeScript (Strict Mode)
-- **Build Engine**: Vite 6 (Lightning-fast HMR and bundle compilation)
-- **Styling**: Vanilla CSS Design Tokens (No bulky utility frameworks; zero runtime CSS overhead)
-- **Animations**: Motion (`motion/react` layout transitions)
-- **Icons**: Lucide React (100% Unified SVG Vector System)
-- **Database Engine**: Native browser IndexedDB API (Asynchronous, non-blocking storage)
-- **Linter**: Oxlint (High-performance code quality analysis)
+- **Framework**: React 19 + TypeScript
+- **Build tool**: Vite 6
+- **Styling**: Vanilla CSS with design tokens
+- **Animations**: Motion (`motion/react`)
+- **Icons**: Lucide React
+- **Database**: Browser IndexedDB API
+- **Linter**: Oxlint
 
 ---
 
-## 🚀 Quick Start & Installation
+## Quick start
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) v18.0 or higher
-- `npm` v9.0 or higher
 
-### Local Setup
+- Node.js v18.0 or higher
+- npm v9.0 or higher
+
+### Local setup
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Nishachay/Trilist.git
-
-# 2. Navigate to the project directory
 cd Trilist
-
-# 3. Install dependencies
 npm install
-
-# 4. Start the local development server
 npm run dev
 ```
 
@@ -113,9 +93,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## ⌨️ How to Use Trilist
-
-### Keyboard Navigation
+## Keyboard shortcuts
 
 | Key | Action |
 |---|---|
@@ -125,78 +103,75 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `3` | Switch to **Later** list |
 | `j` / `k` | Navigate items up / down |
 | `Space` | Toggle completion / resolve task |
-| `p` | Cycle priority (`P1` → `P2` → `P3` → `Clear`) |
+| `p` | Cycle priority (`P1` -> `P2` -> `P3` -> `Clear`) |
 | `x` or `d` | Delete selected task |
-| `•••` | Open row context menu |
-| `/` | Focus Omnibar input |
-| `?` | Open Help & Preferences overlay |
-| `Esc` | Blur input or close popovers |
+| `...` | Open row context menu |
+| `/` | Focus input bar |
+| `?` | Open Help and Preferences overlay |
+| `Esc` | Clear input or close popovers |
 
-### Inline Command Tags
+---
 
-#### Destination Tags
+## Inline tags
+
+### Destination tags
+
 - `/todo` or `/td`: Route task to **Todo**
 - `/watch` or `/wt`: Route task to **Watch**
 - `/later` or `/lt`: Route task to **Later**
 - `/rough` or `/rg`: Route task to **Rough**
 
-#### Priority Tags
-- `/p1` or `/high`: High Priority (Vibrant Red)
-- `/p2` or `/med`: Medium Priority (Amber Gold)
-- `/p3` or `/low`: Low Priority (Electric Blue)
+### Priority tags
 
-#### Date Tags (Available for `/later`)
+- `/p1` or `/high`: High Priority (Red)
+- `/p2` or `/med`: Medium Priority (Amber)
+- `/p3` or `/low`: Low Priority (Blue)
+
+### Date tags (Available for `/later`)
+
 - `/week` or `/wk`: Defer task for 7 days
 - `/month` or `/mn`: Defer task for 30 days
 
 ---
 
-## 🔐 Data Privacy & Ownership
+## Data privacy
 
-Your productivity data belongs exclusively to you:
-- **100% Local Storage**: All tasks are saved locally inside your browser using IndexedDB. No external servers, no telemetry, no mandatory accounts.
-- **Backup & Export**: Easily export your entire database as a structured `.json` backup file or restore from a previous backup via the Preferences menu (`?`).
+Your tasks stay on your device:
+- **Local storage**: Tasks save locally using IndexedDB. No external servers or user accounts.
+- **Backup & export**: Export your data to `.json` or import a previous backup from the Preferences menu (`?`).
 
 ---
 
-## 🧪 Testing & Quality Control
+## Testing
 
-Trilist maintains strict code health and type safety standards:
+Run linting and build commands locally:
 
 ```bash
-# Run OxLint static analysis
 npm run lint
-
-# Run TypeScript compilation & build production bundle
 npm run build
-
-# Preview production build locally
 npm run preview
 ```
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! If you'd like to contribute:
+## Contributing
 
 1. Fork the repository (`https://github.com/Nishachay/Trilist/fork`)
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -m 'feat: add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
 
-Please ensure all lint checks (`npm run lint`) pass cleanly before submitting.
+Run `npm run lint` before submitting code.
 
 ---
 
-## 🙌 Credits & Inspiration
+## Credits
 
-- Concept based on Marc Andreessen's 2007 essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html).
-- Built & Designed by **Nishachay** ([GitHub @nishachay](https://github.com/nishachay) | [X @nishachayy](https://x.com/nishachayy)).
+Concept based on Marc Andreessen's 2007 essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html).
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+MIT License. See [LICENSE](LICENSE) for details.
