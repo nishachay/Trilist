@@ -11,11 +11,10 @@ interface HeaderProps {
   setShowHelp: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TABS: { id: ListKey; label: string }[] = [
+const MAIN_TABS: { id: ListKey; label: string }[] = [
   { id: "todo",  label: "Todo"  },
   { id: "watch", label: "Watch" },
   { id: "later", label: "Later" },
-  { id: "rough", label: "Rough" },
 ];
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       <div className="header-center">
         <nav className="tabs">
-          {TABS.map(t => (
+          {MAIN_TABS.map(t => (
             <button
               key={t.id}
               className="tab"
@@ -57,6 +56,18 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="header-right">
+        <button
+          className="rough-btn"
+          data-active={activeTab === "rough"}
+          onClick={() => switchTab("rough")}
+          title="Rough Scratchpad (Key 0)"
+        >
+          <span>Rough</span>
+          {counts.rough > 0 && <span className="tab-count">{counts.rough}</span>}
+        </button>
+
+        <div className="header-divider" />
+
         <button
           className="tbtn"
           onClick={() => setShowHelp(prev => !prev)}

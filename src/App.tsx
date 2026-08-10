@@ -564,26 +564,27 @@ export default function App() {
             </AnimatePresence>
           )}
 
-          <Omnibar
-            input={input}
-            setInput={setInput}
-            handleSubmit={handleSubmit}
-            inputRef={inputRef}
-            placeholder={omnibarPlaceholder}
-            extractedList={extracted.list}
-            extractedDate={extracted.date}
-            extractedPriority={extracted.priority}
-            clearTag={clearTag}
-            menuOpen={menuOpen}
-            setMenuOpen={setMenuOpen}
-            visibleCmds={visibleCmds}
-            enabledCmds={enabledCmds}
-            disabledSet={disabledSet}
-            selIdx={selIdx}
-            setSelIdx={setSelIdx}
-            applyCommand={applyCommand}
-          />
         </main>
+
+        <Omnibar
+          input={input}
+          setInput={setInput}
+          handleSubmit={handleSubmit}
+          inputRef={inputRef}
+          placeholder={omnibarPlaceholder}
+          extractedList={extracted.list}
+          extractedDate={extracted.date}
+          extractedPriority={extracted.priority}
+          clearTag={clearTag}
+          menuOpen={menuOpen}
+          setMenuOpen={setMenuOpen}
+          visibleCmds={visibleCmds}
+          enabledCmds={enabledCmds}
+          disabledSet={disabledSet}
+          selIdx={selIdx}
+          setSelIdx={setSelIdx}
+          applyCommand={applyCommand}
+        />
 
         <HelpModal
           showHelp={showHelp}
