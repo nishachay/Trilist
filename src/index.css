@@ -1413,18 +1413,31 @@
 /* Priority Popover Dropdown Picker */
 .priority-popover {
   position: absolute;
-  top: calc(100% + 6px);
   right: 0;
-  z-index: 100;
+  z-index: 150;
   min-width: 140px;
   padding: 5px;
   background: var(--surface-hi);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--border-mid);
   border-radius: 10px;
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.priority-popover[data-position="top"],
+.context-popover[data-position="top"] {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.priority-popover[data-position="bottom"],
+.context-popover[data-position="bottom"] {
+  top: calc(100% + 6px);
+  bottom: auto;
 }
 
 .priority-popover-item {
@@ -1479,11 +1492,10 @@
 
 .context-popover {
   position: absolute;
-  top: calc(100% + 6px);
   right: 0;
-  z-index: 120;
-  min-width: 170px;
-  padding: 5px;
+  z-index: 150;
+  min-width: 190px;
+  padding: 6px;
   background: var(--surface-hi);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -1492,50 +1504,121 @@
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .context-popover-section {
-  padding: 6px 9px 2px;
-  font-size: 9.5px;
+  padding: 3px 6px 1px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--text-faint);
-  border-top: 1px solid var(--border);
 }
-.context-popover-section:first-child { border-top: none; }
 
-.context-popover-item {
+/* Segment Horizontal Button Groups */
+.priority-segments,
+.move-segments {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 500;
+  gap: 3px;
+  padding: 2px;
+  background: var(--surface-lo);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.p-segment {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 5px;
+  font-size: 10.5px;
+  font-weight: 600;
   color: var(--text-soft);
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: color 0.12s, background 0.12s;
-  text-align: left;
-  width: 100%;
+  transition: all 0.12s ease;
 }
 
-.context-popover-item:hover {
+.p-segment:hover {
   color: var(--text);
   background: color-mix(in srgb, var(--text) 8%, transparent);
 }
 
-.context-popover-item[data-active="true"] {
-  color: var(--accent);
+.p-segment[data-active="true"] {
+  background: var(--surface-hi);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+.m-segment {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 2px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.m-segment:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.m-segment[data-active="true"] {
+  background: var(--accent);
+  color: #ffffff;
   font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+.context-action-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.context-action-row .context-popover-item {
+  flex: 1;
+  justify-content: center;
+}
+
+.context-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  border: none;
+  background: var(--surface-lo);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+  text-align: center;
+}
+
+.context-popover-item:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .context-popover-item.del:hover {
   color: #ff453a;
-  background: rgba(255, 69, 58, 0.12);
+  background: rgba(255, 69, 58, 0.14);
 }
 
 /* Command Palette label wrap */

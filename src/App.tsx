@@ -792,91 +792,102 @@ export default function App() {
                                   {actionMenuTaskId === task.id && (
                                     <motion.div
                                       className="context-popover"
-                                      initial={{ opacity: 0, scale: 0.94, y: 4 }}
+                                      data-position={isNearBottom ? "top" : "bottom"}
+                                      initial={{ opacity: 0, scale: 0.94, y: isNearBottom ? -6 : 6 }}
                                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                                      exit={{ opacity: 0, scale: 0.94, y: 4 }}
+                                      exit={{ opacity: 0, scale: 0.94, y: isNearBottom ? -6 : 6 }}
                                       transition={{ duration: 0.12 }}
                                     >
                                       <div className="context-popover-section">PRIORITY</div>
-                                      <button
-                                        className="context-popover-item"
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
-                                      >
-                                        <Flag size={13} fill="var(--p1-color)" color="var(--p1-color)" />
-                                        <span>High Priority (P1)</span>
-                                      </button>
-                                      <button
-                                        className="context-popover-item"
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
-                                      >
-                                        <Flag size={13} fill="var(--p2-color)" color="var(--p2-color)" />
-                                        <span>Medium Priority (P2)</span>
-                                      </button>
-                                      <button
-                                        className="context-popover-item"
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
-                                      >
-                                        <Flag size={13} fill="var(--p3-color)" color="var(--p3-color)" />
-                                        <span>Low Priority (P3)</span>
-                                      </button>
-                                      {task.priority && (
+                                      <div className="priority-segments">
                                         <button
-                                          className="context-popover-item"
+                                          className="p-segment"
+                                          data-priority="1"
+                                          data-active={task.priority === 1}
+                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                          title="P1 High Priority"
+                                        >
+                                          <Flag size={11} fill="var(--p1-color)" color="var(--p1-color)" />
+                                          <span>P1</span>
+                                        </button>
+                                        <button
+                                          className="p-segment"
+                                          data-priority="2"
+                                          data-active={task.priority === 2}
+                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
+                                          title="P2 Medium Priority"
+                                        >
+                                          <Flag size={11} fill="var(--p2-color)" color="var(--p2-color)" />
+                                          <span>P2</span>
+                                        </button>
+                                        <button
+                                          className="p-segment"
+                                          data-priority="3"
+                                          data-active={task.priority === 3}
+                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
+                                          title="P3 Low Priority"
+                                        >
+                                          <Flag size={11} fill="var(--p3-color)" color="var(--p3-color)" />
+                                          <span>P3</span>
+                                        </button>
+                                        <button
+                                          className="p-segment"
+                                          data-active={!task.priority}
                                           onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, undefined); }}
+                                          title="Clear Priority"
                                         >
-                                          <Flag size={13} color="var(--text-faint)" />
-                                          <span>Clear Priority</span>
+                                          <X size={11} color="var(--text-faint)" />
                                         </button>
-                                      )}
+                                      </div>
 
-                                      <div className="context-popover-section">MOVE TO LIST</div>
-                                      {[
-                                        { id: "todo",  label: "Todo"  },
-                                        { id: "watch", label: "Watch" },
-                                        { id: "later", label: "Later" },
-                                        { id: "rough", label: "Rough" },
-                                      ].map(l => (
-                                        <button
-                                          key={l.id}
-                                          className="context-popover-item"
-                                          data-active={task.list === l.id}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            moveTask(task.id, l.id as ListKey);
-                                            setActionMenuTaskId(null);
-                                          }}
-                                        >
-                                          <span
-                                            className="move-item-dot"
-                                            style={{ background: task.list === l.id ? "var(--accent)" : "rgba(255,255,255,0.18)" }}
-                                          />
-                                          <span>Move to {l.label}</span>
-                                        </button>
-                                      ))}
+                                      <div className="context-popover-section">MOVE TO</div>
+                                      <div className="move-segments">
+                                        {[
+                                          { id: "todo",  label: "Todo"  },
+                                          { id: "watch", label: "Watch" },
+                                          { id: "later", label: "Later" },
+                                          { id: "rough", label: "Rough" },
+                                        ].map(l => (
+                                          <button
+                                            key={l.id}
+                                            className="m-segment"
+                                            data-active={task.list === l.id}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              moveTask(task.id, l.id as ListKey);
+                                              setActionMenuTaskId(null);
+                                            }}
+                                          >
+                                            {l.label}
+                                          </button>
+                                        ))}
+                                      </div>
 
                                       <div className="context-popover-section">ACTIONS</div>
-                                      <button
-                                        className="context-popover-item"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActionMenuTaskId(null);
-                                          startEditing(task);
-                                        }}
-                                      >
-                                        <Pencil size={13} />
-                                        <span>Edit Text</span>
-                                      </button>
-                                      <button
-                                        className="context-popover-item del"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActionMenuTaskId(null);
-                                          deleteTask(task.id);
-                                        }}
-                                      >
-                                        <Trash2 size={13} />
-                                        <span>Delete Task</span>
-                                      </button>
+                                      <div className="context-action-row">
+                                        <button
+                                          className="context-popover-item"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActionMenuTaskId(null);
+                                            startEditing(task);
+                                          }}
+                                        >
+                                          <Pencil size={13} />
+                                          <span>Edit</span>
+                                        </button>
+                                        <button
+                                          className="context-popover-item del"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActionMenuTaskId(null);
+                                            deleteTask(task.id);
+                                          }}
+                                        >
+                                          <Trash2 size={13} />
+                                          <span>Delete</span>
+                                        </button>
+                                      </div>
                                     </motion.div>
                                   )}
                                 </AnimatePresence>
@@ -907,9 +918,10 @@ export default function App() {
                                   {priorityPopoverTaskId === task.id && (
                                     <motion.div
                                       className="priority-popover"
-                                      initial={{ opacity: 0, scale: 0.94, y: 4 }}
+                                      data-position={isNearBottom ? "top" : "bottom"}
+                                      initial={{ opacity: 0, scale: 0.94, y: isNearBottom ? -6 : 6 }}
                                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                                      exit={{ opacity: 0, scale: 0.94, y: 4 }}
+                                      exit={{ opacity: 0, scale: 0.94, y: isNearBottom ? -6 : 6 }}
                                       transition={{ duration: 0.12 }}
                                     >
                                       <button
