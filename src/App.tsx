@@ -47,9 +47,9 @@ const DATE_CMDS: Cmd[] = [
 ];
 
 const PRIORITY_CMDS: Cmd[] = [
-  { cmd: "/p1", alias: "/high", desc: "High Priority (P1)",   type: "priority", priority: 1 },
-  { cmd: "/p2", alias: "/med",  desc: "Medium Priority (P2)", type: "priority", priority: 2 },
-  { cmd: "/p3", alias: "/low",  desc: "Low Priority (P3)",    type: "priority", priority: 3 },
+  { cmd: "/p1", alias: "/high", desc: "P1 — High",   type: "priority", priority: 1 },
+  { cmd: "/p2", alias: "/med",  desc: "P2 — Medium", type: "priority", priority: 2 },
+  { cmd: "/p3", alias: "/low",  desc: "P3 — Low",    type: "priority", priority: 3 },
 ];
 
 const SYS_CMDS: Cmd[] = [
