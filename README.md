@@ -4,8 +4,8 @@ A minimalist, keyboard-driven productivity app based on Marc Andreessen's classi
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Vite 6](https://img.shields.io/badge/Vite-6.x-646CFF.svg)](https://vitejs.dev/)
+[![TypeScript 6](https://img.shields.io/badge/TypeScript-6.x-blue.svg)](https://www.typescriptlang.org/)
+[![Vite 8](https://img.shields.io/badge/Vite-8.x-646CFF.svg)](https://vitejs.dev/)
 [![Oxlint](https://img.shields.io/badge/Linter-Oxlint-ff6b4a.svg)](https://oxc.rs/)
 [![Vercel Ready](https://img.shields.io/badge/Deploy-Vercel-black.svg)](https://vercel.com/)
 
@@ -41,30 +41,41 @@ Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pm
 
 ---
 
+## Why Trilist?
+
+| Traditional Productivity Tools | The Trilist Approach |
+|---|---|
+| Endless task backlogs that grow forever | Small daily lists (3 to 5 items max) |
+| Cluttered dropdown menus | Fast inline tag routing (`/td`, `/wt`, `/lt`, `/p1`) |
+| Mandatory sign-ups and cloud syncing | Instant offline IndexedDB with 100% local storage |
+| Messy action buttons | Clean 3-dots context menu and right-aligned priority badges |
+
+---
+
 ## The 3-list system
 
-1. **Todo**: Core commitments for today. Capped at 3 to 5 items.
+1. **Todo**: Core tasks for today. Capped at 3 to 5 items.
 2. **Watch**: Radar items, including replies you're waiting on or projects you're tracking.
 3. **Later**: Tasks scheduled for future weeks or months.
-4. **Rough**: A scratchpad for quick notes and unverified ideas.
+4. **Rough**: A scratchpad for quick notes and raw ideas before moving them to core lists.
 
 ---
 
 ## Features
 
-- **Inline tag routing**: Route tasks while typing using `/td`, `/wt`, `/lt`, or `/rg` in the omnibar.
-- **Priority flags**: Set priority with `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue). Flags align along the right margin.
-- **Relative scheduling**: Combine `/lt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks to future dates.
+- **Inline tag routing**: Route tasks while typing by adding `/td`, `/wt`, `/lt`, or `/rg` anywhere in the input bar.
+- **Priority flags**: Set priority with `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue). Priority badges align along the right margin.
+- **Relative scheduling**: Combine `/lt` or `/wt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks to future dates.
 - **Context menu (`...`)**: Right-aligned 3-dots menu for priority shifts, list moves, editing, and deletion.
-- **Themes & typography**: Light and dark themes, 5 accent colors, and 4 fonts (Geist, JetBrains Mono, Inter Tight, Newsreader).
+- **Themes & typography**: Light and dark themes, 5 accent colors, and 4 fonts (Geist, JetBrains Mono, Inter Tight, and Newsreader).
 - **Offline local storage**: Data stays in your browser using IndexedDB. Includes JSON export and import backups.
 
 ---
 
 ## Tech stack
 
-- **Framework**: React 19 + TypeScript
-- **Build tool**: Vite 6
+- **Framework**: React 19 + TypeScript 6
+- **Build tool**: Vite 8
 - **Styling**: Vanilla CSS with design tokens
 - **Animations**: Motion (`motion/react`)
 - **Icons**: Lucide React
@@ -127,7 +138,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - `/p2` or `/med`: Medium Priority (Amber)
 - `/p3` or `/low`: Low Priority (Blue)
 
-### Date tags (Available for `/later`)
+### Date tags (Available for `/watch` and `/later`)
 
 - `/week` or `/wk`: Defer task for 7 days
 - `/month` or `/mn`: Defer task for 30 days
@@ -137,8 +148,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 ## Data privacy
 
 Your tasks stay on your device:
-- **Local storage**: Tasks save locally using IndexedDB. No external servers or user accounts.
-- **Backup & export**: Export your data to `.json` or import a previous backup from the Preferences menu (`?`).
+- **Local storage**: Tasks save locally in your browser using IndexedDB. No external servers or user accounts required.
+- **Backup and export**: Export your database as a `.json` backup file or restore from a previous file in the Preferences menu (`?`).
 
 ---
 
@@ -174,4 +185,4 @@ Concept based on Marc Andreessen's 2007 essay, [Guide to Personal Productivity](
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
