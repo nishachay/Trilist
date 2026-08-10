@@ -187,6 +187,25 @@ export const HelpModal: React.FC<HelpModalProps> = ({
               />
             </div>
           </div>
+
+          {/* Credits & Philosophy Block */}
+          <div className="help-block">
+            <p className="help-section-label">Credits &amp; Philosophy</p>
+            <div className="help-rule" />
+            <p className="inspiration-banner">
+              Inspired by Marc Andreessen's{" "}
+              <a
+                href="https://pmarchive.com/guide_to_personal_productivity.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="credits-link"
+              >
+                Guide to Personal Productivity
+              </a>
+            </p>
+          </div>
+
+          <p className="help-note">Press Esc or click outside to close.</p>
         </motion.div>
       )}
     </AnimatePresence>
