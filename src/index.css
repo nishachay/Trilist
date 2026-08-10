@@ -1598,6 +1598,24 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
+.p-segment[data-priority="1"][data-active="true"] {
+  background: var(--p1-bg);
+  color: var(--p1-color);
+  border: 1px solid color-mix(in srgb, var(--p1-color) 40%, transparent);
+}
+
+.p-segment[data-priority="2"][data-active="true"] {
+  background: var(--p2-bg);
+  color: var(--p2-color);
+  border: 1px solid color-mix(in srgb, var(--p2-color) 40%, transparent);
+}
+
+.p-segment[data-priority="3"][data-active="true"] {
+  background: var(--p3-bg);
+  color: var(--p3-color);
+  border: 1px solid color-mix(in srgb, var(--p3-color) 40%, transparent);
+}
+
 .m-segment {
   flex: 1;
   display: inline-flex;

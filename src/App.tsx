@@ -770,7 +770,10 @@ export default function App() {
                                 </button>
                               </div>
                             ) : (
-                              <div className="row-context-wrap">
+                              <div
+                                className="row-context-wrap"
+                                onMouseLeave={() => setActionMenuTaskId(null)}
+                              >
                                 {activeTab === "watch" && !task.resolving && (
                                   <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
                                     Resolved
@@ -805,7 +808,11 @@ export default function App() {
                                           className="p-segment"
                                           data-priority="1"
                                           data-active={task.priority === 1}
-                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setTaskPriority(task.id, 1);
+                                            setActionMenuTaskId(null);
+                                          }}
                                           title="P1 High Priority"
                                         >
                                           <Flag size={11} fill="var(--p1-color)" color="var(--p1-color)" />
@@ -815,7 +822,11 @@ export default function App() {
                                           className="p-segment"
                                           data-priority="2"
                                           data-active={task.priority === 2}
-                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setTaskPriority(task.id, 2);
+                                            setActionMenuTaskId(null);
+                                          }}
                                           title="P2 Medium Priority"
                                         >
                                           <Flag size={11} fill="var(--p2-color)" color="var(--p2-color)" />
@@ -825,7 +836,11 @@ export default function App() {
                                           className="p-segment"
                                           data-priority="3"
                                           data-active={task.priority === 3}
-                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setTaskPriority(task.id, 3);
+                                            setActionMenuTaskId(null);
+                                          }}
                                           title="P3 Low Priority"
                                         >
                                           <Flag size={11} fill="var(--p3-color)" color="var(--p3-color)" />
@@ -834,7 +849,11 @@ export default function App() {
                                         <button
                                           className="p-segment"
                                           data-active={!task.priority}
-                                          onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, undefined); }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setTaskPriority(task.id, undefined);
+                                            setActionMenuTaskId(null);
+                                          }}
                                           title="Clear Priority"
                                         >
                                           <X size={11} color="var(--text-faint)" />
@@ -897,7 +916,10 @@ export default function App() {
 
                             {/* Active Priority Badge at EXTREME RIGHT EDGE */}
                             {task.priority && (
-                              <div className="priority-pill-wrap">
+                              <div
+                                className="priority-pill-wrap"
+                                onMouseLeave={() => setPriorityPopoverTaskId(null)}
+                              >
                                 <button
                                   className="priority-pill-btn"
                                   data-priority={task.priority}
@@ -928,7 +950,11 @@ export default function App() {
                                       <button
                                         className="priority-popover-item"
                                         data-priority={1}
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 1); }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTaskPriority(task.id, 1);
+                                          setPriorityPopoverTaskId(null);
+                                        }}
                                       >
                                         <Flag size={13} fill="var(--p1-color)" color="var(--p1-color)" />
                                         <span>P1 — High</span>
@@ -936,7 +962,11 @@ export default function App() {
                                       <button
                                         className="priority-popover-item"
                                         data-priority={2}
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 2); }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTaskPriority(task.id, 2);
+                                          setPriorityPopoverTaskId(null);
+                                        }}
                                       >
                                         <Flag size={13} fill="var(--p2-color)" color="var(--p2-color)" />
                                         <span>P2 — Medium</span>
@@ -944,14 +974,22 @@ export default function App() {
                                       <button
                                         className="priority-popover-item"
                                         data-priority={3}
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, 3); }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTaskPriority(task.id, 3);
+                                          setPriorityPopoverTaskId(null);
+                                        }}
                                       >
                                         <Flag size={13} fill="var(--p3-color)" color="var(--p3-color)" />
                                         <span>P3 — Low</span>
                                       </button>
                                       <button
                                         className="priority-popover-item"
-                                        onClick={(e) => { e.stopPropagation(); setTaskPriority(task.id, undefined); }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTaskPriority(task.id, undefined);
+                                          setPriorityPopoverTaskId(null);
+                                        }}
                                       >
                                         <Flag size={13} color="var(--text-faint)" />
                                         <span>Clear</span>
