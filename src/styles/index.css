@@ -1295,8 +1295,11 @@
 
   .header {
     padding: 0 10px;
-    height: 52px;
+    height: 50px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .brand {
@@ -1317,28 +1320,33 @@
 
   .tabs {
     padding: 2px;
+    gap: 1px;
   }
 
   .tab {
-    padding: 4px 8px;
-    font-size: 12px;
+    padding: 3px 6px;
+    font-size: 11.5px;
   }
 
   .tab-count {
-    min-width: 16px;
-    height: 16px;
-    font-size: 9.5px;
-    padding: 0 4px;
+    min-width: 15px;
+    height: 15px;
+    font-size: 9px;
+    padding: 0 3px;
   }
 
   .header-right {
     flex: 0 0 auto;
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
-  .rough-btn {
-    padding: 4px 6px;
-    font-size: 11px;
+  .tbtn {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
   }
 
   .content {
@@ -1365,11 +1373,13 @@
     border-top: 1px solid var(--border);
     position: relative;
     z-index: 20;
+    width: 100%;
   }
 
   .omnibar {
     height: 48px;
     padding: 0 12px;
+    width: 100%;
   }
 
   .cmd-menu {
@@ -1391,8 +1401,7 @@
 
 @media (max-width: 380px) {
   .header {
-    padding: 0 8px;
-    gap: 4px;
+    padding: 0 6px;
   }
 
   .brand {
@@ -1400,8 +1409,8 @@
   }
 
   .tab {
-    padding: 3px 6px;
-    font-size: 11.5px;
+    padding: 2px 4.5px;
+    font-size: 11px;
   }
 
   .header-divider {
@@ -1409,8 +1418,8 @@
   }
 
   .tbtn {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
 }
 

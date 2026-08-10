@@ -1,3 +1,4 @@
+import React from "react";
 import { Sun, Moon } from "lucide-react";
 import type { ListKey } from "@/types";
 
@@ -7,13 +8,14 @@ interface HeaderProps {
   counts: Record<ListKey, number>;
   theme: "dark" | "light";
   setTheme: React.Dispatch<React.SetStateAction<"dark" | "light">>;
-  setShowHelp: (show: boolean) => void;
+  setShowHelp: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MAIN_TABS: { id: ListKey; label: string }[] = [
+const TABS: { id: ListKey; label: string }[] = [
   { id: "todo",  label: "Todo"  },
   { id: "watch", label: "Watch" },
   { id: "later", label: "Later" },
+  { id: "rough", label: "Rough" },
 ];
 
 export const Header: React.FC<HeaderProps> = ({
@@ -37,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       <div className="header-center">
         <nav className="tabs">
-          {MAIN_TABS.map(t => (
+          {TABS.map(t => (
             <button
               key={t.id}
               className="tab"
@@ -56,20 +58,8 @@ export const Header: React.FC<HeaderProps> = ({
 
       <div className="header-right">
         <button
-          className="rough-btn"
-          data-active={activeTab === "rough"}
-          onClick={() => switchTab("rough")}
-          title="Rough Scratchpad (Key 0)"
-        >
-          <span>Rough</span>
-          {counts.rough > 0 && <span className="tab-count">{counts.rough}</span>}
-        </button>
-
-        <div className="header-divider" />
-
-        <button
           className="tbtn"
-          onClick={() => setShowHelp(true)}
+          onClick={() => setShowHelp(prev => !prev)}
           title="Help & Preferences (?)"
           aria-label="Help & Preferences"
         >
