@@ -9,8 +9,8 @@ Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list
 [![Oxlint](https://img.shields.io/badge/Linter-Oxlint-ff6b4a.svg)](https://oxc.rs/)
 [![Vercel Ready](https://img.shields.io/badge/Deploy-Vercel-black.svg)](https://vercel.com/)
 
-![Trilist Dark Mode](public/trilist-darkmode.png#gh-dark-mode-only)
-![Trilist Light Mode](public/trilist-lightmode.png#gh-light-mode-only)
+![Trilist Dark Mode](docs/screenshots/trilist-darkmode.png#gh-dark-mode-only)
+![Trilist Light Mode](docs/screenshots/trilist-lightmode.png#gh-light-mode-only)
 
 ---
 

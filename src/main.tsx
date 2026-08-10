@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import "@fontsource/geist-sans";
 import "@fontsource/inter-tight";
 import "@fontsource/newsreader";
-import './index.css'
+import './styles/index.css'
 import App from './App.tsx'
 
 // Unregister any legacy Service Worker from old app versions
