@@ -310,7 +310,7 @@
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 24px;
+  padding-bottom: 100px;
   scrollbar-width: none;
   position: relative;
 }
@@ -654,11 +654,13 @@
 
 /* ─── Omnibar ─────────────────────────────────── */
 .omnibar-wrap {
-  position: relative;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 860px;
   z-index: 20;
-  width: 100%;
-  padding: 12px 24px 20px;
-  flex-shrink: 0;
 }
 
 .omnibar {
@@ -1375,12 +1377,15 @@
   }
 
   .omnibar-wrap {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
     padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));
     background: transparent;
     border-top: none;
-    position: relative;
     z-index: 20;
-    width: 100%;
   }
 
   .omnibar {
