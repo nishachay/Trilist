@@ -1,6 +1,6 @@
 # Trilist
 
-A minimalist, keyboard-driven productivity app based on Marc Andreessen's classic 3x5 index card system.
+Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list system.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
@@ -37,7 +37,7 @@ Most task management apps encourage giant backlogs. You create dozens of lists, 
 
 Trilist limits your focus to 3 to 5 tasks a day.
 
-Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html), Trilist brings physical 3x5 index card habits to a fast web app.
+Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html), Trilist brings a fast, keyboard-first 3-list workflow to the web.
 
 ---
 
