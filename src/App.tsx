@@ -517,54 +517,52 @@ export default function App() {
         />
 
         <main className="content">
-          <div className="content-stream">
-            {visibleTasks.length === 0 ? (
-              <motion.div
-                className="empty"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <p className="empty-title">{EMPTY_STATES[activeTab].title}</p>
-                <p className="empty-hint">{EMPTY_STATES[activeTab].hint}</p>
-              </motion.div>
-            ) : (
-              <AnimatePresence initial={false}>
-                {visibleTasks.map((task, index) => {
-                  const isEditing = editingId === task.id;
-                  const isNearBottom = index >= visibleTasks.length - 3;
-                  return (
-                    <TaskRow
-                      key={task.id}
-                      task={task}
-                      index={index}
-                      activeTab={activeTab}
-                      focusedIdx={focusedIdx}
-                      setFocusedIdx={setFocusedIdx}
-                      isEditing={isEditing}
-                      editInput={editInput}
-                      setEditInput={setEditInput}
-                      saveEdit={saveEdit}
-                      cancelEdit={cancelEdit}
-                      startEditing={startEditing}
-                      toggleTask={toggleTask}
-                      deleteTask={deleteTask}
-                      resolveTask={resolveTask}
-                      setTaskPriority={setTaskPriority}
-                      moveTask={moveTask}
-                      actionMenuTaskId={actionMenuTaskId}
-                      toggleActionMenu={toggleActionMenu}
-                      setActionMenuTaskId={setActionMenuTaskId}
-                      priorityPopoverTaskId={priorityPopoverTaskId}
-                      togglePriorityPopover={togglePriorityPopover}
-                      setPriorityPopoverTaskId={setPriorityPopoverTaskId}
-                      isNearBottom={isNearBottom}
-                    />
-                  );
-                })}
-              </AnimatePresence>
-            )}
-          </div>
+          {visibleTasks.length === 0 ? (
+            <motion.div
+              className="empty"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="empty-title">{EMPTY_STATES[activeTab].title}</p>
+              <p className="empty-hint">{EMPTY_STATES[activeTab].hint}</p>
+            </motion.div>
+          ) : (
+            <AnimatePresence initial={false}>
+              {visibleTasks.map((task, index) => {
+                const isEditing = editingId === task.id;
+                const isNearBottom = index >= visibleTasks.length - 3;
+                return (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    index={index}
+                    activeTab={activeTab}
+                    focusedIdx={focusedIdx}
+                    setFocusedIdx={setFocusedIdx}
+                    isEditing={isEditing}
+                    editInput={editInput}
+                    setEditInput={setEditInput}
+                    saveEdit={saveEdit}
+                    cancelEdit={cancelEdit}
+                    startEditing={startEditing}
+                    toggleTask={toggleTask}
+                    deleteTask={deleteTask}
+                    resolveTask={resolveTask}
+                    setTaskPriority={setTaskPriority}
+                    moveTask={moveTask}
+                    actionMenuTaskId={actionMenuTaskId}
+                    toggleActionMenu={toggleActionMenu}
+                    setActionMenuTaskId={setActionMenuTaskId}
+                    priorityPopoverTaskId={priorityPopoverTaskId}
+                    togglePriorityPopover={togglePriorityPopover}
+                    setPriorityPopoverTaskId={setPriorityPopoverTaskId}
+                    isNearBottom={isNearBottom}
+                  />
+                );
+              })}
+            </AnimatePresence>
+          )}
 
           <Omnibar
             input={input}

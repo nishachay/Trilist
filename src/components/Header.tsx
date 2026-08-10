@@ -28,41 +28,46 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="header">
       <div className="brand">
-        <svg className="brand-logo" viewBox="0 0 24 24" width="18" height="18" fill="none">
+        <svg className="brand-mark" viewBox="0 0 24 24" fill="none">
           <path d="M4 6h16M4 12h12M4 18h8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
-        <span className="brand-title">trilist</span>
+        <span className="brand-name">trilist</span>
       </div>
 
-      <nav className="nav-tabs">
-        {MAIN_TABS.map(t => (
-          <button
-            key={t.id}
-            className="tab-btn"
-            data-active={activeTab === t.id}
-            onClick={() => switchTab(t.id)}
-          >
-            <span>{t.label}</span>
-            {counts[t.id] > 0 && <span className="tab-badge">{counts[t.id]}</span>}
-          </button>
-        ))}
-      </nav>
+      <div className="header-center">
+        <nav className="tabs">
+          {MAIN_TABS.map(t => (
+            <button
+              key={t.id}
+              className="tab"
+              data-active={activeTab === t.id}
+              onClick={() => switchTab(t.id)}
+            >
+              {activeTab === t.id && <div className="tab-bg" />}
+              <span className="tab-label">
+                <span>{t.label}</span>
+                {counts[t.id] > 0 && <span className="tab-count">{counts[t.id]}</span>}
+              </span>
+            </button>
+          ))}
+        </nav>
+      </div>
 
       <div className="header-right">
         <button
-          className="rough-tab-btn"
+          className="rough-btn"
           data-active={activeTab === "rough"}
           onClick={() => switchTab("rough")}
           title="Rough Scratchpad (Key 0)"
         >
-          <span className="rough-label">Rough</span>
-          {counts.rough > 0 && <span className="rough-badge">{counts.rough}</span>}
+          <span>Rough</span>
+          {counts.rough > 0 && <span className="tab-count">{counts.rough}</span>}
         </button>
 
-        <div className="v-sep" />
+        <div className="header-divider" />
 
         <button
-          className="icon-btn"
+          className="tbtn"
           onClick={() => setShowHelp(true)}
           title="Help & Preferences (?)"
           aria-label="Help & Preferences"
@@ -71,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <button
-          className="icon-btn"
+          className="tbtn"
           onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
           title="Toggle Dark/Light Theme"
           aria-label="Toggle theme"

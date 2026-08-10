@@ -33,7 +33,7 @@ interface TaskRowProps {
 
 const Checkbox: React.FC<{ done: boolean; onToggle: () => void }> = ({ done, onToggle }) => (
   <button
-    className="checkbox"
+    className="cb"
     data-done={done}
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     title={done ? "Mark incomplete" : "Mark complete"}
