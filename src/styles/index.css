@@ -1292,11 +1292,12 @@
 
   .header {
     padding: 0 10px;
-    height: 50px;
+    height: 48px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 4px;
   }
 
   .brand {
@@ -1308,11 +1309,10 @@
   }
 
   .header-center {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    position: static;
+    transform: none;
     margin: 0;
+    flex: 0 0 auto;
   }
 
   .tabs {
@@ -1334,15 +1334,25 @@
 
   .header-right {
     flex: 0 0 auto;
-    margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
+  }
+
+  .rough-btn {
+    padding: 3px 5px;
+    font-size: 10.5px;
+    margin-right: 0;
+  }
+
+  .header-divider {
+    height: 12px;
+    margin: 0 1px;
   }
 
   .tbtn {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     font-size: 12px;
   }
 
@@ -1365,17 +1375,17 @@
   }
 
   .omnibar-wrap {
-    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
-    background: var(--surface-hi);
-    border-top: 1px solid var(--border);
+    padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: transparent;
+    border-top: none;
     position: relative;
     z-index: 20;
     width: 100%;
   }
 
   .omnibar {
-    height: 48px;
-    padding: 0 12px;
+    height: 44px;
+    padding: 0 10px;
     width: 100%;
   }
 
@@ -1399,6 +1409,7 @@
 @media (max-width: 380px) {
   .header {
     padding: 0 6px;
+    gap: 2px;
   }
 
   .brand {
@@ -1406,8 +1417,13 @@
   }
 
   .tab {
-    padding: 2px 4.5px;
-    font-size: 11px;
+    padding: 2.5px 4px;
+    font-size: 10.5px;
+  }
+
+  .rough-btn {
+    padding: 2.5px 4px;
+    font-size: 10px;
   }
 
   .header-divider {
@@ -1415,8 +1431,9 @@
   }
 
   .tbtn {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
   }
 }
 
