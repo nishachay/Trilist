@@ -41,41 +41,42 @@ export const HelpModal: React.FC<HelpModalProps> = ({
       {showHelp && (
         <motion.div
           className="help-overlay"
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.97 }}
-          transition={{ duration: 0.15 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowHelp(false); }}
         >
           <div className="help-header">
-            <h2 className="help-title">Help &amp; Preferences</h2>
+            <p className="help-title">Help &amp; Preferences</p>
             <button
               className="help-close-btn"
               onClick={() => setShowHelp(false)}
-              title="Close (Esc)"
+              title="Close help (Esc)"
+              aria-label="Close help"
             >
-              <X size={15} />
+              <X size={16} />
             </button>
           </div>
 
-          {/* Accent Colors */}
+          {/* Customization Options */}
           <div className="help-block">
-            <p className="help-section-label">Accent Swatches</p>
+            <p className="help-section-label">Accent Color</p>
             <div className="help-rule" />
             <div className="swatch-group">
               {accentSwatches.map(s => (
                 <button
-                  key={s.name}
+                  key={s.color}
                   className="swatch-btn"
-                  style={{ background: s.color }}
+                  style={{ backgroundColor: s.color }}
+                  title={s.name}
                   data-selected={accentColor === s.color}
                   onClick={() => setAccentColor(s.color)}
-                  title={s.name}
                 />
               ))}
             </div>
           </div>
 
-          {/* Typography */}
           <div className="help-block">
             <p className="help-section-label">Typography</p>
             <div className="help-rule" />
@@ -84,9 +85,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({
                 <button
                   key={f.label}
                   className="font-btn"
+                  style={{ fontFamily: f.value }}
                   data-selected={selectedFont === f.value}
                   onClick={() => setSelectedFont(f.value)}
-                  style={{ fontFamily: f.value }}
                 >
                   {f.label}
                 </button>
@@ -94,31 +95,27 @@ export const HelpModal: React.FC<HelpModalProps> = ({
             </div>
           </div>
 
-          {/* Navigation & Shortcuts */}
           <div className="help-block">
             <p className="help-section-label">Navigation &amp; Task Selection</p>
             <div className="help-rule" />
             {[
-              { keys: ["0..3"], desc: "Switch active tab (0=Rough, 1=Todo...)" },
-              { keys: ["j", "k"], desc: "Navigate task rows up / down" },
-              { keys: ["Space"], desc: "Toggle completion / resolve task" },
-              { keys: ["p"], desc: "Cycle priority (P1 / P2 / P3 / Clear)" },
-              { keys: ["x", "d"], desc: "Delete selected task" },
-              { keys: ["•••"], desc: "Open row context menu (Priority, Move, Edit, Delete)" },
-              { keys: ["/"], desc: "Focus omnibar" },
-              { keys: ["?"], desc: "Toggle this help view" },
-              { keys: ["Esc"], desc: "Blur input / close popovers" },
+              { keys: ["0..3"],        desc: "Switch active tab (0=Rough, 1=Todo…)" },
+              { keys: ["j", "k"],      desc: "Navigate task rows up / down" },
+              { keys: ["Space"],       desc: "Toggle completion / resolve task" },
+              { keys: ["p"],           desc: "Cycle priority (P1 / P2 / P3 / Clear)" },
+              { keys: ["x"],           desc: "Delete selected task" },
+              { keys: ["•••"],         desc: "Open row context menu (Priority, Move, Edit, Delete)" },
+              { keys: ["/"],           desc: "Focus omnibar" },
+              { keys: ["?"],           desc: "Toggle this help view" },
+              { keys: ["Esc"],         desc: "Blur input / close popovers" },
             ].map(r => (
               <div key={r.keys.join()} className="help-row">
-                <div className="help-keys">
-                  {r.keys.map(k => <span key={k} className="key">{k}</span>)}
-                </div>
+                <div className="help-keys">{r.keys.map(k => <span key={k} className="key">{k}</span>)}</div>
                 <span className="help-desc">{r.desc}</span>
               </div>
             ))}
           </div>
 
-          {/* Priority Tags */}
           <div className="help-block">
             <p className="help-section-label">Priority tags</p>
             <div className="help-rule" />
@@ -134,7 +131,6 @@ export const HelpModal: React.FC<HelpModalProps> = ({
             ))}
           </div>
 
-          {/* Where Tags */}
           <div className="help-block">
             <p className="help-section-label">Where tags</p>
             <div className="help-rule" />
@@ -150,7 +146,6 @@ export const HelpModal: React.FC<HelpModalProps> = ({
             ))}
           </div>
 
-          {/* When Tags */}
           <div className="help-block">
             <p className="help-section-label">When tags (available for /watch and /later)</p>
             <div className="help-rule" />
@@ -166,7 +161,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({
             ))}
           </div>
 
-          {/* Data Backup */}
+          {/* Data Ownership / Backup */}
           <div className="help-block">
             <p className="help-section-label">Data Ownership &amp; Backup</p>
             <div className="help-rule" />
@@ -192,6 +187,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({
           <div className="help-block">
             <p className="help-section-label">Credits &amp; Philosophy</p>
             <div className="help-rule" />
+
             <p className="inspiration-banner">
               Inspired by Marc Andreessen's{" "}
               <a
@@ -203,6 +199,54 @@ export const HelpModal: React.FC<HelpModalProps> = ({
                 Guide to Personal Productivity
               </a>
             </p>
+
+            <div className="credits-card">
+              <div className="credits-header">
+                <span className="credits-title">Built by</span>
+                <span className="credits-name">Nishachay</span>
+              </div>
+
+              <div className="credits-links">
+                <a
+                  href="https://x.com/nishachayy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="credit-pill"
+                  title="Follow Nishachay on X (@nishachayy)"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  <span>@nishachayy</span>
+                </a>
+
+                <a
+                  href="https://github.com/nishachay"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="credit-pill"
+                  title="View Nishachay on GitHub (@nishachay)"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                    <path d="M9 18c-4.51 2-5-2-7-2"/>
+                  </svg>
+                  <span>@nishachay</span>
+                </a>
+
+                <a
+                  href="mailto:nishachayshelke@gmail.com"
+                  className="credit-pill"
+                  title="Email Nishachay (nishachayshelke@gmail.com)"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
+                  <span>nishachayshelke@gmail.com</span>
+                </a>
+              </div>
+            </div>
           </div>
 
           <p className="help-note">Press Esc or click outside to close.</p>
