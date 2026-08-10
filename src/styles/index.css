@@ -1295,14 +1295,12 @@
 
   .header {
     padding: 0 10px;
-    height: 48px;
-    gap: 6px;
-    justify-content: space-between;
+    height: 52px;
+    position: relative;
   }
 
   .brand {
     flex: 0 0 auto;
-    gap: 6px;
   }
 
   .brand-name {
@@ -1310,107 +1308,72 @@
   }
 
   .header-center {
-    position: static;
-    transform: none;
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    min-width: 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
   }
 
   .tabs {
     padding: 2px;
-    gap: 1px;
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
   }
-  .tabs::-webkit-scrollbar { display: none; }
 
   .tab {
-    padding: 3px 6px;
-    font-size: 11.5px;
-    flex-shrink: 0;
+    padding: 4px 8px;
+    font-size: 12px;
   }
 
   .tab-count {
-    min-width: 15px;
-    height: 15px;
-    font-size: 9px;
-    padding: 0 3px;
+    min-width: 16px;
+    height: 16px;
+    font-size: 9.5px;
+    padding: 0 4px;
   }
 
   .header-right {
     flex: 0 0 auto;
-    gap: 2px;
+    margin-left: auto;
   }
 
   .rough-btn {
-    padding: 3px 5px;
-    font-size: 10.5px;
-    margin-right: 0;
-  }
-
-  .header-divider {
-    height: 12px;
-    margin: 0 2px;
-  }
-
-  .tbtn {
-    width: 26px;
-    height: 26px;
-    font-size: 12px;
+    padding: 4px 6px;
+    font-size: 11px;
   }
 
   .content {
-    padding: 0;
-    padding-bottom: 110px;
+    padding: 12px 14px;
   }
 
   .row {
-    padding: 12px 14px;
-    min-height: 48px;
-    gap: 10px;
+    padding: 10px 12px;
+    min-height: 44px;
   }
 
-  .row-text {
-    font-size: 14px;
+  .row-actions {
+    opacity: 1;
+    transform: none;
   }
 
-  .row-meta {
-    gap: 4px;
-  }
-
-  .row-action-btn.context-trigger {
-    opacity: 0.75;
+  .row-time-ago {
+    display: none;
   }
 
   .omnibar-wrap {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
     background: var(--surface-hi);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-top: 1px solid var(--border-mid);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 100;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 20;
   }
 
   .omnibar {
-    height: 44px;
-    padding: 0 10px;
-  }
-
-  .omnibar-input {
-    font-size: 13.5px;
+    height: 48px;
+    padding: 0 12px;
   }
 
   .cmd-menu {
-    max-height: 200px;
-    bottom: calc(100% + 6px);
+    max-height: 220px;
   }
 
   .onboarding-card {
@@ -1420,18 +1383,16 @@
   }
 
   .help-overlay {
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0;
-    padding: 24px 16px 40px;
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 32px);
+    padding: 20px 16px;
   }
 }
 
 @media (max-width: 380px) {
   .header {
-    padding: 0 6px;
-    gap: 3px;
+    padding: 0 8px;
+    gap: 4px;
   }
 
   .brand {
@@ -1439,8 +1400,8 @@
   }
 
   .tab {
-    padding: 2px 5px;
-    font-size: 11px;
+    padding: 3px 6px;
+    font-size: 11.5px;
   }
 
   .header-divider {
@@ -1448,8 +1409,8 @@
   }
 
   .tbtn {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 }
 
