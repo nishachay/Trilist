@@ -55,10 +55,15 @@ Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pm
 
 ## The 3-list system
 
+Trilist structures your work into three core lists:
+
 1. **Todo**: Your core tasks for today.
 2. **Watch**: Radar items, including replies you're waiting on or projects you're tracking.
 3. **Later**: Tasks scheduled for future weeks or months.
-4. **Rough**: A scratchpad for quick notes and raw ideas before moving them to core lists.
+
+### Scratchpad
+
+- **Rough**: A separate scratchpad space for quick notes and raw ideas before routing them to your core lists.
 
 ---
 
