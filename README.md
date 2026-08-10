@@ -17,6 +17,7 @@ Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list
 ## Table of contents
 
 - [Motivation](#motivation)
+- [Why Trilist?](#why-trilist)
 - [The 3-list system](#the-3-list-system)
 - [Features](#features)
 - [Tech stack](#tech-stack)
