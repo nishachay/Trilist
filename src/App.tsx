@@ -710,6 +710,7 @@ export default function App() {
                   <AnimatePresence initial={false}>
                     {visibleTasks.map((task, index) => {
                       const isEditing = editingId === task.id;
+                      const isNearBottom = index >= visibleTasks.length - 3;
                       return (
                         <motion.div
                           key={task.id}

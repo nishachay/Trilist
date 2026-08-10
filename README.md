@@ -35,7 +35,7 @@ Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list
 
 Most task management apps encourage giant backlogs. You create dozens of lists, tag everything, and watch tasks pile up until you abandon the app.
 
-Trilist limits your focus to 3 to 5 tasks a day.
+Trilist keeps your daily task focus manageable.
 
 Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html), Trilist brings a fast, keyboard-first 3-list workflow to the web.
 
@@ -45,7 +45,7 @@ Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pm
 
 | Traditional Productivity Tools | The Trilist Approach |
 |---|---|
-| Endless task backlogs that grow forever | Small daily lists (3 to 5 items max) |
+| Endless task backlogs that grow forever | Focused daily priorities |
 | Cluttered dropdown menus | Fast inline tag routing (`/td`, `/wt`, `/lt`, `/p1`) |
 | Mandatory sign-ups and cloud syncing | Instant offline IndexedDB with 100% local storage |
 | Messy action buttons | Clean 3-dots context menu and right-aligned priority badges |
@@ -54,7 +54,7 @@ Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pm
 
 ## The 3-list system
 
-1. **Todo**: Core tasks for today. Capped at 3 to 5 items.
+1. **Todo**: Your core tasks for today.
 2. **Watch**: Radar items, including replies you're waiting on or projects you're tracking.
 3. **Later**: Tasks scheduled for future weeks or months.
 4. **Rough**: A scratchpad for quick notes and raw ideas before moving them to core lists.
