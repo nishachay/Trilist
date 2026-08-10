@@ -584,23 +584,23 @@ export default function App() {
             applyCommand={applyCommand}
           />
         </main>
-      </div>
 
-      <HelpModal
-        showHelp={showHelp}
-        setShowHelp={setShowHelp}
-        accentColor={accentColor}
-        setAccentColor={setAccentColor}
-        selectedFont={selectedFont}
-        setSelectedFont={setSelectedFont}
-        accentSwatches={ACCENT_SWATCHES}
-        fontOptions={FONT_OPTIONS}
-        priorityCmds={PRIORITY_CMDS}
-        listCmds={LIST_CMDS}
-        dateCmds={DATE_CMDS}
-        handleExportData={handleExportData}
-        handleImportData={handleImportData}
-      />
+        <HelpModal
+          showHelp={showHelp}
+          setShowHelp={setShowHelp}
+          accentColor={accentColor}
+          setAccentColor={setAccentColor}
+          selectedFont={selectedFont}
+          setSelectedFont={setSelectedFont}
+          accentSwatches={ACCENT_SWATCHES}
+          fontOptions={FONT_OPTIONS}
+          priorityCmds={PRIORITY_CMDS}
+          listCmds={LIST_CMDS}
+          dateCmds={DATE_CMDS}
+          handleExportData={handleExportData}
+          handleImportData={handleImportData}
+        />
+      </div>
     </div>
   );
 }
