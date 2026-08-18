@@ -252,6 +252,7 @@ export default function App() {
   const deleteTask = useCallback((id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
     deleteTaskFromDB(id).catch(console.error);
+    setFocusedIdx(prev => (prev === null ? null : Math.max(0, prev - 1)));
   }, []);
 
   const resolveTask = useCallback((id: string) => {
@@ -261,6 +262,7 @@ export default function App() {
     setTimeout(() => {
       setTasks(prev => prev.filter(t => t.id !== id));
       deleteTaskFromDB(id).catch(console.error);
+      setFocusedIdx(prev => (prev === null ? null : Math.max(0, prev - 1)));
     }, 450);
   }, []);
 
