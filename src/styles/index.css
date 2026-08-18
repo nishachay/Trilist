@@ -1530,6 +1530,26 @@
   bottom: auto;
 }
 
+.context-popover::before,
+.priority-popover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12px;
+  z-index: -1;
+}
+
+.context-popover[data-position="top"]::before,
+.priority-popover[data-position="top"]::before {
+  bottom: -10px;
+}
+
+.context-popover[data-position="bottom"]::before,
+.priority-popover[data-position="bottom"]::before {
+  top: -10px;
+}
+
 .priority-popover-item {
   display: flex;
   align-items: center;

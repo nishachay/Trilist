@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Flag, X, Pencil, Trash2 } from "lucide-react";
 import type { Task, ListKey, PriorityLevel } from "@/types";
@@ -22,8 +22,21 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   deleteTask,
   closePopover,
 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        closePopover();
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [closePopover]);
+
   return (
     <motion.div
+      ref={ref}
       className="context-popover"
       data-position={isNearBottom ? "top" : "bottom"}
       initial={{ opacity: 0, scale: 0.94, y: isNearBottom ? -6 : 6 }}

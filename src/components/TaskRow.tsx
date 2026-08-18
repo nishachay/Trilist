@@ -114,10 +114,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       {/* Extreme Right Action Controls */}
       {!isEditing && (
         <div className="row-meta">
-          <div
-            className="row-context-wrap"
-            onMouseLeave={() => setActionMenuTaskId(null)}
-          >
+          <div className="row-context-wrap">
             {activeTab === "watch" && !task.resolving && (
               <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
                 Resolved
@@ -153,10 +150,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
           {/* Active Priority Badge at EXTREME RIGHT EDGE */}
           {task.priority && (
-            <div
-              className="priority-pill-wrap"
-              onMouseLeave={() => setPriorityPopoverTaskId(null)}
-            >
+            <div className="priority-pill-wrap">
               <button
                 className="priority-pill-btn"
                 data-priority={task.priority}
