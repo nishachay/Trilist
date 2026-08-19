@@ -433,7 +433,17 @@ export default function App() {
     if (!input.trim()) return;
 
     const { list, date, priority, cleanText } = parseOmnibarInput(input);
-    if (!cleanText.trim()) return;
+
+    // If no task text was typed but a list tag shortcut was specified (e.g. /rg, /wt, /lt, /td),
+    // switch active tab to that list!
+    if (!cleanText.trim()) {
+      if (list?.key) {
+        switchTab(list.key);
+        setInput("");
+        setMenuOpen(false);
+      }
+      return;
+    }
 
     const targetList = list?.key || activeTab;
     const days = date?.days;
@@ -442,7 +452,7 @@ export default function App() {
     addTask(cleanText, targetList, p, days);
     setInput("");
     setMenuOpen(false);
-  }, [input, activeTab, addTask]);
+  }, [input, activeTab, addTask, switchTab]);
 
   // Filter tasks & counts
   const visibleTasks = useMemo(() => {

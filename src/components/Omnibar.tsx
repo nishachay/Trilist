@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CornerDownLeft, Flag } from "lucide-react";
 import type { Cmd, ExtractedInfo } from "@/types";
@@ -41,6 +41,38 @@ export const Omnibar: React.FC<OmnibarProps> = ({
   setSelIdx,
   applyCommand,
 }) => {
+  // Compute display value inside input element by hiding raw tag tokens when pills are active
+  const displayValue = useMemo(() => {
+    const words = input.split(" ");
+    const rawTags = new Set(
+      [extractedList?.raw, extractedDate?.raw, extractedPriority?.raw]
+        .filter(Boolean)
+        .map(r => r!.toLowerCase())
+    );
+    if (rawTags.size === 0) return input;
+    return words.filter(w => !rawTags.has(w.toLowerCase())).join(" ");
+  }, [input, extractedList, extractedDate, extractedPriority]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = e.target.value;
+    const rawTagTokens = [extractedList?.raw, extractedDate?.raw, extractedPriority?.raw]
+      .filter(Boolean);
+
+    if (rawTagTokens.length > 0) {
+      setInput(newText ? `${rawTagTokens.join(" ")} ${newText}` : `${rawTagTokens.join(" ")}`);
+    } else {
+      setInput(newText);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && displayValue === "") {
+      if (extractedPriority) clearTag("priority");
+      else if (extractedDate) clearTag("date");
+      else if (extractedList) clearTag("list");
+    }
+  };
+
   return (
     <div className="omnibar-wrap">
       <form onSubmit={handleSubmit} className="omnibar">
@@ -73,12 +105,13 @@ export const Omnibar: React.FC<OmnibarProps> = ({
         <input
           ref={inputRef}
           className="omnibar-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          value={displayValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
         />
 
-        <button type="submit" className="enter-btn" title="Add item (Enter)">
+        <button type="submit" className="enter-btn" title="Add item or switch list (Enter)">
           <CornerDownLeft size={13} />
         </button>
       </form>
