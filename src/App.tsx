@@ -543,7 +543,7 @@ export default function App() {
             <AnimatePresence initial={false}>
               {visibleTasks.map((task, index) => {
                 const isEditing = editingId === task.id;
-                const isNearBottom = index >= visibleTasks.length - 3;
+                const isNearBottom = index >= visibleTasks.length - 2 && index >= 2;
                 return (
                   <TaskRow
                     key={task.id}
