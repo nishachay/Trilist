@@ -7,12 +7,12 @@ import "@fontsource/newsreader";
 import './styles/index.css'
 import App from './App.tsx'
 
-// Unregister any legacy Service Worker from old app versions
+// Register the offline service worker (same-origin only, so previews stay clean).
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    for (const registration of registrations) {
-      registration.unregister();
-    }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Offline support is best-effort; the app works fine without it.
+    });
   });
 }
 
