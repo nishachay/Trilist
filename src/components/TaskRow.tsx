@@ -22,6 +22,9 @@ interface TaskRowProps {
   resolveTask: (id: string) => void;
   setTaskPriority: (taskId: string, p?: PriorityLevel) => void;
   moveTask: (taskId: string, list: ListKey) => void;
+  togglePin: (taskId: string) => void;
+  nowMs: number;
+  watchAge?: string;
   actionMenuTaskId: string | null;
   toggleActionMenu: (taskId: string) => void;
   setActionMenuTaskId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -63,6 +66,8 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   resolveTask,
   setTaskPriority,
   moveTask,
+  togglePin,
+  watchAge,
   actionMenuTaskId,
   toggleActionMenu,
   setActionMenuTaskId,
@@ -115,6 +120,9 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       {!isEditing && (
         <div className="row-meta">
           <div className="row-context-wrap">
+            {activeTab === "watch" && watchAge && (
+              <span className="watch-age" title="Time since added">{watchAge}</span>
+            )}
             {activeTab === "watch" && !task.resolving && (
               <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
                 Resolved
@@ -140,6 +148,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                   isNearBottom={isNearBottom}
                   setTaskPriority={setTaskPriority}
                   moveTask={moveTask}
+                  togglePin={togglePin}
                   startEditing={startEditing}
                   deleteTask={deleteTask}
                   closePopover={() => setActionMenuTaskId(null)}

@@ -12,7 +12,9 @@ interface OmnibarProps {
   extractedList: ExtractedInfo["list"];
   extractedDate: ExtractedInfo["date"];
   extractedPriority: ExtractedInfo["priority"];
-  clearTag: (type: "list" | "date" | "priority") => void;
+  extractedPin: ExtractedInfo["pin"];
+  extractedDid: ExtractedInfo["did"];
+  clearTag: (type: "list" | "date" | "priority" | "action") => void;
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
   visibleCmds: Cmd[];
@@ -32,6 +34,8 @@ export const Omnibar: React.FC<OmnibarProps> = ({
   extractedList,
   extractedDate,
   extractedPriority,
+  extractedPin,
+  extractedDid,
   clearTag,
   menuOpen,
   visibleCmds,
@@ -41,21 +45,20 @@ export const Omnibar: React.FC<OmnibarProps> = ({
   setSelIdx,
   applyCommand,
 }) => {
-  // Compute display value inside input element by hiding raw tag tokens when pills are active
   const displayValue = useMemo(() => {
     const words = input.split(" ");
     const rawTags = new Set(
-      [extractedList?.raw, extractedDate?.raw, extractedPriority?.raw]
+      [extractedList?.raw, extractedDate?.raw, extractedPriority?.raw, extractedPin?.raw, extractedDid?.raw]
         .filter(Boolean)
         .map(r => r!.toLowerCase())
     );
     if (rawTags.size === 0) return input;
     return words.filter(w => !rawTags.has(w.toLowerCase())).join(" ");
-  }, [input, extractedList, extractedDate, extractedPriority]);
+  }, [input, extractedList, extractedDate, extractedPriority, extractedPin, extractedDid]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value;
-    const rawTagTokens = [extractedList?.raw, extractedDate?.raw, extractedPriority?.raw]
+    const rawTagTokens = [extractedList?.raw, extractedDate?.raw, extractedPriority?.raw, extractedPin?.raw, extractedDid?.raw]
       .filter(Boolean);
 
     if (rawTagTokens.length > 0) {
@@ -70,6 +73,7 @@ export const Omnibar: React.FC<OmnibarProps> = ({
       if (extractedPriority) clearTag("priority");
       else if (extractedDate) clearTag("date");
       else if (extractedList) clearTag("list");
+      else if (extractedPin || extractedDid) clearTag("action");
     }
   };
 
@@ -99,6 +103,20 @@ export const Omnibar: React.FC<OmnibarProps> = ({
             />
             <span>{extractedPriority.label}</span>
             <button type="button" className="pill-x" onClick={() => clearTag("priority")}>×</button>
+          </span>
+        )}
+
+        {extractedPin && (
+          <span className="pill">
+            <span>Pinned to Focus</span>
+            <button type="button" className="pill-x" onClick={() => clearTag("action")}>×</button>
+          </span>
+        )}
+
+        {extractedDid && (
+          <span className="pill">
+            <span>Log to Done today</span>
+            <button type="button" className="pill-x" onClick={() => clearTag("action")}>×</button>
           </span>
         )}
 
@@ -153,7 +171,6 @@ export const Omnibar: React.FC<OmnibarProps> = ({
                     className="cmd-item"
                     data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
                     data-disabled={disabledSet.has(cmd.cmd)}
-                    title={disabledSet.has(cmd.cmd) ? "Available for /watch and /later" : undefined}
                     onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
                     onClick={() => applyCommand(cmd)}
                   >
@@ -182,6 +199,23 @@ export const Omnibar: React.FC<OmnibarProps> = ({
                       />
                       <span className="cmd-label">{cmd.desc}</span>
                     </span>
+                    <span className="cmd-alias">{cmd.alias}</span>
+                  </div>
+                ))}
+              </>
+            )}
+            {visibleCmds.some(c => c.type === "action") && (
+              <>
+                <div className="cmd-section">Actions</div>
+                {visibleCmds.filter(c => c.type === "action").map(cmd => (
+                  <div
+                    key={cmd.cmd}
+                    className="cmd-item"
+                    data-selected={enabledCmds[selIdx]?.cmd === cmd.cmd}
+                    onMouseEnter={() => { const i = enabledCmds.indexOf(cmd); if (i !== -1) setSelIdx(i); }}
+                    onClick={() => applyCommand(cmd)}
+                  >
+                    <span className="cmd-label">{cmd.desc}</span>
                     <span className="cmd-alias">{cmd.alias}</span>
                   </div>
                 ))}

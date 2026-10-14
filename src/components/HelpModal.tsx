@@ -15,6 +15,7 @@ interface HelpModalProps {
   priorityCmds: Cmd[];
   listCmds: Cmd[];
   dateCmds: Cmd[];
+  actionCmds: Cmd[];
   handleExportData: () => void;
   handleImportData: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -31,6 +32,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({
   priorityCmds,
   listCmds,
   dateCmds,
+  actionCmds,
   handleExportData,
   handleImportData,
 }) => {
@@ -102,7 +104,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({
               { keys: ["0..3"],        desc: "Switch active tab (0=Rough, 1=Todo…)" },
               { keys: ["j", "k"],      desc: "Navigate task rows up / down" },
               { keys: ["Space"],       desc: "Toggle completion / resolve task" },
-              { keys: ["p"],           desc: "Cycle priority (P1 / P2 / P3 / Clear)" },
+              { keys: ["p"],           desc: "Pin row to Focus (holds 5)" },
               { keys: ["x"],           desc: "Delete selected task" },
               { keys: ["•••"],         desc: "Open row context menu (Priority, Move, Edit, Delete)" },
               { keys: ["/"],           desc: "Focus omnibar" },
@@ -147,7 +149,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({
           </div>
 
           <div className="help-block">
-            <p className="help-section-label">When tags (available for /watch and /later)</p>
+            <p className="help-section-label">When tags</p>
             <div className="help-rule" />
             {dateCmds.map(c => (
               <div key={c.cmd} className="help-row">
@@ -157,6 +159,21 @@ export const HelpModal: React.FC<HelpModalProps> = ({
                   <span className="key">{c.cmd}</span>
                 </div>
                 <span className="help-desc">{c.desc}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="help-block">
+            <p className="help-section-label">Action tags</p>
+            <div className="help-rule" />
+            {actionCmds.map(c => (
+              <div key={c.cmd} className="help-row">
+                <div className="help-keys">
+                  <span className="key">{c.alias}</span>
+                </div>
+                <span className="help-desc">
+                  {c.desc}{c.action === "did" ? " — e.g. /did shipped the release" : " — up to 5 in Focus"}
+                </span>
               </div>
             ))}
           </div>

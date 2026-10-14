@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Flag, X, Pencil, Trash2 } from "lucide-react";
+import { Flag, X, Pencil, Trash2, Pin } from "lucide-react";
 import type { Task, ListKey, PriorityLevel } from "@/types";
 
 interface ContextPopoverProps {
@@ -8,6 +8,7 @@ interface ContextPopoverProps {
   isNearBottom: boolean;
   setTaskPriority: (taskId: string, p?: PriorityLevel) => void;
   moveTask: (taskId: string, list: ListKey) => void;
+  togglePin: (taskId: string) => void;
   startEditing: (task: Task) => void;
   deleteTask: (taskId: string) => void;
   closePopover: () => void;
@@ -18,6 +19,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   isNearBottom,
   setTaskPriority,
   moveTask,
+  togglePin,
   startEditing,
   deleteTask,
   closePopover,
@@ -127,6 +129,20 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
 
       <div className="context-popover-section">ACTIONS</div>
       <div className="context-action-row">
+        {task.list === "todo" && !task.done && (
+          <button
+            className="context-popover-item"
+            data-active={!!task.pinned}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePin(task.id);
+              closePopover();
+            }}
+          >
+            <Pin size={13} />
+            <span>{task.pinned ? "Unpin" : "Pin"}</span>
+          </button>
+        )}
         <button
           className="context-popover-item"
           onClick={(e) => {

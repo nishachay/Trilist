@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { Task, ListKey, PriorityLevel } from "@/types";
+import type { Task, ListKey } from "@/types";
 
 interface KeyboardShortcutsParams {
   showHelp: boolean;
@@ -14,8 +14,7 @@ interface KeyboardShortcutsParams {
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
   resolveTask: (id: string) => void;
-  cycleTaskPriority: (id: string) => void;
-  setTaskPriority: (id: string, p?: PriorityLevel) => void;
+  togglePin: (id: string) => void;
   setActionMenuTaskId: React.Dispatch<React.SetStateAction<string | null>>;
   setPriorityPopoverTaskId: React.Dispatch<React.SetStateAction<string | null>>;
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -35,7 +34,7 @@ export const useKeyboardShortcuts = ({
   toggleTask,
   deleteTask,
   resolveTask,
-  cycleTaskPriority,
+  togglePin,
   setActionMenuTaskId,
   setPriorityPopoverTaskId,
   inputRef,
@@ -110,7 +109,7 @@ export const useKeyboardShortcuts = ({
         if (e.key === "p" && focusedIdx !== null && visibleTasks[focusedIdx]) {
           e.preventDefault();
           const target = visibleTasks[focusedIdx];
-          cycleTaskPriority(target.id);
+          togglePin(target.id);
           return;
         }
       }
@@ -131,7 +130,7 @@ export const useKeyboardShortcuts = ({
     toggleTask,
     deleteTask,
     resolveTask,
-    cycleTaskPriority,
+    togglePin,
     setActionMenuTaskId,
     setPriorityPopoverTaskId,
     inputRef,
