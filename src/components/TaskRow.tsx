@@ -1,15 +1,14 @@
-import React from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { MoreHorizontal } from "lucide-react";
+import React, { useRef } from "react";
+import { AnimatePresence } from "motion/react";
+import { Check, Ellipsis } from "lucide-react";
 import type { Task, ListKey, PriorityLevel } from "@/types";
-import { ContextPopover } from "./ContextPopover";
-import { PriorityPopover } from "./PriorityPopover";
+import { TaskMenu, PriorityMenu } from "./TaskMenu";
 
 interface TaskRowProps {
   task: Task;
   index: number;
   activeTab: ListKey;
-  focusedIdx: number | null;
+  focused: boolean;
   setFocusedIdx: (idx: number) => void;
   isEditing: boolean;
   editInput: string;
@@ -23,40 +22,22 @@ interface TaskRowProps {
   setTaskPriority: (taskId: string, p?: PriorityLevel) => void;
   moveTask: (taskId: string, list: ListKey) => void;
   togglePin: (taskId: string) => void;
-  nowMs: number;
   watchAge?: string;
-  actionMenuTaskId: string | null;
+  menuOpen: boolean;
   toggleActionMenu: (taskId: string) => void;
-  setActionMenuTaskId: React.Dispatch<React.SetStateAction<string | null>>;
-  priorityPopoverTaskId: string | null;
+  closeActionMenu: () => void;
+  priorityOpen: boolean;
   togglePriorityPopover: (taskId: string) => void;
-  setPriorityPopoverTaskId: React.Dispatch<React.SetStateAction<string | null>>;
-  isNearBottom: boolean;
+  closePriorityPopover: () => void;
 }
 
-const Checkbox: React.FC<{ done: boolean; onToggle: () => void }> = ({ done, onToggle }) => (
-  <button
-    className="cb"
-    data-done={done}
-    role="checkbox"
-    aria-checked={done}
-    aria-label={done ? "Mark incomplete" : "Mark complete"}
-    onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    title={done ? "Mark incomplete" : "Mark complete"}
-  >
-    {done && (
-      <svg viewBox="0 0 12 10" width="10" height="8" fill="none">
-        <path d="M1 5l3.5 3.5L11 1" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )}
-  </button>
-);
+const PRIORITY_NAME: Record<PriorityLevel, string> = { 1: "high", 2: "medium", 3: "low" };
 
 export const TaskRow: React.FC<TaskRowProps> = ({
   task,
   index,
   activeTab,
-  focusedIdx,
+  focused,
   setFocusedIdx,
   isEditing,
   editInput,
@@ -71,122 +52,150 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   moveTask,
   togglePin,
   watchAge,
-  actionMenuTaskId,
+  menuOpen,
   toggleActionMenu,
-  setActionMenuTaskId,
-  priorityPopoverTaskId,
+  closeActionMenu,
+  priorityOpen,
   togglePriorityPopover,
-  setPriorityPopoverTaskId,
-  isNearBottom,
+  closePriorityPopover,
 }) => {
+  const menuBtn = useRef<HTMLButtonElement>(null);
+  const prioBtn = useRef<HTMLButtonElement>(null);
+  const textId = `task-${task.id}`;
+
+  const lead = (() => {
+    if (activeTab === "rough") {
+      return <span className="lead-dot" aria-hidden="true" />;
+    }
+    if (activeTab === "watch") {
+      return (
+        <button
+          type="button"
+          className="check check-round"
+          aria-label="Resolve"
+          aria-describedby={textId}
+          disabled={task.resolving}
+          onClick={e => { e.stopPropagation(); resolveTask(task.id); }}
+        >
+          <Check size={12} strokeWidth={2.5} absoluteStrokeWidth aria-hidden="true" />
+        </button>
+      );
+    }
+    return (
+      <button
+        type="button"
+        className="check"
+        role="checkbox"
+        aria-checked={task.done}
+        aria-describedby={textId}
+        aria-label={task.done ? "Mark not done" : "Mark done"}
+        data-priority={task.priority}
+        onClick={e => { e.stopPropagation(); toggleTask(task.id); }}
+      >
+        <Check size={12} strokeWidth={2.5} absoluteStrokeWidth aria-hidden="true" />
+      </button>
+    );
+  })();
+
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -12, transition: { duration: 0.16 } }}
-      transition={{ duration: 0.18, delay: index * 0.035, ease: "easeOut" }}
-      className={`row${task.resolving ? " resolving" : ""}`}
-      data-focused={focusedIdx === index}
-      onClick={() => setFocusedIdx(index)}
+    <li
+      className="row"
+      data-focused={focused || undefined}
+      data-done={task.done || undefined}
+      data-resolving={task.resolving || undefined}
+      data-open={menuOpen || priorityOpen || undefined}
+      onClick={() => {
+        // Row selection drives the keyboard; on touch it would only leave a stuck highlight.
+        if (window.matchMedia("(hover: hover)").matches) setFocusedIdx(index);
+      }}
     >
-      {activeTab === "rough" && <div className="rough-dot" />}
-      {activeTab === "todo"  && <Checkbox done={task.done} onToggle={() => toggleTask(task.id)} />}
-      {activeTab === "watch" && <div className="watch-dot" />}
-      {activeTab === "later" && <Checkbox done={task.done} onToggle={() => toggleTask(task.id)} />}
+      <span className="row-lead">{lead}</span>
 
       {isEditing ? (
         <input
           autoFocus
-          aria-label="Edit item text"
-          className="row-edit-input"
+          aria-label="Edit item"
+          className="row-edit"
           value={editInput}
-          onChange={(e) => setEditInput(e.target.value)}
-          onKeyDown={(e) => {
+          spellCheck
+          onChange={e => setEditInput(e.target.value)}
+          onKeyDown={e => {
             if (e.key === "Enter") saveEdit();
-            if (e.key === "Escape") cancelEdit();
+            if (e.key === "Escape") { e.stopPropagation(); cancelEdit(); }
           }}
           onBlur={saveEdit}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         />
       ) : (
-        <span
-          className="row-text"
-          data-done={task.done}
-          onDoubleClick={() => startEditing(task)}
-          title="Double-click to edit"
-        >
+        <span id={textId} className="row-text" onDoubleClick={() => startEditing(task)}>
           {task.text}
         </span>
       )}
 
-      {/* Extreme Right Action Controls */}
       {!isEditing && (
-        <div className="row-meta">
-          <div className="row-context-wrap">
-            {activeTab === "watch" && watchAge && (
-              <span className="watch-age" title="Time since added">{watchAge}</span>
-            )}
-            {activeTab === "watch" && !task.resolving && (
-              <button className="resolve-btn" onClick={() => resolveTask(task.id)}>
-                Resolved
+        <span className="row-meta">
+          {task.priority && (
+            <span className="anchor">
+              <button
+                ref={prioBtn}
+                type="button"
+                className="prio"
+                data-priority={task.priority}
+                aria-haspopup="dialog"
+                aria-expanded={priorityOpen}
+                aria-label={`Priority ${task.priority}, ${PRIORITY_NAME[task.priority]}. Change priority`}
+                onClick={e => { e.stopPropagation(); togglePriorityPopover(task.id); }}
+              >
+                P{task.priority}
               </button>
-            )}
+              <AnimatePresence>
+                {priorityOpen && (
+                  <PriorityMenu
+                    anchorRef={prioBtn}
+                    current={task.priority}
+                    onPick={p => { setTaskPriority(task.id, p); closePriorityPopover(); }}
+                    onClose={closePriorityPopover}
+                  />
+                )}
+              </AnimatePresence>
+            </span>
+          )}
 
+          {watchAge && (
+            <span className="age" title={`Added ${new Date(task.createdAt).toLocaleDateString()}`}>
+              {watchAge}
+            </span>
+          )}
+
+          <span className="anchor">
             <button
-              className="row-action-btn context-trigger"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleActionMenu(task.id);
-              }}
-              title="Actions & Priority"
-              aria-label="Actions"
+              ref={menuBtn}
+              type="button"
+              className="row-more"
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              aria-label="Item actions"
+              onClick={e => { e.stopPropagation(); toggleActionMenu(task.id); }}
             >
-              <MoreHorizontal size={14} />
+              <Ellipsis size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
             </button>
-
             <AnimatePresence>
-              {actionMenuTaskId === task.id && (
-                <ContextPopover
+              {menuOpen && (
+                <TaskMenu
+                  anchorRef={menuBtn}
                   task={task}
-                  isNearBottom={isNearBottom}
+                  onClose={closeActionMenu}
                   setTaskPriority={setTaskPriority}
                   moveTask={moveTask}
                   togglePin={togglePin}
                   startEditing={startEditing}
                   deleteTask={deleteTask}
-                  closePopover={() => setActionMenuTaskId(null)}
                 />
               )}
             </AnimatePresence>
-          </div>
-
-          {/* Priority: a small dot, click to change */}
-          {task.priority && (
-            <div className="priority-pill-wrap">
-              <button
-                className="prio-dot"
-                data-priority={task.priority}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  togglePriorityPopover(task.id);
-                }}
-                title={`Priority P${task.priority} (Click to change)`}
-                aria-label={`Priority P${task.priority}, change priority`}
-              />
-              <AnimatePresence>
-                {priorityPopoverTaskId === task.id && (
-                  <PriorityPopover
-                    isNearBottom={isNearBottom}
-                    setTaskPriority={(p) => setTaskPriority(task.id, p)}
-                    closePopover={() => setPriorityPopoverTaskId(null)}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-        </div>
+          </span>
+        </span>
       )}
-    </motion.div>
+    </li>
   );
 };

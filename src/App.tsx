@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { ChevronRight } from "lucide-react";
 import { addDays } from "date-fns";
 import {
   initDB,
@@ -10,61 +11,25 @@ import {
   exportAllDataJSON,
   importDataJSON,
 } from "./lib/db";
-import type { Task, ListKey, PriorityLevel, Cmd, ExtractedInfo } from "./types";
+import type { Task, ListKey, PriorityLevel, Cmd } from "./types";
 import { ageLabel, isTodayLocal, todoSection } from "./types";
 import type { TodoSection } from "./types";
 import { Header } from "./components/Header";
 import { TaskRow } from "./components/TaskRow";
 import { Omnibar } from "./components/Omnibar";
-import { HelpModal } from "./components/HelpModal";
+import { HelpDialog } from "./components/HelpDialog";
+import { Toast, type ToastData } from "./components/Toast";
+import {
+  ACTION_CMDS,
+  ALL_CMDS,
+  DATE_CMDS,
+  LIST_CMDS,
+  LIST_LABEL,
+  PRIORITY_CMDS,
+  parseOmnibarInput,
+} from "./lib/commands";
+import { DEFAULT_ACCENT, fontStack, normalizeFont, type FontKey } from "./lib/preferences";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-
-// ─── Customization Options ──────────────────────
-const ACCENT_SWATCHES = [
-  { name: "Coral",   color: "#e8542f" },
-  { name: "Purple",  color: "#a855f7" },
-  { name: "Blue",    color: "#2997ff" },
-  { name: "Emerald", color: "#22c55e" },
-  { name: "Gold",    color: "#f59e0b" },
-];
-
-const FONT_OPTIONS = [
-  { label: "Geist (Sans)",  value: '"Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
-  { label: "Mono",          value: '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace' },
-  { label: "Inter (Tight)", value: '"Inter Tight", -apple-system, BlinkMacSystemFont, sans-serif' },
-  { label: "Newsreader",    value: '"Newsreader", Georgia, serif' },
-];
-
-// ─── Command Definitions ────────────────────────
-const LIST_CMDS: Cmd[] = [
-  { cmd: "/rough", alias: "/rg", desc: "Rough",  type: "list", target: "rough" },
-  { cmd: "/todo",  alias: "/td", desc: "Todo",   type: "list", target: "todo"  },
-  { cmd: "/watch", alias: "/wt", desc: "Watch",  type: "list", target: "watch" },
-  { cmd: "/later", alias: "/lt", desc: "Later",  type: "list", target: "later" },
-];
-
-const DATE_CMDS: Cmd[] = [
-  { cmd: "/week",     alias: "/wk", desc: "This week",  type: "date", days: 7  },
-  { cmd: "/nextweek", alias: "/nw", desc: "Next week",  type: "date", days: 14 },
-  { cmd: "/month",    alias: "/mn", desc: "This month", type: "date", days: 30 },
-];
-
-const PRIORITY_CMDS: Cmd[] = [
-  { cmd: "/p1", alias: "/high", desc: "P1 — High",   type: "priority", priority: 1 },
-  { cmd: "/p2", alias: "/med",  desc: "P2 — Medium", type: "priority", priority: 2 },
-  { cmd: "/p3", alias: "/low",  desc: "P3 — Low",    type: "priority", priority: 3 },
-];
-
-const ACTION_CMDS: Cmd[] = [
-  { cmd: "/pin", alias: "/pin", desc: "Pin to Focus",       type: "action", action: "pin" },
-  { cmd: "/did", alias: "/did", desc: "Log to Done today",  type: "action", action: "did" },
-];
-
-const SYS_CMDS: Cmd[] = [
-  { cmd: "/help", alias: "/h", desc: "Help & Shortcuts", type: "view" },
-];
-
-const ALL_CMDS: Cmd[] = [...LIST_CMDS, ...DATE_CMDS, ...PRIORITY_CMDS, ...ACTION_CMDS, ...SYS_CMDS];
 
 const FOCUS_CAP = 5;
 
@@ -82,10 +47,10 @@ function buildSeedTasks(): Omit<Task, "id" | "createdAt" | "updatedAt">[] {
   const now = new Date();
   const inDays = (n: number) => addDays(now, n).toISOString();
   return [
-    { text: "Read Andreessen's productivity essay", list: "todo", done: false, priority: 1, pinned: true },
+    { text: "Read Andreessen’s productivity essay", list: "todo", done: false, priority: 1, pinned: true },
     { text: "Sketch the Focus shelf", list: "todo", done: false },
     { text: "Shipped the v3 refresh", list: "todo", done: true, completedAt: now.toISOString() },
-    { text: "Plan next week's demo", list: "todo", done: false, scheduledDate: inDays(4) },
+    { text: "Plan next week’s demo", list: "todo", done: false, scheduledDate: inDays(4) },
     { text: "Book flights for the offsite", list: "todo", done: false, scheduledDate: inDays(10) },
     { text: "Renew domain", list: "todo", done: false, scheduledDate: inDays(30) },
     { text: "API response from vendor team", list: "watch", done: false },
@@ -95,65 +60,12 @@ function buildSeedTasks(): Omit<Task, "id" | "createdAt" | "updatedAt">[] {
   ];
 }
 
-// Empty State Info
-const EMPTY_STATES: Record<ListKey, { title: string; hint: string }> = {
-  rough: { title: "Scratchpad is empty",       hint: "Type anything below, or try /td to send it to Todo." },
-  todo:  { title: "Nothing to do",             hint: "Type a task below, or /did to log a win." },
-  watch: { title: "Nothing on your radar",     hint: "Add what you're waiting on with /wt." },
-  later: { title: "No deferred tasks",         hint: "Defer something with /lt, /nw or /mn." },
+const EMPTY_STATES: Record<ListKey, { title: string; cmd: string; hint: string }> = {
+  todo:  { title: "Nothing left for today.", cmd: "/did", hint: "logs something you already did" },
+  watch: { title: "Nothing you’re waiting on.", cmd: "/wt", hint: "sends an item here from any list" },
+  later: { title: "Nothing parked for later.", cmd: "/lt", hint: "sends an item here from any list" },
+  rough: { title: "A blank page.", cmd: "/td", hint: "turns a note into a Todo" },
 };
-
-function parseOmnibarInput(input: string): ExtractedInfo {
-  let listMatch: ExtractedInfo["list"];
-  let dateMatch: ExtractedInfo["date"];
-  let priorityMatch: ExtractedInfo["priority"];
-  let pinMatch: ExtractedInfo["pin"];
-  let didMatch: ExtractedInfo["did"];
-
-  const words = input.split(" ");
-  const cleanWords: string[] = [];
-
-  for (const w of words) {
-    const lower = w.toLowerCase();
-    const lCmd = LIST_CMDS.find(c => c.cmd === lower || c.alias === lower);
-    if (lCmd && lCmd.target && !listMatch) {
-      listMatch = { raw: w, key: lCmd.target, label: lCmd.desc };
-      continue;
-    }
-
-    const dCmd = DATE_CMDS.find(c => c.cmd === lower || c.alias === lower);
-    if (dCmd && dCmd.days && !dateMatch) {
-      dateMatch = { raw: w, label: dCmd.desc, days: dCmd.days };
-      continue;
-    }
-
-    const pCmd = PRIORITY_CMDS.find(c => c.cmd === lower || c.alias === lower);
-    if (pCmd && pCmd.priority && !priorityMatch) {
-      priorityMatch = { raw: w, level: pCmd.priority, label: pCmd.desc };
-      continue;
-    }
-
-    const aCmd = ACTION_CMDS.find(c => c.cmd === lower || c.alias === lower);
-    if (aCmd) {
-      if (aCmd.action === "pin" && !pinMatch) { pinMatch = { raw: w }; continue; }
-      if (aCmd.action === "did" && !didMatch) { didMatch = { raw: w }; continue; }
-    }
-
-    // Strip every remaining slash token so no command text ever lands in a title.
-    if (w.startsWith("/") && w.length > 1) continue;
-
-    cleanWords.push(w);
-  }
-
-  return {
-    list: listMatch,
-    date: dateMatch,
-    priority: priorityMatch,
-    pin: pinMatch,
-    did: didMatch,
-    cleanText: cleanWords.join(" "),
-  };
-}
 
 /** Section key used to order + label Todo rows. */
 function sectionOf(task: Task, now: Date): TodoSection | "focus" | "done" {
@@ -162,80 +74,77 @@ function sectionOf(task: Task, now: Date): TodoSection | "focus" | "done" {
   return todoSection(task.scheduledDate, now);
 }
 
-interface Toast {
-  id: number;
-  message: string;
-  undoLabel?: string;
-  onUndo?: () => void;
+/** Swap theme without every colour transition firing at once. */
+function withoutTransitions(fn: () => void) {
+  const style = document.createElement("style");
+  style.append(document.createTextNode("*,*::before,*::after{transition:none!important}"));
+  document.head.append(style);
+  fn();
+  void document.body.offsetHeight;
+  requestAnimationFrame(() => requestAnimationFrame(() => style.remove()));
 }
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTab, setActiveTab] = useState<ListKey>("todo");
   const [input, setInput] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuQuery, setMenuQuery] = useState("");
+  // The slash menu is derived from the input; Escape dismisses it for the current text.
+  const [menuDismissedFor, setMenuDismissedFor] = useState<string | null>(null);
   const [selIdx, setSelIdx] = useState(0);
 
-  // Focus & Selection Navigation
+  // Keyboard selection + inline editing
   const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
 
-  // Done-today expansion + clock (watch ages, midnight reset)
+  // Done-today disclosure + clock (watch ages, midnight reset)
   const [doneExpanded, setDoneExpanded] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
   // Toast with Undo
-  const [toast, setToast] = useState<Toast | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const toastTimer = useRef<number | null>(null);
 
-  // Theme & Preferences (light mode default)
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    return (localStorage.getItem("trilist_theme") as "dark" | "light") || "light";
-  });
-  const [accentColor, setAccentColor] = useState<string>(() => {
-    return localStorage.getItem("trilist_accent") || "#e8542f";
-  });
-  const [selectedFont, setSelectedFont] = useState<string>(() => {
-    return localStorage.getItem("trilist_font") || FONT_OPTIONS[0].value;
-  });
+  // Theme & preferences (light is the default)
+  const [theme, setTheme] = useState<"dark" | "light">(() =>
+    (localStorage.getItem("trilist_theme") as "dark" | "light") || "light"
+  );
+  const [accentColor, setAccentColor] = useState<string>(() =>
+    localStorage.getItem("trilist_accent") || DEFAULT_ACCENT
+  );
+  const [font, setFont] = useState<FontKey>(() => normalizeFont(localStorage.getItem("trilist_font")));
 
-  // Overlays & Popovers
+  // Overlays & popovers
   const [showHelp, setShowHelp] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [actionMenuTaskId, setActionMenuTaskId] = useState<string | null>(null);
   const [priorityPopoverTaskId, setPriorityPopoverTaskId] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // ─── Theme Sync ──────────────────────────────
-  useEffect(() => {
+  // ─── Preferences → document ──────────────────
+  useLayoutEffect(() => {
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    withoutTransitions(() => {
+      root.classList.toggle("dark", theme === "dark");
+      root.style.colorScheme = theme;
+    });
+    const bg = getComputedStyle(root).getPropertyValue("--bg-hex").trim();
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", bg || "#f9fafb"));
     localStorage.setItem("trilist_theme", theme);
   }, [theme]);
 
   useEffect(() => {
-    // Coral default lives in the stylesheet per theme; custom picks go inline.
-    if (accentColor === "#e8542f") {
-      document.documentElement.style.removeProperty("--accent");
-      document.documentElement.style.removeProperty("--accent-bg");
-    } else {
-      document.documentElement.style.setProperty("--accent", accentColor);
-      document.documentElement.style.setProperty("--accent-bg", `${accentColor}1f`);
-    }
+    // Coral lives in the stylesheet per theme; other picks override --accent inline.
+    const root = document.documentElement;
+    if (accentColor.toLowerCase() === DEFAULT_ACCENT) root.style.removeProperty("--accent");
+    else root.style.setProperty("--accent", accentColor);
     localStorage.setItem("trilist_accent", accentColor);
   }, [accentColor]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--font-sans", selectedFont);
-    localStorage.setItem("trilist_font", selectedFont);
-  }, [selectedFont]);
+    document.documentElement.style.setProperty("--font-sans", fontStack(font));
+    localStorage.setItem("trilist_font", font);
+  }, [font]);
 
   // ─── Clock: refresh ages + roll Done today at local midnight ──
   useEffect(() => {
@@ -250,12 +159,17 @@ export default function App() {
     toastTimer.current = window.setTimeout(() => setToast(null), 5000);
   }, []);
 
+  const holdToast = useCallback((hold: boolean) => {
+    if (toastTimer.current) window.clearTimeout(toastTimer.current);
+    if (!hold) toastTimer.current = window.setTimeout(() => setToast(null), 3000);
+  }, []);
+
   const dismissToast = useCallback(() => {
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
     setToast(null);
   }, []);
 
-  // ─── DB Initialization & Seed ────────────────
+  // ─── DB initialisation & seed ────────────────
   useEffect(() => {
     initDB()
       .then(() => getAllTasks())
@@ -271,20 +185,23 @@ export default function App() {
             updatedAt: nowIso,
           }));
           Promise.all(seeds.map(addTaskToDB)).then(() => setTasks(seeds));
-          setShowOnboarding(true);
         } else {
           // Migrate: stamp completion time on old done items, strip leaked
           // command tokens (e.g. "/later" left in titles by the old parser).
-          let dirty = false;
           const migrated = loaded.map(t => {
             let next = t;
-            if (next.done && (next.list === "todo") && !next.completedAt) {
+            let dirty = false;
+            if (next.done && next.list === "todo" && !next.completedAt) {
               next = { ...next, completedAt: next.updatedAt };
               dirty = true;
             }
             const stripped = parseOmnibarInput(next.text).cleanText || next.text;
             if (stripped !== next.text) {
               next = { ...next, text: stripped };
+              dirty = true;
+            }
+            if (next.resolving) {
+              next = { ...next, resolving: undefined };
               dirty = true;
             }
             if (dirty) updateTaskInDB(next).catch(console.error);
@@ -296,7 +213,6 @@ export default function App() {
       .catch(console.error);
   }, []);
 
-  // Reset focus on tab switch
   const switchTab = useCallback((tab: ListKey) => {
     setActiveTab(tab);
     setFocusedIdx(null);
@@ -310,7 +226,7 @@ export default function App() {
     [tasks]
   );
 
-  // ─── Task Actions ────────────────────────────
+  // ─── Task actions ────────────────────────────
   const addTask = useCallback((
     text: string,
     targetList?: ListKey,
@@ -321,19 +237,12 @@ export default function App() {
     if (!text.trim()) return;
     const dest = targetList || activeTab;
     const nowIso = new Date().toISOString();
-    let scheduledDate: string | undefined;
-
-    if (days) {
-      scheduledDate = addDays(new Date(), days).toISOString();
-    }
+    const scheduledDate = days ? addDays(new Date(), days).toISOString() : undefined;
 
     let pinned = false;
     if (opts?.pin && dest === "todo") {
-      if (pinnedCount < FOCUS_CAP) {
-        pinned = true;
-      } else {
-        showToast(`Focus holds ${FOCUS_CAP}`);
-      }
+      if (pinnedCount < FOCUS_CAP) pinned = true;
+      else showToast(`Focus holds ${FOCUS_CAP}. Unpin one first.`);
     }
 
     const newTask: Task = {
@@ -353,8 +262,7 @@ export default function App() {
 
     // Stay on the current tab; confirm cross-list adds with an Undo toast.
     if (dest !== activeTab) {
-      const label = dest === "todo" ? "Todo" : dest === "watch" ? "Watch" : dest === "later" ? "Later" : "Rough";
-      showToast(`Added to ${label}`, "Undo", () => {
+      showToast(`Added to ${LIST_LABEL[dest]}`, "Undo", () => {
         setTasks(prev => prev.filter(t => t.id !== newTask.id));
         deleteTaskFromDB(newTask.id).catch(console.error);
       });
@@ -397,13 +305,10 @@ export default function App() {
     );
     // Ticked Todo items sink into Done today — offer Undo.
     if (target && target.list === "todo" && !target.done) {
-      showToast("Done — moved to Done today", "Undo", () => {
-        setTasks(prev =>
-          prev.map(t => (t.id === id
-            ? { ...t, done: false, completedAt: undefined, updatedAt: new Date().toISOString() }
-            : t))
-        );
-        updateTaskInDB({ ...target, done: false, completedAt: undefined, updatedAt: new Date().toISOString() }).catch(console.error);
+      showToast("Moved to Done today", "Undo", () => {
+        const restored = { ...target, done: false, completedAt: undefined, updatedAt: new Date().toISOString() };
+        setTasks(prev => prev.map(t => (t.id === id ? restored : t)));
+        updateTaskInDB(restored).catch(console.error);
       });
     }
   }, [tasks, showToast]);
@@ -422,15 +327,20 @@ export default function App() {
   }, [tasks, showToast]);
 
   const resolveTask = useCallback((id: string) => {
-    setTasks(prev =>
-      prev.map(t => (t.id === id ? { ...t, resolving: true } : t))
-    );
-    setTimeout(() => {
+    const target = tasks.find(t => t.id === id);
+    if (!target || target.resolving) return;
+    setTasks(prev => prev.map(t => (t.id === id ? { ...t, resolving: true } : t)));
+    window.setTimeout(() => {
       setTasks(prev => prev.filter(t => t.id !== id));
       deleteTaskFromDB(id).catch(console.error);
       setFocusedIdx(prev => (prev === null ? null : Math.max(0, prev - 1)));
-    }, 450);
-  }, []);
+    }, 300);
+    showToast("Resolved", "Undo", () => {
+      const restored = { ...target, resolving: undefined };
+      setTasks(prev => [restored, ...prev.filter(t => t.id !== id)]);
+      addTaskToDB(restored).catch(console.error);
+    });
+  }, [tasks, showToast]);
 
   const moveTask = useCallback((id: string, toList: ListKey) => {
     const target = tasks.find(t => t.id === id);
@@ -443,13 +353,11 @@ export default function App() {
       })
     );
     if (target && target.list !== toList) {
-      const label = toList === "todo" ? "Todo" : toList === "watch" ? "Watch" : toList === "later" ? "Later" : "Rough";
       const from = target.list;
-      showToast(`Moved to ${label}`, "Undo", () => {
-        setTasks(prev =>
-          prev.map(t => (t.id === id ? { ...t, list: from, updatedAt: new Date().toISOString() } : t))
-        );
-        updateTaskInDB({ ...target, list: from, updatedAt: new Date().toISOString() }).catch(console.error);
+      showToast(`Moved to ${LIST_LABEL[toList]}`, "Undo", () => {
+        const restored = { ...target, list: from, updatedAt: new Date().toISOString() };
+        setTasks(prev => prev.map(t => (t.id === id ? restored : t)));
+        updateTaskInDB(restored).catch(console.error);
       });
     }
   }, [tasks, showToast]);
@@ -460,7 +368,7 @@ export default function App() {
     if (!target.pinned) {
       const count = tasks.filter(t => t.list === "todo" && t.pinned && !t.done).length;
       if (count >= FOCUS_CAP) {
-        showToast(`Focus holds ${FOCUS_CAP}`);
+        showToast(`Focus holds ${FOCUS_CAP}. Unpin one first.`);
         return;
       }
     }
@@ -506,79 +414,64 @@ export default function App() {
     setEditingId(null);
   }, [editingId, editInput]);
 
-  const cancelEdit = useCallback(() => {
-    setEditingId(null);
-  }, []);
+  const cancelEdit = useCallback(() => setEditingId(null), []);
 
-  // ─── Autocomplete ────────────────────────────
-  useEffect(() => {
-    const words = input.split(" ");
-    const last  = words[words.length - 1];
-    if (last.startsWith("/") && last.length >= 1) {
-      setMenuQuery(last.toLowerCase());
-      setMenuOpen(true);
-      setSelIdx(0);
-    } else {
-      setMenuOpen(false);
-    }
-  }, [input]);
-
+  // ─── Slash menu ──────────────────────────────
   const extracted = useMemo(() => parseOmnibarInput(input), [input]);
 
-  const { visibleCmds, enabledCmds, disabledSet } = useMemo(() => {
-    const q = menuQuery;
-    const visible = ALL_CMDS.filter(c =>
-      q === "/" || c.cmd.startsWith(q) || c.alias.startsWith(q)
-    );
-    // Date tags now work on every list, including Todo.
-    const disabled = new Set<string>();
-    const enabled = visible.filter(c => !disabled.has(c.cmd));
-    return { visibleCmds: visible, enabledCmds: enabled, disabledSet: disabled };
+  const menuQuery = useMemo(() => {
+    const last = input.split(" ").pop() ?? "";
+    // A token that is already a recognised tag is shown as a chip, not a query.
+    const { list, date, priority, pin, did } = extracted;
+    const recognised = [list?.raw, date?.raw, priority?.raw, pin?.raw, did?.raw];
+    return last.startsWith("/") && !recognised.includes(last) ? last.toLowerCase() : null;
+  }, [input, extracted]);
+
+  const menuOpen = menuQuery !== null && menuDismissedFor !== input;
+  const setMenuOpen = useCallback((open: boolean) => {
+    if (!open) setMenuDismissedFor(input);
+  }, [input]);
+
+  // Reset the highlighted command whenever the query changes.
+  const [lastQuery, setLastQuery] = useState<string | null>(null);
+  if (menuQuery !== lastQuery) {
+    setLastQuery(menuQuery);
+    setSelIdx(0);
+  }
+
+  const visibleCmds = useMemo(() => {
+    const q = menuQuery ?? "/";
+    return ALL_CMDS.filter(c => q === "/" || c.cmd.startsWith(q) || c.alias.startsWith(q));
   }, [menuQuery]);
 
   const applyCommand = useCallback((cmd: Cmd) => {
-    if (disabledSet.has(cmd.cmd)) return;
-
     if (cmd.type === "view") {
       setShowHelp(true);
       setInput("");
-      setMenuOpen(false);
       return;
     }
 
     const words = input.split(" ");
     words.pop();
-    const prefix = words.join(" ");
-
-    if (cmd.type === "list" && cmd.target) {
-      const remaining = words.filter(w => !LIST_CMDS.some(lc => lc.cmd === w.toLowerCase() || lc.alias === w.toLowerCase())).join(" ");
-      setInput(remaining ? `${remaining} ${cmd.alias} ` : `${cmd.alias} `);
-    } else if (cmd.type === "date") {
-      const remaining = words.filter(w => !DATE_CMDS.some(dc => dc.cmd === w.toLowerCase() || dc.alias === w.toLowerCase())).join(" ");
-      setInput(remaining ? `${remaining} ${cmd.alias} ` : `${cmd.alias} `);
-    } else if (cmd.type === "priority") {
-      const remaining = words.filter(w => !PRIORITY_CMDS.some(pc => pc.cmd === w.toLowerCase() || pc.alias === w.toLowerCase())).join(" ");
-      setInput(remaining ? `${remaining} ${cmd.alias} ` : `${cmd.alias} `);
-    } else if (cmd.type === "action") {
-      const remaining = words.filter(w => !ACTION_CMDS.some(ac => ac.cmd === w.toLowerCase() || ac.alias === w.toLowerCase())).join(" ");
-      setInput(remaining ? `${remaining} ${cmd.alias} ` : `${cmd.alias} `);
-    } else {
-      setInput(prefix ? `${prefix} ${cmd.alias} ` : `${cmd.alias} `);
-    }
-
-    setMenuOpen(false);
+    const family =
+      cmd.type === "list" ? LIST_CMDS
+      : cmd.type === "date" ? DATE_CMDS
+      : cmd.type === "priority" ? PRIORITY_CMDS
+      : ACTION_CMDS;
+    // One tag per family: picking a new one replaces the old.
+    const remaining = words
+      .filter(w => !family.some(c => c.cmd === w.toLowerCase() || c.alias === w.toLowerCase()))
+      .join(" ");
+    setInput(remaining ? `${remaining} ${cmd.alias} ` : `${cmd.alias} `);
     requestAnimationFrame(() => inputRef.current?.focus());
-  }, [disabledSet, input]);
+  }, [input]);
 
-  // ─── Keyboard Shortcuts Hook ────────────────
-  // Visible rows in display order (Focus → sections → Done today).
+  // ─── Rows in display order (Focus → sections → Done today) ──
   const visibleTasks = useMemo(() => {
     if (activeTab !== "todo") {
       const list = tasks.filter(t => t.list === activeTab);
       return list.sort((a, b) => (a.priority || 99) - (b.priority || 99));
     }
-    // Active Todo rows: pinned Focus first, then quiet timeframe sections.
-    // Ticked items leave this list for Done today.
     const sectionRank: Record<TodoSection | "focus" | "done", number> = {
       focus: 0, today: 1, week: 2, nextweek: 3, month: 4, done: 5,
     };
@@ -597,7 +490,6 @@ export default function App() {
     showHelp,
     setShowHelp,
     menuOpen,
-    showOnboarding,
     visibleTasks,
     focusedIdx,
     setFocusedIdx,
@@ -638,7 +530,6 @@ export default function App() {
     // /did with no text logs nothing.
     if (did && !cleanText.trim()) {
       setInput("");
-      setMenuOpen(false);
       return;
     }
 
@@ -646,31 +537,22 @@ export default function App() {
     if (did) {
       logDid(cleanText);
       setInput("");
-      setMenuOpen(false);
       return;
     }
 
-    // If no task text was typed but a list tag shortcut was specified (e.g. /rg, /wt, /lt, /td),
-    // switch active tab to that list!
+    // A bare list tag (/rg, /wt, /lt, /td) switches to that list.
     if (!cleanText.trim()) {
       if (list?.key) {
         switchTab(list.key);
         setInput("");
-        setMenuOpen(false);
       }
       return;
     }
 
-    const targetList = list?.key || activeTab;
-    const days = date?.days;
-    const p = priority?.level;
-
-    addTask(cleanText, targetList, p, days, { pin: !!pin });
+    addTask(cleanText, list?.key || activeTab, priority?.level, date?.days, { pin: !!pin });
     setInput("");
-    setMenuOpen(false);
   }, [input, activeTab, addTask, logDid, switchTab]);
 
-  // Filter counts (visibleTasks is declared above, next to the shortcuts hook)
   const doneToday = useMemo(() => (
     tasks.filter(t => t.list === "todo" && t.done && isTodayLocal(t.completedAt, now))
   ), [tasks, now]);
@@ -682,16 +564,13 @@ export default function App() {
     later: tasks.filter(t => t.list === "later").length,
   }), [tasks]);
 
-  const omnibarPlaceholder = useMemo(() => {
-    switch (activeTab) {
-      case "todo":  return "Add to Todo… try /pin, /nw, /did";
-      case "watch": return "Something you are watching…";
-      case "later": return "Something to revisit later… try /nw, /mn";
-      case "rough": return "Quick rough note… (type /td to send to todo)";
-    }
+  const placeholder = activeTab === "rough" ? "Jot something down…" : `Add to ${LIST_LABEL[activeTab]}…`;
+
+  useEffect(() => {
+    document.title = `${LIST_LABEL[activeTab]} · Trilist`;
   }, [activeTab]);
 
-  // Data Export & Import (done history stays in the DB, so exports keep it)
+  // ─── Backup ──────────────────────────────────
   const handleExportData = useCallback(() => {
     exportAllDataJSON().then(jsonStr => {
       const blob = new Blob([jsonStr], { type: "application/json" });
@@ -701,185 +580,220 @@ export default function App() {
       a.download = `trilist-backup-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("Backup exported");
     });
-  }, []);
+  }, [showToast]);
 
   const handleImportData = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = evt => {
       const content = evt.target?.result as string;
-      if (content) {
-        importDataJSON(content)
-          .then(getAllTasks)
-          .then(setTasks)
-          .then(() => alert("Data imported successfully!"))
-          .catch(err => alert(`Import failed: ${err.message}`));
-      }
+      if (!content) return;
+      // Snapshot first so an import that replaces everything can be undone.
+      exportAllDataJSON()
+        .then(snapshot =>
+          importDataJSON(content)
+            .then(getAllTasks)
+            .then(loaded => {
+              setTasks(loaded);
+              showToast(`Imported ${loaded.length} items`, "Undo", () => {
+                importDataJSON(snapshot).then(getAllTasks).then(setTasks).catch(console.error);
+              });
+            })
+        )
+        .catch(() => showToast("Unable to import. Choose a Trilist .json backup."));
     };
     reader.readAsText(file);
-  }, []);
+  }, [showToast]);
 
   const toggleActionMenu = useCallback((taskId: string) => {
     setActionMenuTaskId(prev => (prev === taskId ? null : taskId));
     setPriorityPopoverTaskId(null);
   }, []);
+  const closeActionMenu = useCallback(() => setActionMenuTaskId(null), []);
 
   const togglePriorityPopover = useCallback((taskId: string) => {
     setPriorityPopoverTaskId(prev => (prev === taskId ? null : taskId));
     setActionMenuTaskId(null);
   }, []);
+  const closePriorityPopover = useCallback(() => setPriorityPopoverTaskId(null), []);
 
-  let lastSection: string | null = null;
+  const toggleTheme = useCallback(() => setTheme(t => (t === "dark" ? "light" : "dark")), []);
+
+  // ─── Render ──────────────────────────────────
+  const showDone = activeTab === "todo" && doneToday.length > 0;
+  const isEmpty = visibleTasks.length === 0 && !showDone;
+
+  const doneToggle = (
+    <button
+      type="button"
+      className="disclosure"
+      aria-expanded={doneExpanded}
+      aria-controls="done-list"
+      onClick={() => setDoneExpanded(v => !v)}
+    >
+      <ChevronRight className="disclosure-icon" size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
+      Done today
+      <span className="count">{doneToday.length}</span>
+    </button>
+  );
+
+  // Group the flat, ordered rows into labelled sections.
+  type Group = { key: string; label?: string; rows: { task: Task; index: number }[] };
+  const groups: Group[] = [];
+  visibleTasks.forEach((task, index) => {
+    const key = activeTab === "todo" ? sectionOf(task, now) : "all";
+    let g = groups[groups.length - 1];
+    if (!g || g.key !== key) {
+      g = { key, label: activeTab === "todo" ? SECTION_LABELS[key as TodoSection | "focus" | "done"] : undefined, rows: [] };
+      groups.push(g);
+    }
+    g.rows.push({ task, index });
+  });
+  const activeGroups = groups.filter(g => g.key !== "done");
+  const doneGroup = groups.find(g => g.key === "done");
+  // A lone "Today" heading adds nothing; label sections only when there is more than one.
+  const labelSections = activeTab === "todo" && activeGroups.length > 1;
+
+  const renderRow = ({ task, index }: { task: Task; index: number }) => (
+    <TaskRow
+      key={task.id}
+      task={task}
+      index={index}
+      activeTab={activeTab}
+      focused={focusedIdx === index}
+      setFocusedIdx={setFocusedIdx}
+      isEditing={editingId === task.id}
+      editInput={editInput}
+      setEditInput={setEditInput}
+      saveEdit={saveEdit}
+      cancelEdit={cancelEdit}
+      startEditing={startEditing}
+      toggleTask={toggleTask}
+      deleteTask={deleteTask}
+      resolveTask={resolveTask}
+      setTaskPriority={setTaskPriority}
+      moveTask={moveTask}
+      togglePin={togglePin}
+      watchAge={task.list === "watch" ? ageLabel(task.createdAt, now.getTime()) : undefined}
+      menuOpen={actionMenuTaskId === task.id}
+      toggleActionMenu={toggleActionMenu}
+      closeActionMenu={closeActionMenu}
+      priorityOpen={priorityPopoverTaskId === task.id}
+      togglePriorityPopover={togglePriorityPopover}
+      closePriorityPopover={closePriorityPopover}
+    />
+  );
 
   return (
-    <div className="page">
-      <div className="window">
-        <Header
-          activeTab={activeTab}
-          switchTab={switchTab}
-          counts={counts}
-          theme={theme}
-          setTheme={setTheme}
-          setShowHelp={setShowHelp}
-        />
+    <div className="app">
+      <a className="skip-link" href="#list-panel">Skip to list</a>
+      <Header
+        activeTab={activeTab}
+        switchTab={switchTab}
+        counts={counts}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        openHelp={() => setShowHelp(true)}
+      />
 
-        <main className="content">
-          {visibleTasks.length === 0 && doneToday.length === 0 ? (
-            <motion.div
-              className="empty"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="empty-title">{EMPTY_STATES[activeTab].title}</p>
-              <p className="empty-hint">{EMPTY_STATES[activeTab].hint}</p>
-            </motion.div>
-          ) : (
-            <AnimatePresence initial={false}>
-              {visibleTasks.map((task, index) => {
-                const isEditing = editingId === task.id;
-                const isNearBottom = index >= visibleTasks.length - 2 && index >= 2;
-                const section = activeTab === "todo" ? sectionOf(task, now) : null;
-                const showLabel = section !== null && section !== lastSection;
-                lastSection = section ?? lastSection;
-                return (
-                  <React.Fragment key={task.id}>
-                    {showLabel && section && (
-                      <p className="section-label">{SECTION_LABELS[section]}</p>
-                    )}
-                    <TaskRow
-                      task={task}
-                      index={index}
-                      activeTab={activeTab}
-                      focusedIdx={focusedIdx}
-                      setFocusedIdx={setFocusedIdx}
-                      isEditing={isEditing}
-                      editInput={editInput}
-                      setEditInput={setEditInput}
-                      saveEdit={saveEdit}
-                      cancelEdit={cancelEdit}
-                      startEditing={startEditing}
-                      toggleTask={toggleTask}
-                      deleteTask={deleteTask}
-                      resolveTask={resolveTask}
-                      setTaskPriority={setTaskPriority}
-                      moveTask={moveTask}
-                      togglePin={togglePin}
-                      nowMs={now.getTime()}
-                      watchAge={task.list === "watch" ? ageLabel(task.createdAt, now.getTime()) : undefined}
-                      actionMenuTaskId={actionMenuTaskId}
-                      toggleActionMenu={toggleActionMenu}
-                      setActionMenuTaskId={setActionMenuTaskId}
-                      priorityPopoverTaskId={priorityPopoverTaskId}
-                      togglePriorityPopover={togglePriorityPopover}
-                      setPriorityPopoverTaskId={setPriorityPopoverTaskId}
-                      isNearBottom={isNearBottom}
-                    />
-                  </React.Fragment>
-                );
-              })}
-            </AnimatePresence>
-          )}
+      <main
+        id="list-panel"
+        className="list-panel"
+        role={activeTab === "rough" ? "region" : "tabpanel"}
+        aria-labelledby={activeTab === "rough" ? undefined : `tab-${activeTab}`}
+        aria-label={activeTab === "rough" ? "Rough" : undefined}
+        tabIndex={-1}
+      >
+        {activeTab === "rough" && (
+          <div className="view-intro">
+            <h1 className="view-title">Rough</h1>
+            <p className="view-sub">Scratch notes. Send one on with <code translate="no">/td</code>, <code translate="no">/wt</code> or <code translate="no">/lt</code>.</p>
+          </div>
+        )}
+        {activeTab !== "rough" && <h1 className="sr-only">{LIST_LABEL[activeTab]}</h1>}
 
-          {activeTab === "todo" && doneToday.length > 0 && (
-            <div className="done-today">
-              <button
-                type="button"
-                className="done-toggle"
-                aria-expanded={doneExpanded}
-                onClick={() => setDoneExpanded(v => !v)}
-              >
-                ✓ Done today ({doneToday.length})
-              </button>
-            </div>
-          )}
-        </main>
+        {isEmpty ? (
+          <motion.div
+            className="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <p className="empty-title">{EMPTY_STATES[activeTab].title}</p>
+            <p className="empty-hint">
+              <code translate="no">{EMPTY_STATES[activeTab].cmd}</code> {EMPTY_STATES[activeTab].hint}
+            </p>
+          </motion.div>
+        ) : (
+          <>
+            {activeGroups.map(g => (
+              <section key={g.key} className="section" aria-label={labelSections ? g.label : undefined}>
+                {labelSections && (
+                  <h2 className="section-label">
+                    {g.label}
+                    {g.key === "focus" && <span className="count">{g.rows.length}/{FOCUS_CAP}</span>}
+                  </h2>
+                )}
+                <ul className="rows">{g.rows.map(renderRow)}</ul>
+              </section>
+            ))}
 
-        <Omnibar
-          input={input}
-          setInput={setInput}
-          handleSubmit={handleSubmit}
-          inputRef={inputRef}
-          placeholder={omnibarPlaceholder}
-          extractedList={extracted.list}
-          extractedDate={extracted.date}
-          extractedPriority={extracted.priority}
-          extractedPin={extracted.pin}
-          extractedDid={extracted.did}
-          clearTag={clearTag}
-          menuOpen={menuOpen}
-          setMenuOpen={setMenuOpen}
-          visibleCmds={visibleCmds}
-          enabledCmds={enabledCmds}
-          disabledSet={disabledSet}
-          selIdx={selIdx}
-          setSelIdx={setSelIdx}
-          applyCommand={applyCommand}
-        />
+            {showDone && (
+              <section className="section section-done">
+                <h2 className="section-label section-label-control">{doneToggle}</h2>
+                <AnimatePresence initial={false}>
+                  {doneExpanded && doneGroup && (
+                    <motion.ul
+                      id="done-list"
+                      className="rows"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      {doneGroup.rows.map(renderRow)}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
+              </section>
+            )}
+          </>
+        )}
+      </main>
 
-        <AnimatePresence>
-          {toast && (
-            <motion.div
-              className="toast"
-              role="status"
-              initial={{ opacity: 0, y: 8, x: "-50%" }}
-              animate={{ opacity: 1, y: 0, x: "-50%" }}
-              exit={{ opacity: 0, y: 8, x: "-50%" }}
-              transition={{ duration: 0.18 }}
-            >
-              <span className="toast-msg">{toast.message}</span>
-              {toast.onUndo && (
-                <button
-                  type="button"
-                  className="toast-undo"
-                  onClick={() => { toast.onUndo?.(); dismissToast(); }}
-                >
-                  {toast.undoLabel ?? "Undo"}
-                </button>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <Omnibar
+        input={input}
+        setInput={setInput}
+        handleSubmit={handleSubmit}
+        inputRef={inputRef}
+        placeholder={placeholder}
+        extracted={extracted}
+        clearTag={clearTag}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        visibleCmds={visibleCmds}
+        selIdx={selIdx}
+        setSelIdx={setSelIdx}
+        applyCommand={applyCommand}
+      />
 
-        <HelpModal
-          showHelp={showHelp}
-          setShowHelp={setShowHelp}
-          accentColor={accentColor}
-          setAccentColor={setAccentColor}
-          selectedFont={selectedFont}
-          setSelectedFont={setSelectedFont}
-          accentSwatches={ACCENT_SWATCHES}
-          fontOptions={FONT_OPTIONS}
-          priorityCmds={PRIORITY_CMDS}
-          listCmds={LIST_CMDS}
-          dateCmds={DATE_CMDS}
-          actionCmds={ACTION_CMDS}
-          handleExportData={handleExportData}
-          handleImportData={handleImportData}
-        />
-      </div>
+      <Toast toast={toast} onDismiss={dismissToast} onHold={holdToast} />
+
+      <HelpDialog
+        open={showHelp}
+        onClose={() => setShowHelp(false)}
+        theme={theme}
+        setTheme={setTheme}
+        accentColor={accentColor}
+        setAccentColor={setAccentColor}
+        font={font}
+        setFont={setFont}
+        onExport={handleExportData}
+        onImport={handleImportData}
+      />
     </div>
   );
 }

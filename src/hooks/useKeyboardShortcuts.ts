@@ -5,7 +5,6 @@ interface KeyboardShortcutsParams {
   showHelp: boolean;
   setShowHelp: React.Dispatch<React.SetStateAction<boolean>>;
   menuOpen: boolean;
-  showOnboarding: boolean;
   visibleTasks: Task[];
   focusedIdx: number | null;
   setFocusedIdx: React.Dispatch<React.SetStateAction<number | null>>;
@@ -25,7 +24,6 @@ export const useKeyboardShortcuts = ({
   showHelp,
   setShowHelp,
   menuOpen,
-  showOnboarding,
   visibleTasks,
   focusedIdx,
   setFocusedIdx,
@@ -44,6 +42,7 @@ export const useKeyboardShortcuts = ({
     const onKey = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
       const isInput = activeEl?.tagName === "INPUT" || activeEl?.tagName === "TEXTAREA";
+      // Native <dialog> handles its own Escape and focus trap.
 
       if (e.key === "Escape") {
         if (showHelp) { setShowHelp(false); return; }
@@ -59,7 +58,10 @@ export const useKeyboardShortcuts = ({
         return;
       }
 
-      if (isInput || showHelp || showOnboarding) return;
+      if (isInput || showHelp) return;
+      // Let a focused button own Space and Enter.
+      if (activeEl?.tagName === "BUTTON" && (e.key === " " || e.key === "Enter")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       if (e.key === "0") { switchTab("rough"); return; }
       if (e.key === "1") { switchTab("todo");  return; }
@@ -96,7 +98,7 @@ export const useKeyboardShortcuts = ({
           }
           return;
         }
-        if ((e.key === "x" || e.key === "d") && focusedIdx !== null && visibleTasks[focusedIdx]) {
+        if ((e.key === "x" || e.key === "X" || e.key === "d") && focusedIdx !== null && visibleTasks[focusedIdx]) {
           e.preventDefault();
           const target = visibleTasks[focusedIdx];
           if (activeTab === "watch") {
@@ -106,7 +108,7 @@ export const useKeyboardShortcuts = ({
           }
           return;
         }
-        if (e.key === "p" && focusedIdx !== null && visibleTasks[focusedIdx]) {
+        if ((e.key === "p" || e.key === "P") && focusedIdx !== null && visibleTasks[focusedIdx]) {
           e.preventDefault();
           const target = visibleTasks[focusedIdx];
           togglePin(target.id);
@@ -121,8 +123,7 @@ export const useKeyboardShortcuts = ({
     showHelp,
     setShowHelp,
     menuOpen,
-    showOnboarding,
-    visibleTasks,
+      visibleTasks,
     focusedIdx,
     setFocusedIdx,
     activeTab,

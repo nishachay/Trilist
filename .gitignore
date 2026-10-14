@@ -40,3 +40,9 @@ temp-clone/
 # Internal Agent files
 .agents/
 skills-lock.json
+
+# installed agent skills (npx skills add jakubkrehel/skills)
+.agents/
+.claude/
+agent/
+skills-lock.json

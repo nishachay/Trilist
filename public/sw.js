@@ -1,5 +1,5 @@
 /* Trilist offline service worker: app-shell + runtime caching. */
-const VERSION = "trilist-v3-1";
+const VERSION = "trilist-v4-1";
 const CORE = [
   "/",
   "/index.html",
