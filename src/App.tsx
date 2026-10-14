@@ -78,15 +78,22 @@ const SECTION_LABELS: Record<TodoSection | "focus" | "done", string> = {
 };
 
 // ─── Initial Seed Tasks ──────────────────────────
-const SEED_TASKS: Omit<Task, "id" | "createdAt" | "updatedAt">[] = [
-  { text: "Read Andreessen's productivity essay", list: "todo",  done: false, priority: 1 },
-  { text: "Set up project repo & dependencies",  list: "todo",  done: true  },
-  { text: "Design 3x5 index card theme",          list: "todo",  done: false, priority: 2 },
-  { text: "API response from vendor team",         list: "watch", done: false },
-  { text: "Design review feedback",               list: "watch", done: false, priority: 3 },
-  { text: "Explore IndexedDB backup options",     list: "later", done: false },
-  { text: "Draft initial component hierarchy",    list: "rough", done: false },
-];
+function buildSeedTasks(): Omit<Task, "id" | "createdAt" | "updatedAt">[] {
+  const now = new Date();
+  const inDays = (n: number) => addDays(now, n).toISOString();
+  return [
+    { text: "Read Andreessen's productivity essay", list: "todo", done: false, priority: 1, pinned: true },
+    { text: "Sketch the Focus shelf", list: "todo", done: false },
+    { text: "Shipped the v3 refresh", list: "todo", done: true, completedAt: now.toISOString() },
+    { text: "Plan next week's demo", list: "todo", done: false, scheduledDate: inDays(4) },
+    { text: "Book flights for the offsite", list: "todo", done: false, scheduledDate: inDays(10) },
+    { text: "Renew domain", list: "todo", done: false, scheduledDate: inDays(30) },
+    { text: "API response from vendor team", list: "watch", done: false },
+    { text: "Design review feedback", list: "watch", done: false, priority: 3 },
+    { text: "Explore IndexedDB backup options", list: "later", done: false },
+    { text: "Draft initial component hierarchy", list: "rough", done: false },
+  ];
+}
 
 // Empty State Info
 const EMPTY_STATES: Record<ListKey, { title: string; hint: string }> = {
@@ -255,10 +262,12 @@ export default function App() {
       .then(loaded => {
         if (loaded.length === 0) {
           const nowIso = new Date().toISOString();
-          const seeds: Task[] = SEED_TASKS.map((s, i) => ({
+          const sixDaysAgo = new Date(Date.now() - 6 * 86_400_000).toISOString();
+          const seeds: Task[] = buildSeedTasks().map((s, i) => ({
             ...s,
             id: `seed-${i + 1}`,
-            createdAt: nowIso,
+            // One watch item arrives aged so the Watch age reads honestly.
+            createdAt: s.text.startsWith("API response") ? sixDaysAgo : nowIso,
             updatedAt: nowIso,
           }));
           Promise.all(seeds.map(addTaskToDB)).then(() => setTasks(seeds));
@@ -833,7 +842,6 @@ export default function App() {
         <AnimatePresence>
           {toast && (
             <motion.div
-              key={toast.id}
               className="toast"
               role="status"
               initial={{ opacity: 0, y: 8, x: "-50%" }}

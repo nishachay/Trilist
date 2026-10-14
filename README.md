@@ -49,7 +49,7 @@ Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pm
 | Endless task backlogs that grow forever | Focused daily priorities |
 | Cluttered dropdown menus | Fast inline tag routing (`/td`, `/wt`, `/lt`, `/p1`) |
 | Mandatory sign-ups and cloud syncing | Instant offline IndexedDB with 100% local storage |
-| Messy action buttons | Clean 3-dots context menu and right-aligned priority badges |
+| Messy action buttons | Clean 3-dots context menu and quiet priority dots |
 
 ---
 
@@ -70,11 +70,16 @@ Trilist structures your work into three core lists:
 ## Features
 
 - **Inline tag routing**: Route tasks while typing by adding `/td`, `/wt`, `/lt`, or `/rg` anywhere in the input bar.
-- **Priority flags**: Set priority with `/p1` (High Red), `/p2` (Medium Amber), or `/p3` (Low Blue). Priority badges align along the right margin.
-- **Relative scheduling**: Combine `/lt` or `/wt` with `/wk` (1 week) or `/mn` (1 month) to defer tasks to future dates.
-- **Context menu (`...`)**: Right-aligned 3-dots menu for priority shifts, list moves, editing, and deletion.
-- **Themes & typography**: Light and dark themes, 5 accent colors, and 4 fonts (Geist, JetBrains Mono, Inter Tight, and Newsreader).
+- **Todo timeframes**: Schedule with `/wk` (this week), `/nw` (next week), or `/mn` (next month). Todo groups itself into quiet Focus / Today / This week / Next week / Next month sections.
+- **Focus pins**: Pin up to 5 items with `/pin`, the `P` key, or Pin in the `...` menu. They sit at the top under Focus.
+- **Done today**: Ticked items sink into a collapsed `✓ Done today (n)` line. `/did <text>` logs a win straight into it. Resets at local midnight; history stays in exports.
+- **Watch ages**: Every Watch item shows how long it has waited (`today`, `2d`, `3w`).
+- **Undo toasts**: Adding across lists, deleting, ticking, and moving all offer 5-second Undo — and adding never yanks you off your current tab.
+- **Priority dots**: Set priority with `/p1` (Coral), `/p2` (Amber), or `/p3` (Quiet). A small dot marks the row; change it from the `...` menu.
+- **Context menu (`...`)**: Right-aligned 3-dots menu for pinning, priority, list moves, editing, and deletion. A bottom sheet on phones.
+- **Themes & typography**: Light (default) and dark paper themes, coral accent with a 5-color picker, and Geist Sans + Geist Mono (plus 2 more fonts in the picker).
 - **Offline local storage**: Data stays in your browser using IndexedDB. Includes JSON export and import backups.
+- **PWA**: Installable to the home screen with an offline service worker.
 
 ---
 
@@ -120,8 +125,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `3` | Switch to **Later** list |
 | `j` / `k` | Navigate items up / down |
 | `Space` | Toggle completion / resolve task |
-| `p` | Cycle priority (`P1` -> `P2` -> `P3` -> `Clear`) |
-| `x` or `d` | Delete selected task |
+| `p` | Pin row to Focus (holds 5) |
+| `x` or `d` | Delete selected task (Undo offered) |
 | `...` | Open row context menu |
 | `/` | Focus input bar |
 | `?` | Open Help and Preferences overlay |
@@ -144,10 +149,16 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - `/p2` or `/med`: Medium Priority (Amber)
 - `/p3` or `/low`: Low Priority (Blue)
 
-### Date tags (Available for `/watch` and `/later`)
+### Date tags (work on every list, including Todo)
 
-- `/week` or `/wk`: Defer task for 7 days
-- `/month` or `/mn`: Defer task for 30 days
+- `/week` or `/wk`: This week (7 days)
+- `/nextweek` or `/nw`: Next week (14 days)
+- `/month` or `/mn`: Next month (30 days)
+
+### Action tags
+
+- `/pin`: Pin the new item to Focus (up to 5)
+- `/did <text>`: Log something you did straight into Done today
 
 ---
 

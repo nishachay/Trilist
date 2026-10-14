@@ -38,6 +38,9 @@ const Checkbox: React.FC<{ done: boolean; onToggle: () => void }> = ({ done, onT
   <button
     className="cb"
     data-done={done}
+    role="checkbox"
+    aria-checked={done}
+    aria-label={done ? "Mark incomplete" : "Mark complete"}
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     title={done ? "Mark incomplete" : "Mark complete"}
   >
@@ -95,6 +98,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       {isEditing ? (
         <input
           autoFocus
+          aria-label="Edit item text"
           className="row-edit-input"
           value={editInput}
           onChange={(e) => setEditInput(e.target.value)}

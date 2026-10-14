@@ -71,7 +71,7 @@ export function todoSection(scheduledDate: string | undefined, now = new Date())
   const target = new Date(scheduledDate);
   if (Number.isNaN(target.getTime())) return "today";
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const diffDays = Math.round((target.getTime() - startOfToday) / 86_400_000);
+  const diffDays = Math.floor((target.getTime() - startOfToday) / 86_400_000);
   if (diffDays <= 0) return "today";
   if (diffDays <= 7) return "week";
   if (diffDays <= 14) return "nextweek";

@@ -21,8 +21,8 @@
   --text:        oklch(0.22 0.01 260);
   --text-soft:   oklch(0.45 0.01 260);
   --text-2:      oklch(0.45 0.01 260);
-  --text-faint:  oklch(0.58 0.01 260);
-  --text-3:      oklch(0.58 0.01 260);
+  --text-faint:  oklch(0.545 0.01 260);
+  --text-3:      oklch(0.545 0.01 260);
   --accent:      oklch(0.64 0.19 35);
   --accent-bg:   oklch(0.64 0.19 35 / 0.09);
   --accent-ring: oklch(0.64 0.19 35 / 0.22);
@@ -32,7 +32,7 @@
   --p1-bg:       oklch(0.64 0.19 35 / 0.10);
   --p2-color:    #b45309;
   --p2-bg:       rgba(180, 83, 9, 0.10);
-  --p3-color:    oklch(0.58 0.01 260);
+  --p3-color:    oklch(0.545 0.01 260);
   --p3-bg:       transparent;
   --ease:        cubic-bezier(0.2, 0, 0, 1);
   --shadow-sm:   0 1px 2px rgba(20, 24, 40, 0.05);
@@ -213,7 +213,6 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: var(--shadow-sm);
 }
 
 .tab-label {
@@ -973,7 +972,7 @@
   background: var(--surface-hi);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-radius: 16px;
+  border-radius: 12px;
   z-index: 50;
   overflow-y: auto;
   scrollbar-width: none;
@@ -1917,6 +1916,9 @@
 
   .enter-btn { width: 44px; height: 44px; }
 
+  /* iOS zooms inputs under 16px: hold 16px on phones */
+  .omnibar-input { font-size: 16px; }
+
   /* ... menu becomes a bottom sheet; never scrolls sideways */
   .context-popover {
     position: fixed;
@@ -1935,10 +1937,32 @@
   .toast { bottom: 96px; }
 }
 
+/* Very small phones: compress the header so tabs + controls fit 375px */
+@media (max-width: 380px) {
+  .window { padding: 0 12px; }
+  .header { gap: 2px; }
+  .brand { display: none; }
+  .header-center { flex: 1 1 auto; min-width: 0; }
+  .tabs { gap: 0; }
+  .tab { padding: 6px 8px; font-size: 13px; }
+  .tab-count { min-width: 15px; }
+  .rough-btn { padding: 4px 6px; font-size: 12px; }
+  .header-divider { display: none; }
+  .tbtn { width: 40px; height: 44px; }
+}
+
 /* Touch pointers: hover-revealed controls stay reachable */
 @media (hover: none) {
   .resolve-btn { opacity: 1; }
   .row-action-btn.context-trigger { opacity: 0.75; }
+}
+
+/* Reduced motion: cross-fade only, no slides or scales */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 

@@ -122,6 +122,7 @@ export const Omnibar: React.FC<OmnibarProps> = ({
 
         <input
           ref={inputRef}
+          aria-label="Add a task. Type slash commands like /pin, /nw, /did to route it."
           className="omnibar-input"
           value={displayValue}
           onChange={handleInputChange}
