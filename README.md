@@ -12,6 +12,19 @@ Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list
 ![Trilist Dark Mode](docs/screenshots/trilist-darkmode.png#gh-dark-mode-only)
 ![Trilist Light Mode](docs/screenshots/trilist-lightmode.png#gh-light-mode-only)
 
+<details>
+<summary>More screenshots</summary>
+
+| Slash menu | Row menu | Help |
+|---|---|---|
+| ![Slash menu](docs/screenshots/desktop-light-slash.png) | ![Row menu](docs/screenshots/desktop-light-menu.png) | ![Help](docs/screenshots/desktop-light-help.png) |
+
+| Phone, light | Phone, dark |
+|---|---|
+| ![Phone light](docs/screenshots/mobile-light-todo.png) | ![Phone dark](docs/screenshots/mobile-dark-todo.png) |
+
+</details>
+
 ---
 
 ## Table of contents
@@ -49,7 +62,7 @@ Inspired by Marc Andreessen's essay, [Guide to Personal Productivity](https://pm
 | Endless task backlogs that grow forever | Focused daily priorities |
 | Cluttered dropdown menus | Fast inline tag routing (`/td`, `/wt`, `/lt`, `/p1`) |
 | Mandatory sign-ups and cloud syncing | Instant offline IndexedDB with 100% local storage |
-| Messy action buttons | Clean 3-dots context menu and quiet priority dots |
+| Messy action buttons | One quiet `…` menu per row and small P1/P2/P3 tags |
 
 ---
 
@@ -72,12 +85,13 @@ Trilist structures your work into three core lists:
 - **Inline tag routing**: Route tasks while typing by adding `/td`, `/wt`, `/lt`, or `/rg` anywhere in the input bar.
 - **Todo timeframes**: Schedule with `/wk` (this week), `/nw` (next week), or `/mn` (next month). Todo groups itself into quiet Focus / Today / This week / Next week / Next month sections.
 - **Focus pins**: Pin up to 5 items with `/pin`, the `P` key, or Pin in the `...` menu. They sit at the top under Focus.
-- **Done today**: Ticked items sink into a collapsed `✓ Done today (n)` line. `/did <text>` logs a win straight into it. Resets at local midnight; history stays in exports.
+- **Done today**: Ticked items sink into a collapsed **Done today** disclosure. `/did <text>` logs a win straight into it. Resets at local midnight; history stays in exports.
 - **Watch ages**: Every Watch item shows how long it has waited (`today`, `2d`, `3w`).
-- **Undo toasts**: Adding across lists, deleting, ticking, and moving all offer 5-second Undo — and adding never yanks you off your current tab.
-- **Priority dots**: Set priority with `/p1` (Coral), `/p2` (Amber), or `/p3` (Quiet). A small dot marks the row; change it from the `...` menu.
-- **Context menu (`...`)**: Right-aligned 3-dots menu for pinning, priority, list moves, editing, and deletion. A bottom sheet on phones.
-- **Themes & typography**: Light (default) and dark paper themes, coral accent with a 5-color picker, and Geist Sans + Geist Mono (plus 2 more fonts in the picker).
+- **Undo toasts**: Adding across lists, deleting, ticking, resolving, moving and importing all offer 5-second Undo — and adding never yanks you off your current tab.
+- **Priority tags**: Set priority with `/p1` (coral), `/p2` (amber), or `/p3` (quiet). A small `P1` tag marks the row; click it, or use the `…` menu, to change it.
+- **Row menu (`…`)**: Appears on hover or focus (always on touch) for pinning, priority, list moves, editing and deletion. A bottom sheet on phones.
+- **Themes & typography**: Light (default) and dark themes from one token set, coral accent with a 5-colour picker, Geist Sans + Geist Mono, and a typeface picker (Geist, Inter, Serif, Mono).
+- **Slash menu**: Type `/` for a keyboard-driven command list (↑ ↓ to move, Enter or Tab to pick, Esc to close).
 - **Offline local storage**: Data stays in your browser using IndexedDB. Includes JSON export and import backups.
 - **PWA**: Installable to the home screen with an offline service worker.
 
@@ -87,7 +101,7 @@ Trilist structures your work into three core lists:
 
 - **Framework**: React 19 + TypeScript 6
 - **Build tool**: Vite 8
-- **Styling**: Vanilla CSS with design tokens
+- **Styling**: One small vanilla CSS design system (`src/styles/index.css`): OKLCH tokens, 3 surfaces, 3 text tones, radii 6/10/12, one easing
 - **Animations**: Motion (`motion/react`)
 - **Icons**: Lucide React
 - **Database**: Browser IndexedDB API
@@ -127,7 +141,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `Space` | Toggle completion / resolve task |
 | `p` | Pin row to Focus (holds 5) |
 | `x` or `d` | Delete selected task (Undo offered) |
-| `...` | Open row context menu |
+| `…` | Open the row menu |
 | `/` | Focus input bar |
 | `?` | Open Help and Preferences overlay |
 | `Esc` | Clear input or close popovers |
@@ -145,9 +159,9 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ### Priority tags
 
-- `/p1` or `/high`: High Priority (Red)
-- `/p2` or `/med`: Medium Priority (Amber)
-- `/p3` or `/low`: Low Priority (Blue)
+- `/p1` or `/high`: High priority (coral)
+- `/p2` or `/med`: Medium priority (amber)
+- `/p3` or `/low`: Low priority (quiet)
 
 ### Date tags (work on every list, including Todo)
 
@@ -197,6 +211,8 @@ Run `npm run lint` before submitting code.
 ## Credits
 
 Concept based on Marc Andreessen's 2007 essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html).
+
+Built by Nishachay — [@ni5hachay on X](https://x.com/ni5hachay) · [GitHub](https://github.com/nishachay).
 
 ---
 
