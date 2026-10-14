@@ -214,8 +214,14 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--accent", accentColor);
-    document.documentElement.style.setProperty("--accent-bg", `${accentColor}1f`);
+    // Coral default lives in the stylesheet per theme; custom picks go inline.
+    if (accentColor === "#e8542f") {
+      document.documentElement.style.removeProperty("--accent");
+      document.documentElement.style.removeProperty("--accent-bg");
+    } else {
+      document.documentElement.style.setProperty("--accent", accentColor);
+      document.documentElement.style.setProperty("--accent-bg", `${accentColor}1f`);
+    }
     localStorage.setItem("trilist_accent", accentColor);
   }, [accentColor]);
 
@@ -830,9 +836,9 @@ export default function App() {
               key={toast.id}
               className="toast"
               role="status"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 8, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, x: "-50%" }}
+              exit={{ opacity: 0, y: 8, x: "-50%" }}
               transition={{ duration: 0.18 }}
             >
               <span className="toast-msg">{toast.message}</span>

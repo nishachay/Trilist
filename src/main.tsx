@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import "@fontsource/geist-sans";
+import "@fontsource/geist-mono";
 import "@fontsource/inter-tight";
 import "@fontsource/newsreader";
 import './styles/index.css'

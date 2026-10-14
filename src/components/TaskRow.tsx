@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { MoreHorizontal, Flag } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import type { Task, ListKey, PriorityLevel } from "@/types";
 import { ContextPopover } from "./ContextPopover";
 import { PriorityPopover } from "./PriorityPopover";
@@ -157,26 +157,19 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             </AnimatePresence>
           </div>
 
-          {/* Active Priority Badge at EXTREME RIGHT EDGE */}
+          {/* Priority: a small dot, click to change */}
           {task.priority && (
             <div className="priority-pill-wrap">
               <button
-                className="priority-pill-btn"
+                className="prio-dot"
                 data-priority={task.priority}
                 onClick={(e) => {
                   e.stopPropagation();
                   togglePriorityPopover(task.id);
                 }}
                 title={`Priority P${task.priority} (Click to change)`}
-              >
-                <Flag
-                  size={12}
-                  fill={task.priority === 1 ? "var(--p1-color)" : task.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
-                  color={task.priority === 1 ? "var(--p1-color)" : task.priority === 2 ? "var(--p2-color)" : "var(--p3-color)"}
-                />
-                <span className="priority-code">P{task.priority}</span>
-              </button>
-
+                aria-label={`Priority P${task.priority}, change priority`}
+              />
               <AnimatePresence>
                 {priorityPopoverTaskId === task.id && (
                   <PriorityPopover
