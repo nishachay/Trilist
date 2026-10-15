@@ -30,6 +30,7 @@ import {
 } from "./lib/commands";
 import { DEFAULT_ACCENT, fontStack, normalizeFont, type FontKey } from "./lib/preferences";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { ICON } from "./lib/icons";
 
 const FOCUS_CAP = 5;
 
@@ -634,9 +635,9 @@ export default function App() {
       aria-controls="done-list"
       onClick={() => setDoneExpanded(v => !v)}
     >
-      <ChevronRight className="disclosure-icon" size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
       Done today
       <span className="count">{doneToday.length}</span>
+      <ChevronRight className="disclosure-icon" {...ICON} />
     </button>
   );
 

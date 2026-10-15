@@ -1,6 +1,6 @@
 # Trilist
 
-Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list system.
+A calm, keyboard-first todo app built on Marc Andreessen's 3-list system: Todo, Watch, Later.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
@@ -12,19 +12,6 @@ Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list
 ![Trilist Dark Mode](docs/screenshots/trilist-darkmode.png#gh-dark-mode-only)
 ![Trilist Light Mode](docs/screenshots/trilist-lightmode.png#gh-light-mode-only)
 
-<details>
-<summary>More screenshots</summary>
-
-| Slash menu | Row menu | Help |
-|---|---|---|
-| ![Slash menu](docs/screenshots/desktop-light-slash.png) | ![Row menu](docs/screenshots/desktop-light-menu.png) | ![Help](docs/screenshots/desktop-light-help.png) |
-
-| Phone, light | Phone, dark |
-|---|---|
-| ![Phone light](docs/screenshots/mobile-light-todo.png) | ![Phone dark](docs/screenshots/mobile-dark-todo.png) |
-
-</details>
-
 ---
 
 ## Table of contents
@@ -33,6 +20,7 @@ Minimalist, keyboard-first productivity app inspired by Marc Andreessen's 3-list
 - [Why Trilist?](#why-trilist)
 - [The 3-list system](#the-3-list-system)
 - [Features](#features)
+- [What's new in v2](#whats-new-in-v2)
 - [Tech stack](#tech-stack)
 - [Quick start](#quick-start)
 - [Keyboard shortcuts](#keyboard-shortcuts)
@@ -85,15 +73,25 @@ Trilist structures your work into three core lists:
 - **Inline tag routing**: Route tasks while typing by adding `/td`, `/wt`, `/lt`, or `/rg` anywhere in the input bar.
 - **Todo timeframes**: Schedule with `/wk` (this week), `/nw` (next week), or `/mn` (next month). Todo groups itself into quiet Focus / Today / This week / Next week / Next month sections.
 - **Focus pins**: Pin up to 5 items with `/pin`, the `P` key, or Pin in the `...` menu. They sit at the top under Focus.
-- **Done today**: Ticked items sink into a collapsed **Done today** disclosure. `/did <text>` logs a win straight into it. Resets at local midnight; history stays in exports.
+- **Done today**: Ticked items move into a collapsible **Done today** section. `/did <text>` logs a win straight into it. Resets at local midnight; history stays in exports.
 - **Watch ages**: Every Watch item shows how long it has waited (`today`, `2d`, `3w`).
-- **Undo toasts**: Adding across lists, deleting, ticking, resolving, moving and importing all offer 5-second Undo — and adding never yanks you off your current tab.
+- **Undo toasts**: Adding, deleting, ticking, resolving, moving and importing all offer a 5-second Undo, and adding to another list keeps you where you are.
 - **Priority tags**: Set priority with `/p1` (coral), `/p2` (amber), or `/p3` (quiet). A small `P1` tag marks the row; click it, or use the `…` menu, to change it.
 - **Row menu (`…`)**: Appears on hover or focus (always on touch) for pinning, priority, list moves, editing and deletion. A bottom sheet on phones.
-- **Themes & typography**: Light (default) and dark themes from one token set, coral accent with a 5-colour picker, Geist Sans + Geist Mono, and a typeface picker (Geist, Inter, Serif, Mono).
+- **Themes & typography**: Light (default) and dark themes, coral accent with a 5-colour picker, Geist Sans + Geist Mono, and a typeface picker (Geist, Inter, Serif, Mono).
 - **Slash menu**: Type `/` for a keyboard-driven command list (↑ ↓ to move, Enter or Tab to pick, Esc to close).
 - **Offline local storage**: Data stays in your browser using IndexedDB. Includes JSON export and import backups.
 - **PWA**: Installable to the home screen with an offline service worker.
+
+---
+
+## What's new in v2
+
+- **A quieter layout.** One flat, focused column for your tasks, with the header spanning the page: logo on the left, Todo · Watch · Later in the centre, Rough, Help and theme on the right.
+- **Calmer hierarchy.** Sections, Done today and menu headings share one small label style. Checkboxes stay neutral; priority lives in the small P1 / P2 tag.
+- **A cleaner input bar.** The `+` sits under the checkboxes and what you type lines up with your tasks.
+- **Refined type and icons.** Geist throughout, Geist Mono for commands, one consistent icon set.
+- **A new mark.** A redrawn Trilist logo and app icons.
 
 ---
 
@@ -101,9 +99,10 @@ Trilist structures your work into three core lists:
 
 - **Framework**: React 19 + TypeScript 6
 - **Build tool**: Vite 8
-- **Styling**: One small vanilla CSS design system (`src/styles/index.css`): OKLCH tokens, 3 surfaces, 3 text tones, radii 6/10/12, one easing
+- **Styling**: Vanilla CSS with OKLCH colour, type, spacing and radius tokens (`src/styles/index.css`)
 - **Animations**: Motion (`motion/react`)
 - **Icons**: Lucide React
+- **Fonts**: Geist Sans and Geist Mono
 - **Database**: Browser IndexedDB API
 - **Linter**: Oxlint
 
@@ -212,7 +211,7 @@ Run `npm run lint` before submitting code.
 
 Concept based on Marc Andreessen's 2007 essay, [Guide to Personal Productivity](https://pmarchive.com/guide_to_personal_productivity.html).
 
-Built by Nishachay — [@ni5hachay on X](https://x.com/ni5hachay) · [GitHub](https://github.com/nishachay).
+Built by Nishachay. [@ni5hachay on X](https://x.com/ni5hachay) · [GitHub](https://github.com/nishachay)
 
 ---
 

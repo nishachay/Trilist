@@ -3,8 +3,8 @@ import { Pencil, Pin, PinOff, Trash2 } from "lucide-react";
 import type { Task, ListKey, PriorityLevel } from "@/types";
 import { LIST_LABEL } from "@/lib/commands";
 import { Popover } from "./ui/Popover";
+import { ICON } from "@/lib/icons";
 
-const ICON = { size: 16, strokeWidth: 1.5, absoluteStrokeWidth: true, "aria-hidden": true } as const;
 
 const PRIORITIES: { value?: PriorityLevel; label: string }[] = [
   { value: 1, label: "P1" },

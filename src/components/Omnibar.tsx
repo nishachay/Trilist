@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
+  Plus,
   ArrowUp,
   CalendarDays,
   CalendarRange,
@@ -18,6 +19,7 @@ import {
 import type { Cmd, ExtractedInfo } from "@/types";
 import { CMD_GROUPS } from "@/lib/commands";
 import { Button } from "./ui/Button";
+import { GLYPH, GLYPH_LG, ICON } from "@/lib/icons";
 
 interface OmnibarProps {
   input: string;
@@ -35,7 +37,6 @@ interface OmnibarProps {
   applyCommand: (cmd: Cmd) => void;
 }
 
-const ICON = { size: 16, strokeWidth: 1.5, absoluteStrokeWidth: true, "aria-hidden": true } as const;
 
 function cmdIcon(cmd: Cmd) {
   switch (cmd.cmd) {
@@ -182,6 +183,7 @@ export const Omnibar: React.FC<OmnibarProps> = ({
         </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="omnibar" onClick={() => inputRef.current?.focus()}>
+          <Plus className="omnibar-lead" {...ICON} />
           {chips.length > 0 && (
             <span className="chips">
               {chips.map(c => (
@@ -193,7 +195,7 @@ export const Omnibar: React.FC<OmnibarProps> = ({
                     aria-label={`Remove ${c.label}`}
                     onClick={e => { e.stopPropagation(); c.clear(); }}
                   >
-                    <X size={12} strokeWidth={2} absoluteStrokeWidth aria-hidden="true" />
+                    <X {...GLYPH} />
                   </button>
                 </span>
               ))}
@@ -231,7 +233,7 @@ export const Omnibar: React.FC<OmnibarProps> = ({
             aria-label="Add item"
             title="Add (Enter)"
           >
-            <ArrowUp size={16} strokeWidth={2} absoluteStrokeWidth aria-hidden="true" />
+            <ArrowUp {...GLYPH_LG} />
           </Button>
         </form>
       </div>

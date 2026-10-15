@@ -3,6 +3,7 @@ import { AnimatePresence } from "motion/react";
 import { Check, Ellipsis } from "lucide-react";
 import type { Task, ListKey, PriorityLevel } from "@/types";
 import { TaskMenu, PriorityMenu } from "./TaskMenu";
+import { GLYPH, ICON_LG } from "@/lib/icons";
 
 interface TaskRowProps {
   task: Task;
@@ -77,7 +78,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           disabled={task.resolving}
           onClick={e => { e.stopPropagation(); resolveTask(task.id); }}
         >
-          <Check size={12} strokeWidth={2.5} absoluteStrokeWidth aria-hidden="true" />
+          <Check {...GLYPH} />
         </button>
       );
     }
@@ -92,7 +93,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         data-priority={task.priority}
         onClick={e => { e.stopPropagation(); toggleTask(task.id); }}
       >
-        <Check size={12} strokeWidth={2.5} absoluteStrokeWidth aria-hidden="true" />
+        <Check {...GLYPH} />
       </button>
     );
   })();
@@ -177,7 +178,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               aria-label="Item actions"
               onClick={e => { e.stopPropagation(); toggleActionMenu(task.id); }}
             >
-              <Ellipsis size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
+              <Ellipsis {...ICON_LG} />
             </button>
             <AnimatePresence>
               {menuOpen && (

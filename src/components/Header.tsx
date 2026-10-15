@@ -2,6 +2,7 @@ import React from "react";
 import { CircleHelp, Moon, Sun } from "lucide-react";
 import type { ListKey } from "@/types";
 import { Button } from "./ui/Button";
+import { ICON_LG } from "@/lib/icons";
 
 interface HeaderProps {
   activeTab: ListKey;
@@ -18,11 +19,21 @@ const MAIN_TABS: { id: ListKey; label: string; key: string }[] = [
   { id: "later", label: "Later", key: "3" },
 ];
 
+/**
+ * The trilist mark: three bars stepping 1 : 0.68 : 0.38, the top one in the
+ * accent. Bars are flush on the left and round on the right, with tight
+ * gaps, so it reads as one glyph rather than a menu icon. Its box is
+ * Geist's cap height (0.71em) tall, so baseline-aligned it shares the
+ * wordmark's baseline and cap line.
+ */
+const bar = (y: number, w: number) =>
+  `M0 ${y + 1}a1 1 0 0 1 1-1H${w - 2}a2 2 0 0 1 0 4H1a1 1 0 0 1-1-1z`;
+
 export const Mark: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 22 17" fill="none" aria-hidden="true">
-    <rect x="0" y="0"    width="22" height="3.5" rx="1.75" fill="var(--accent)" />
-    <rect x="0" y="6.75" width="15" height="3.5" rx="1.75" fill="currentColor" opacity="0.85" />
-    <rect x="0" y="13.5" width="9"  height="3.5" rx="1.75" fill="currentColor" opacity="0.5" />
+  <svg className={className} viewBox="0 0 17.5 14.2" fill="none" aria-hidden="true">
+    <path d={bar(0, 17.5)} fill="var(--accent)" />
+    <path d={bar(5.1, 12)} fill="currentColor" opacity="0.8" />
+    <path d={bar(10.2, 6.75)} fill="currentColor" opacity="0.42" />
   </svg>
 );
 
@@ -49,8 +60,10 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, switchTab, counts, th
         onClick={e => { e.preventDefault(); switchTab("todo"); }}
         aria-label="Trilist, go to Todo"
       >
-        <Mark className="brand-mark" />
-        <span className="brand-name" translate="no">trilist</span>
+        <span className="brand-lockup">
+          <Mark className="brand-mark" />
+          <span className="brand-name" translate="no">trilist</span>
+        </span>
       </a>
 
       <div className="tabs" role="tablist" aria-label="Lists" onKeyDown={onTabKey}>
@@ -88,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, switchTab, counts, th
           <span className="count">{counts.rough}</span>
         </button>
         <Button variant="quiet" icon onClick={openHelp} aria-label="Help and preferences" title="Help and preferences (?)">
-          <CircleHelp size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
+          <CircleHelp {...ICON_LG} />
         </Button>
         <Button
           variant="quiet"
@@ -97,9 +110,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, switchTab, counts, th
           aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
           title={theme === "dark" ? "Light theme" : "Dark theme"}
         >
-          {theme === "dark"
-            ? <Sun size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
-            : <Moon size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />}
+          {theme === "dark" ? <Sun {...ICON_LG} /> : <Moon {...ICON_LG} />}
         </Button>
       </div>
     </header>
